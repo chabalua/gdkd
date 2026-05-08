@@ -77,7 +77,7 @@
       "ho_ten": "Đinh Quốc Huy",
       "anh": "",
       "chuc_vu": "Nhân viên kinh doanh",
-      "sdt": "",
+      "sdt": "0889932782",
       "ngay_vao": "",
       "nhom_id": "nhom_1",
       "loai_nhan_su": "chinh_thuc",
@@ -122,8 +122,14 @@
           }
         }
       },
-      "noi_dung": {},
-      "kpi_tuan": {}
+      "noi_dung": {
+        "2026-04": {
+          "videos": {}
+        }
+      },
+      "kpi_tuan": {
+        "2026-04": []
+      }
     },
     {
       "id": "nv003",
