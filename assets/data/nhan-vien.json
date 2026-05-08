@@ -531,10 +531,10 @@
     },
     {
       "id": "nv009",
-      "ho_ten": "Thái Tử Vy",
+      "ho_ten": "Thái Từ Vy",
       "anh": "",
       "chuc_vu": "Nhân viên kinh doanh",
-      "sdt": "",
+      "sdt": "0984632077",
       "ngay_vao": "",
       "nhom_id": "nhom_2",
       "loai_nhan_su": "thu_viec",
@@ -585,8 +585,14 @@
           }
         }
       },
-      "noi_dung": {},
-      "kpi_tuan": {}
+      "noi_dung": {
+        "2026-04": {
+          "videos": {}
+        }
+      },
+      "kpi_tuan": {
+        "2026-04": []
+      }
     },
     {
       "id": "nv010",
