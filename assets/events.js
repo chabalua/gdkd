@@ -450,13 +450,36 @@ export function bindCommonEvents(data) {
 
   // === KPI card toggle expand/collapse ===
   document.querySelectorAll('[data-kpi-toggle]').forEach((header) => {
-    header.addEventListener('click', () => {
+    const toggleKpiCard = () => {
       const field = header.getAttribute('data-kpi-toggle');
       const card = header.closest('[data-kpi-card]');
-      const expand = document.querySelector(`[data-kpi-expand="${CSS.escape(field)}"]`);
+      const expand = card?.querySelector(`[data-kpi-expand="${CSS.escape(field)}"]`);
       if (!card || !expand) return;
-      const isExpanded = card.classList.toggle('is-expanded');
-      expand.classList.toggle('is-hidden', !isExpanded);
+
+      const shouldExpand = !card.classList.contains('is-expanded');
+      document.querySelectorAll('[data-kpi-card].is-expanded').forEach((openCard) => {
+        if (openCard === card) return;
+        openCard.classList.remove('is-expanded');
+        openCard.querySelector('[data-kpi-expand]')?.classList.add('is-hidden');
+        openCard.querySelector('[data-kpi-toggle]')?.setAttribute('aria-expanded', 'false');
+      });
+
+      card.classList.toggle('is-expanded', shouldExpand);
+      expand.classList.toggle('is-hidden', !shouldExpand);
+      header.setAttribute('aria-expanded', shouldExpand ? 'true' : 'false');
+
+      if (shouldExpand) {
+        window.setTimeout(() => {
+          card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 80);
+      }
+    };
+
+    header.addEventListener('click', toggleKpiCard);
+    header.addEventListener('keydown', (event) => {
+      if (event.key !== 'Enter' && event.key !== ' ') return;
+      event.preventDefault();
+      toggleKpiCard();
     });
   });
 }

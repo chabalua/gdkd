@@ -2159,10 +2159,27 @@ img {
   transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
 }
 
+.kpi-core-list {
+  gap: 10px;
+}
+
+.kpi-grid.kpi-core-list {
+  grid-template-columns: 1fr;
+}
+
+.kpi-core-item {
+  border-radius: 14px;
+}
+
 .kpi-card-v3:hover {
   transform: translateY(-2px);
   box-shadow: 0 6px 18px rgba(15, 33, 55, 0.08), var(--shadow);
   border-color: rgba(26, 58, 92, 0.18);
+}
+
+.kpi-core-item:hover {
+  transform: none;
+  box-shadow: var(--shadow);
 }
 
 .kpi-card-v3 .kpi-card-header {
@@ -2201,6 +2218,36 @@ img {
   text-overflow: ellipsis;
 }
 
+.kpi-core-header {
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 14px;
+}
+
+.kpi-core-main {
+  min-width: 0;
+  display: grid;
+  gap: 4px;
+}
+
+.kpi-core-note {
+  font-size: 0.74rem;
+  line-height: 1.35;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.kpi-core-metrics {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  justify-content: flex-end;
+  min-width: 0;
+}
+
 .kpi-pct-badge {
   font-size: 0.7rem;
   min-height: 22px;
@@ -2217,6 +2264,7 @@ img {
   align-items: baseline;
   gap: 4px;
   line-height: 1;
+  flex-wrap: nowrap;
 }
 
 .kpi-number-v3 {
@@ -2453,6 +2501,25 @@ img {
   background: rgba(244, 246, 249, 0.6);
 }
 
+.kpi-core-expanded-head {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.kpi-core-meta-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.kpi-core-meta-note {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
 .kpi-expanded.is-hidden {
   display: none;
 }
@@ -2465,6 +2532,22 @@ img {
 
 .nv-link:hover {
   text-decoration: underline;
+}
+
+@media (max-width: 820px) {
+  .kpi-core-header {
+    grid-template-columns: 1fr;
+    align-items: start;
+  }
+
+  .kpi-core-metrics {
+    justify-content: space-between;
+    width: 100%;
+  }
+
+  .kpi-core-note {
+    white-space: normal;
+  }
 }
 
 /* Work cards grid */
@@ -2677,6 +2760,10 @@ img {
     grid-template-columns: repeat(2, 1fr);
   }
 
+  .kpi-grid.kpi-core-list {
+    grid-template-columns: 1fr;
+  }
+
   .work-grid {
     grid-template-columns: repeat(2, 1fr);
   }
@@ -2778,6 +2865,10 @@ img {
 @media (min-width: 1024px) {
   .kpi-grid {
     grid-template-columns: repeat(4, 1fr);
+  }
+
+  .kpi-grid.kpi-core-list {
+    grid-template-columns: 1fr;
   }
 
   .work-grid {
@@ -3174,6 +3265,10 @@ img {
     gap: 10px;
   }
 
+  .kpi-grid.kpi-core-list {
+    grid-template-columns: 1fr;
+  }
+
   /* Auto rows + tự thu gọn khi trống */
   .kpi-card-v3 .kpi-card-header {
     grid-template-rows: auto;
@@ -3309,6 +3404,10 @@ img {
 /* === Cực hẹp (≤360px) === */
 @media (max-width: 360px) {
   .kpi-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .kpi-grid.kpi-core-list {
     grid-template-columns: 1fr;
   }
 

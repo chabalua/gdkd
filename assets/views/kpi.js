@@ -115,26 +115,43 @@ function renderKpiCard(fieldMeta, data, months) {
     paceText = `tb ${pace.dailyDone.toFixed(2)}/ngày`;
   }
 
+  const compactNote = [
+    paceText,
+    topNv ? `Top ${topNv.nv_ten}: ${topNv.value}` : '',
+    worstNv && worstNv !== topNv ? `Cần đẩy ${worstNv.nv_ten}: ${worstNv.pct_personal}%` : '',
+  ].filter(Boolean).join(' · ') || 'Nhấn để xem chi tiết theo nhân viên';
+
   const expandContent = field === 'hd_ton'
     ? renderKhTonRows(getKhTon(data, months), data)
     : renderNvExpandRows(segments);
 
   return [
-    `<article class="kpi-card kpi-card-v3" data-kpi-card="${escapeHtml(field)}">`,
-    `<div class="kpi-card-header" data-kpi-toggle="${escapeHtml(field)}">`,
+    `<article class="kpi-card kpi-card-v3 kpi-core-item" data-kpi-card="${escapeHtml(field)}">`,
+    `<div class="kpi-card-header kpi-core-header" data-kpi-toggle="${escapeHtml(field)}" role="button" tabindex="0" aria-expanded="false">`,
+    '<div class="kpi-core-main">',
     '<div class="kpi-row-head">',
     `<span class="kpi-icon" aria-hidden="true">${icon}</span>`,
     `<span class="kpi-label">${escapeHtml(label)}</span>`,
-    pct !== null ? `<span class="badge ${pctClass} kpi-pct-badge">${pct}%</span>` : '<span class="kpi-pct-badge-spacer"></span>',
-    '<span class="kpi-chevron" aria-hidden="true">▾</span>',
     '</div>',
+    `<div class="kpi-core-note">${escapeHtml(compactNote)}</div>`,
+    '</div>',
+    '<div class="kpi-core-metrics">',
+    pct !== null ? `<span class="badge ${pctClass} kpi-pct-badge">${pct}%</span>` : '<span class="kpi-pct-badge-spacer"></span>',
     '<div class="kpi-row-number">',
     `<span class="kpi-number-v3">${total}</span>`,
     '<span class="kpi-divider">/</span>',
     `<span class="kpi-target-v3">${mucTieu || '—'}</span>`,
     `<span class="kpi-unit-v3">${escapeHtml(unit)}</span>`,
     '</div>',
-    paceText ? `<div class="kpi-row-pace">${paceText}</div>` : '',
+    '<span class="kpi-chevron" aria-hidden="true">▾</span>',
+    '</div>',
+    '</div>',
+    `<div class="kpi-expanded is-hidden" data-kpi-expand="${escapeHtml(field)}">`,
+    '<div class="kpi-core-expanded-head">',
+    '<div class="kpi-core-meta-row">',
+    pct !== null ? `<span class="badge ${pctClass}">Đạt ${pct}% mục tiêu</span>` : '<span class="badge">Chưa có mục tiêu</span>',
+    paceText ? `<span class="kpi-core-meta-note">${paceText}</span>` : '',
+    '</div>',
     total > 0 ? `<div class="kpi-row-stack">${renderNvChipStack(segments, total)}</div>` : '',
     topNv || (worstNv && worstNv !== topNv) ? [
       '<div class="kpi-row-hints">',
@@ -143,7 +160,6 @@ function renderKpiCard(fieldMeta, data, months) {
       '</div>',
     ].join('') : '',
     '</div>',
-    `<div class="kpi-expanded is-hidden" data-kpi-expand="${escapeHtml(field)}">`,
     expandContent,
     '</div>',
     '</article>',
@@ -306,7 +322,7 @@ export default function renderKpiPage(data) {
   const kpiCards = [
     '<div class="kpi-section page-card-spacer">',
     `<div class="kpi-section-head"><h3 class="section-title">📊 KPI cốt lõi</h3>${tierLegend}</div>`,
-    '<div class="kpi-grid">',
+    '<div class="kpi-grid kpi-core-list">',
     KPI_FIELDS.map((f) => renderKpiCard(f, data, months)).join(''),
     '</div>',
     '</div>',
