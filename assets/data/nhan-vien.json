@@ -342,7 +342,7 @@
       "ho_ten": "Đỗ Văn Toàn",
       "anh": "",
       "chuc_vu": "Nhân viên kinh doanh",
-      "sdt": "",
+      "sdt": "0966992914",
       "ngay_vao": "",
       "nhom_id": "nhom_1",
       "loai_nhan_su": "thu_viec",
@@ -393,8 +393,14 @@
           }
         }
       },
-      "noi_dung": {},
-      "kpi_tuan": {}
+      "noi_dung": {
+        "2026-04": {
+          "videos": {}
+        }
+      },
+      "kpi_tuan": {
+        "2026-04": []
+      }
     },
     {
       "id": "nv007",
