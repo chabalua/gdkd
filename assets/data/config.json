@@ -1,0 +1,45 @@
+{
+  "thang_hien_tai": "2026-04",
+  "showroom": {
+    "ten": "",
+    "dia_chi": "",
+    "gdkd": "Hoàng Trọng Hiếu"
+  },
+  "muc_tieu_thang": {},
+  "nhom_kinh_doanh": [
+    {
+      "id": "nhom_1",
+      "ten": "Nhóm 1"
+    },
+    {
+      "id": "nhom_2",
+      "ten": "Nhóm 2"
+    }
+  ],
+  "lead_channels": [
+    {
+      "id": "fb_ca_nhan",
+      "label": "FB Cá nhân (QC)"
+    },
+    {
+      "id": "mkt_cty",
+      "label": "MKT Công ty phân bổ"
+    },
+    {
+      "id": "tiktok",
+      "label": "TikTok khai thác"
+    },
+    {
+      "id": "telesales",
+      "label": "Telesales"
+    },
+    {
+      "id": "sr_tiep_khach",
+      "label": "SR tiếp khách"
+    },
+    {
+      "id": "di_thi_truong",
+      "label": "Đi thị trường"
+    }
+  ]
+}

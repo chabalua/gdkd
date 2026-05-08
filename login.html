@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Đăng nhập - GĐKD App</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;600;700;800&family=Noto+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body class="auth-body" data-page="login">
+  <main class="login-shell">
+    <section class="login-card">
+      <div class="login-logo">GĐ</div>
+      <h1 class="login-title">GĐKD App</h1>
+      <p class="login-subtitle">Ứng dụng quản lý nội bộ Giám Đốc Kinh Doanh</p>
+
+      <form data-login-form class="field" style="margin-top: 32px; gap: 10px;">
+        <label class="login-label" for="token">GITHUB PERSONAL ACCESS TOKEN</label>
+        <input class="input login-input" id="token" name="token" type="password" placeholder="Nhập token..." autocomplete="off">
+        <button type="submit" class="btn btn-accent">Đăng nhập</button>
+        <p class="login-footer" data-login-status>Nhập token GitHub để truy cập ứng dụng nội bộ.</p>
+      </form>
+
+      <div class="utility-space"></div>
+      <p class="login-footer">Phiên bản nền móng 1.0</p>
+    </section>
+  </main>
+  <script type="module" src="assets/app.js"></script>
+</body>
+</html>

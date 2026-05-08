@@ -1,0 +1,316 @@
+{
+  "nhan_vien": [
+    {
+      "id": "nv001",
+      "ho_ten": "Lê Ngọc Nam",
+      "anh": "",
+      "chuc_vu": "Nhân viên kinh doanh",
+      "sdt": "",
+      "ngay_vao": "",
+      "nhom_id": "nhom_1",
+      "loai_nhan_su": "chinh_thuc",
+      "trang_thai": "dang_lam",
+      "lead_theo_thang": {
+        "2026-04": {
+          "fb_ca_nhan":    { "muc_tieu": 0, "tuan": { "1": 26 } },
+          "mkt_cty":       { "muc_tieu": 0, "tuan": { "1": 21 } },
+          "tiktok":        { "muc_tieu": 0, "tuan": { "1": 0 } },
+          "telesales":     { "muc_tieu": 0, "tuan": {} },
+          "sr_tiep_khach": { "muc_tieu": 0, "tuan": {} },
+          "di_thi_truong": { "muc_tieu": 0, "tuan": {} },
+          "luot_lai_thu":  { "muc_tieu": 0, "tuan": { "1": 5 } }
+        }
+      },
+      "noi_dung": {},
+      "kpi_tuan": {}
+    },
+    {
+      "id": "nv002",
+      "ho_ten": "Đinh Quốc Huy",
+      "anh": "",
+      "chuc_vu": "Nhân viên kinh doanh",
+      "sdt": "",
+      "ngay_vao": "",
+      "nhom_id": "nhom_1",
+      "loai_nhan_su": "chinh_thuc",
+      "trang_thai": "dang_lam",
+      "lead_theo_thang": {
+        "2026-04": {
+          "fb_ca_nhan":    { "muc_tieu": 0, "tuan": { "1": 11 } },
+          "mkt_cty":       { "muc_tieu": 0, "tuan": { "1": 14 } },
+          "tiktok":        { "muc_tieu": 0, "tuan": { "1": 2 } },
+          "telesales":     { "muc_tieu": 0, "tuan": {} },
+          "sr_tiep_khach": { "muc_tieu": 0, "tuan": {} },
+          "di_thi_truong": { "muc_tieu": 0, "tuan": {} },
+          "luot_lai_thu":  { "muc_tieu": 0, "tuan": { "1": 4 } }
+        }
+      },
+      "noi_dung": {},
+      "kpi_tuan": {}
+    },
+    {
+      "id": "nv003",
+      "ho_ten": "Nguyễn Công Danh",
+      "anh": "",
+      "chuc_vu": "Nhân viên kinh doanh",
+      "sdt": "",
+      "ngay_vao": "",
+      "nhom_id": "nhom_1",
+      "loai_nhan_su": "chinh_thuc",
+      "trang_thai": "dang_lam",
+      "lead_theo_thang": {
+        "2026-04": {
+          "fb_ca_nhan":    { "muc_tieu": 0, "tuan": { "1": 110 } },
+          "mkt_cty":       { "muc_tieu": 0, "tuan": { "1": 20 } },
+          "tiktok":        { "muc_tieu": 0, "tuan": { "1": 1 } },
+          "telesales":     { "muc_tieu": 0, "tuan": {} },
+          "sr_tiep_khach": { "muc_tieu": 0, "tuan": {} },
+          "di_thi_truong": { "muc_tieu": 0, "tuan": {} },
+          "luot_lai_thu":  { "muc_tieu": 0, "tuan": { "1": 16 } }
+        }
+      },
+      "noi_dung": {},
+      "kpi_tuan": {}
+    },
+    {
+      "id": "nv004",
+      "ho_ten": "Nguyễn Như Khánh",
+      "anh": "",
+      "chuc_vu": "Nhân viên kinh doanh",
+      "sdt": "",
+      "ngay_vao": "",
+      "nhom_id": "nhom_1",
+      "loai_nhan_su": "chinh_thuc",
+      "trang_thai": "dang_lam",
+      "lead_theo_thang": {
+        "2026-04": {
+          "fb_ca_nhan":    { "muc_tieu": 0, "tuan": { "1": 25 } },
+          "mkt_cty":       { "muc_tieu": 0, "tuan": { "1": 27 } },
+          "tiktok":        { "muc_tieu": 0, "tuan": { "1": 2 } },
+          "telesales":     { "muc_tieu": 0, "tuan": {} },
+          "sr_tiep_khach": { "muc_tieu": 0, "tuan": {} },
+          "di_thi_truong": { "muc_tieu": 0, "tuan": {} },
+          "luot_lai_thu":  { "muc_tieu": 0, "tuan": { "1": 3 } }
+        }
+      },
+      "noi_dung": {},
+      "kpi_tuan": {}
+    },
+    {
+      "id": "nv005",
+      "ho_ten": "Lương Khánh Ngân",
+      "anh": "",
+      "chuc_vu": "Nhân viên kinh doanh",
+      "sdt": "",
+      "ngay_vao": "",
+      "nhom_id": "nhom_1",
+      "loai_nhan_su": "hoc_viec",
+      "trang_thai": "dang_lam",
+      "lead_theo_thang": {
+        "2026-04": {
+          "fb_ca_nhan":    { "muc_tieu": 0, "tuan": { "1": 0 } },
+          "mkt_cty":       { "muc_tieu": 0, "tuan": { "1": 0 } },
+          "tiktok":        { "muc_tieu": 0, "tuan": { "1": 0 } },
+          "telesales":     { "muc_tieu": 0, "tuan": {} },
+          "sr_tiep_khach": { "muc_tieu": 0, "tuan": {} },
+          "di_thi_truong": { "muc_tieu": 0, "tuan": {} },
+          "luot_lai_thu":  { "muc_tieu": 0, "tuan": { "1": 0 } }
+        }
+      },
+      "noi_dung": {},
+      "kpi_tuan": {}
+    },
+    {
+      "id": "nv006",
+      "ho_ten": "Đỗ Văn Toàn",
+      "anh": "",
+      "chuc_vu": "Nhân viên kinh doanh",
+      "sdt": "",
+      "ngay_vao": "",
+      "nhom_id": "nhom_1",
+      "loai_nhan_su": "thu_viec",
+      "trang_thai": "dang_lam",
+      "lead_theo_thang": {
+        "2026-04": {
+          "fb_ca_nhan":    { "muc_tieu": 0, "tuan": { "1": 7 } },
+          "mkt_cty":       { "muc_tieu": 0, "tuan": { "1": 4 } },
+          "tiktok":        { "muc_tieu": 0, "tuan": { "1": 1 } },
+          "telesales":     { "muc_tieu": 0, "tuan": {} },
+          "sr_tiep_khach": { "muc_tieu": 0, "tuan": {} },
+          "di_thi_truong": { "muc_tieu": 0, "tuan": {} },
+          "luot_lai_thu":  { "muc_tieu": 0, "tuan": { "1": 35 } }
+        }
+      },
+      "noi_dung": {},
+      "kpi_tuan": {}
+    },
+    {
+      "id": "nv007",
+      "ho_ten": "Mai Quốc Huy",
+      "anh": "",
+      "chuc_vu": "Nhân viên kinh doanh",
+      "sdt": "",
+      "ngay_vao": "",
+      "nhom_id": "nhom_2",
+      "loai_nhan_su": "chinh_thuc",
+      "trang_thai": "dang_lam",
+      "lead_theo_thang": {
+        "2026-04": {
+          "fb_ca_nhan":    { "muc_tieu": 0, "tuan": { "1": 81 } },
+          "mkt_cty":       { "muc_tieu": 0, "tuan": { "1": 11 } },
+          "tiktok":        { "muc_tieu": 0, "tuan": { "1": 2 } },
+          "telesales":     { "muc_tieu": 0, "tuan": {} },
+          "sr_tiep_khach": { "muc_tieu": 0, "tuan": {} },
+          "di_thi_truong": { "muc_tieu": 0, "tuan": {} },
+          "luot_lai_thu":  { "muc_tieu": 0, "tuan": { "1": 2 } }
+        }
+      },
+      "noi_dung": {},
+      "kpi_tuan": {}
+    },
+    {
+      "id": "nv008",
+      "ho_ten": "Đinh Ngọc Huân",
+      "anh": "",
+      "chuc_vu": "Nhân viên kinh doanh",
+      "sdt": "",
+      "ngay_vao": "",
+      "nhom_id": "nhom_2",
+      "loai_nhan_su": "thu_viec",
+      "trang_thai": "dang_lam",
+      "lead_theo_thang": {
+        "2026-04": {
+          "fb_ca_nhan":    { "muc_tieu": 0, "tuan": { "1": 2 } },
+          "mkt_cty":       { "muc_tieu": 0, "tuan": { "1": 0 } },
+          "tiktok":        { "muc_tieu": 0, "tuan": { "1": 0 } },
+          "telesales":     { "muc_tieu": 0, "tuan": {} },
+          "sr_tiep_khach": { "muc_tieu": 0, "tuan": {} },
+          "di_thi_truong": { "muc_tieu": 0, "tuan": {} },
+          "luot_lai_thu":  { "muc_tieu": 0, "tuan": { "1": 0 } }
+        }
+      },
+      "noi_dung": {},
+      "kpi_tuan": {}
+    },
+    {
+      "id": "nv009",
+      "ho_ten": "Thái Tử Vy",
+      "anh": "",
+      "chuc_vu": "Nhân viên kinh doanh",
+      "sdt": "",
+      "ngay_vao": "",
+      "nhom_id": "nhom_2",
+      "loai_nhan_su": "thu_viec",
+      "trang_thai": "dang_lam",
+      "lead_theo_thang": {
+        "2026-04": {
+          "fb_ca_nhan":    { "muc_tieu": 0, "tuan": { "1": 152 } },
+          "mkt_cty":       { "muc_tieu": 0, "tuan": { "1": 0 } },
+          "tiktok":        { "muc_tieu": 0, "tuan": { "1": 0 } },
+          "telesales":     { "muc_tieu": 0, "tuan": {} },
+          "sr_tiep_khach": { "muc_tieu": 0, "tuan": {} },
+          "di_thi_truong": { "muc_tieu": 0, "tuan": {} },
+          "luot_lai_thu":  { "muc_tieu": 0, "tuan": { "1": 22 } }
+        }
+      },
+      "noi_dung": {},
+      "kpi_tuan": {}
+    },
+    {
+      "id": "nv010",
+      "ho_ten": "Phan Thanh Huy",
+      "anh": "",
+      "chuc_vu": "Nhân viên kinh doanh",
+      "sdt": "",
+      "ngay_vao": "",
+      "nhom_id": "nhom_2",
+      "loai_nhan_su": "thu_viec",
+      "trang_thai": "dang_lam",
+      "lead_theo_thang": {
+        "2026-04": {
+          "fb_ca_nhan":    { "muc_tieu": 0, "tuan": { "1": 8 } },
+          "mkt_cty":       { "muc_tieu": 0, "tuan": { "1": 9 } },
+          "tiktok":        { "muc_tieu": 0, "tuan": { "1": 0 } },
+          "telesales":     { "muc_tieu": 0, "tuan": {} },
+          "sr_tiep_khach": { "muc_tieu": 0, "tuan": {} },
+          "di_thi_truong": { "muc_tieu": 0, "tuan": {} },
+          "luot_lai_thu":  { "muc_tieu": 0, "tuan": { "1": 5 } }
+        }
+      },
+      "noi_dung": {},
+      "kpi_tuan": {}
+    },
+    {
+      "id": "nv011",
+      "ho_ten": "Ngô Thanh Bình",
+      "anh": "",
+      "chuc_vu": "Nhân viên kinh doanh",
+      "sdt": "",
+      "ngay_vao": "",
+      "nhom_id": "nhom_2",
+      "loai_nhan_su": "chinh_thuc",
+      "trang_thai": "dang_lam",
+      "lead_theo_thang": {
+        "2026-04": {
+          "fb_ca_nhan":    { "muc_tieu": 0, "tuan": { "1": 28 } },
+          "mkt_cty":       { "muc_tieu": 0, "tuan": { "1": 6 } },
+          "tiktok":        { "muc_tieu": 0, "tuan": { "1": 6 } },
+          "telesales":     { "muc_tieu": 0, "tuan": {} },
+          "sr_tiep_khach": { "muc_tieu": 0, "tuan": {} },
+          "di_thi_truong": { "muc_tieu": 0, "tuan": {} },
+          "luot_lai_thu":  { "muc_tieu": 0, "tuan": { "1": 5 } }
+        }
+      },
+      "noi_dung": {},
+      "kpi_tuan": {}
+    },
+    {
+      "id": "nv012",
+      "ho_ten": "Nguyễn Kim Thắng",
+      "anh": "",
+      "chuc_vu": "Nhân viên kinh doanh",
+      "sdt": "",
+      "ngay_vao": "",
+      "nhom_id": "nhom_2",
+      "loai_nhan_su": "hoc_viec",
+      "trang_thai": "dang_lam",
+      "lead_theo_thang": {
+        "2026-04": {
+          "fb_ca_nhan":    { "muc_tieu": 0, "tuan": {} },
+          "mkt_cty":       { "muc_tieu": 0, "tuan": {} },
+          "tiktok":        { "muc_tieu": 0, "tuan": {} },
+          "telesales":     { "muc_tieu": 0, "tuan": {} },
+          "sr_tiep_khach": { "muc_tieu": 0, "tuan": {} },
+          "di_thi_truong": { "muc_tieu": 0, "tuan": {} },
+          "luot_lai_thu":  { "muc_tieu": 0, "tuan": {} }
+        }
+      },
+      "noi_dung": {},
+      "kpi_tuan": {}
+    },
+    {
+      "id": "nv013",
+      "ho_ten": "Nguyễn Cao Đăng Khoa",
+      "anh": "",
+      "chuc_vu": "Nhân viên kinh doanh",
+      "sdt": "",
+      "ngay_vao": "",
+      "nhom_id": "nhom_2",
+      "loai_nhan_su": "thu_viec",
+      "trang_thai": "dang_lam",
+      "lead_theo_thang": {
+        "2026-04": {
+          "fb_ca_nhan":    { "muc_tieu": 0, "tuan": { "1": 30 } },
+          "mkt_cty":       { "muc_tieu": 0, "tuan": { "1": 150 } },
+          "tiktok":        { "muc_tieu": 0, "tuan": { "1": 4 } },
+          "telesales":     { "muc_tieu": 0, "tuan": {} },
+          "sr_tiep_khach": { "muc_tieu": 0, "tuan": {} },
+          "di_thi_truong": { "muc_tieu": 0, "tuan": {} },
+          "luot_lai_thu":  { "muc_tieu": 0, "tuan": { "1": 50 } }
+        }
+      },
+      "noi_dung": {},
+      "kpi_tuan": {}
+    }
+  ]
+}
