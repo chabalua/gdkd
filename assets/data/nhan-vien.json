@@ -206,7 +206,14 @@
         }
       },
       "noi_dung": {},
-      "kpi_tuan": {}
+      "kpi_tuan": {
+        "2026-04": [
+          {
+            "tuan": 1,
+            "muc_tieu_nv": 2
+          }
+        ]
+      }
     },
     {
       "id": "nv004",
