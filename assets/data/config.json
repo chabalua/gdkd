@@ -5,6 +5,8 @@
     "dia_chi": "",
     "gdkd": "Hoàng Trọng Hiếu"
   },
+  "cong_ty": "",
+  "gdkd": "Hoàng Trọng Hiếu",
   "muc_tieu_thang": {
     "2026-04": {
       "xe_ky_moi": 28,
@@ -53,27 +55,51 @@
   "lead_channels": [
     {
       "id": "fb_ca_nhan",
-      "label": "FB Cá nhân (QC)"
+      "label": "FB Cá nhân (QC)",
+      "loai": "lead",
+      "don_vi": "so"
     },
     {
       "id": "mkt_cty",
-      "label": "MKT Công ty phân bổ"
+      "label": "MKT Công ty phân bổ",
+      "loai": "lead",
+      "don_vi": "so"
     },
     {
       "id": "tiktok",
-      "label": "TikTok khai thác"
+      "label": "TikTok khai thác",
+      "loai": "lead",
+      "don_vi": "so"
     },
     {
       "id": "telesales",
-      "label": "Telesales"
+      "label": "Telesales",
+      "loai": "lead",
+      "don_vi": "so"
     },
     {
       "id": "sr_tiep_khach",
-      "label": "SR tiếp khách"
+      "label": "SR tiếp khách",
+      "loai": "lead",
+      "don_vi": "so"
     },
     {
       "id": "di_thi_truong",
-      "label": "Đi thị trường"
+      "label": "Đi thị trường",
+      "loai": "lead",
+      "don_vi": "so"
+    },
+    {
+      "id": "luot_lai_thu",
+      "label": "Lượt lái thử",
+      "loai": "hoat_dong",
+      "don_vi": "luot"
+    },
+    {
+      "id": "sr",
+      "label": "Giới thiệu",
+      "loai": "lead",
+      "don_vi": "so"
     }
   ],
   "nhom_kinh_doanh": [
