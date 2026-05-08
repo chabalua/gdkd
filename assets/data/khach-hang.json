@@ -7,7 +7,7 @@
       "dia_chi": "18 Nguyễn Đức Cảnh, TDP AN Bình 5, Buôn Hồ, Đắk Lắk",
       "nhan_vien_id": "nv001",
       "xe_id": "xmowbf6k23jdf",
-      "ghi_chu_ctkm": "",
+      "ghi_chu_ctkm": "Đã hỗ trợ 50% Bảo hiểm, trình đề xuất tặng 02 món cho KH Để xoa dịu việc chờ xe lâu",
       "trang_thai": "dang_xu_ly",
       "ngay_du_kien_ky": null,
       "ngay_ky": "2026-04-14",
@@ -19,7 +19,13 @@
       "muc_dong_mong_muon": 0,
       "so_hd": "14-170426/HĐMB - NCDN",
       "kenh_lead": "fb_ca_nhan",
-      "tien_do": [],
+      "tien_do": [
+        {
+          "ngay": "2026-05-08",
+          "buoc": 1,
+          "noi_dung": "KH dự kiến ngày 16/05/2026 nhận xe"
+        }
+      ],
       "cskh": []
     }
   ]
