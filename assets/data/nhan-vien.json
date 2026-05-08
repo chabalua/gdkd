@@ -148,7 +148,7 @@
       "ho_ten": "Nguyễn Công Danh",
       "anh": "",
       "chuc_vu": "Nhân viên kinh doanh",
-      "sdt": "",
+      "sdt": "0372127886",
       "ngay_vao": "",
       "nhom_id": "nhom_1",
       "loai_nhan_su": "chinh_thuc",
@@ -205,7 +205,11 @@
           }
         }
       },
-      "noi_dung": {},
+      "noi_dung": {
+        "2026-04": {
+          "videos": {}
+        }
+      },
       "kpi_tuan": {
         "2026-04": [
           {
