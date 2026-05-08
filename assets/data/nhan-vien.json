@@ -848,6 +848,54 @@
       "kpi_tuan": {
         "2026-04": []
       }
+    },
+    {
+      "id": "nvmowbby4f8k8l",
+      "ho_ten": "Lê Thị Huyền Anh",
+      "anh": "",
+      "chuc_vu": "Host Livestream",
+      "sdt": "0389428985",
+      "nhom_id": "nhom_1",
+      "loai_nhan_su": "thu_viec",
+      "ngay_vao": "2026-05-04",
+      "trang_thai": "dang_lam",
+      "lead_theo_thang": {
+        "2026-04": {
+          "fb_ca_nhan": {
+            "muc_tieu": 0,
+            "tuan": {}
+          },
+          "mkt_cty": {
+            "muc_tieu": 0,
+            "tuan": {}
+          },
+          "tiktok": {
+            "muc_tieu": 0,
+            "tuan": {}
+          },
+          "telesales": {
+            "muc_tieu": 0,
+            "tuan": {}
+          },
+          "sr_tiep_khach": {
+            "muc_tieu": 0,
+            "tuan": {}
+          },
+          "di_thi_truong": {
+            "muc_tieu": 0,
+            "tuan": {}
+          }
+        }
+      },
+      "noi_dung": {
+        "2026-04": {
+          "videos": {}
+        }
+      },
+      "kpi_tuan": {
+        "2026-04": []
+      },
+      "du_ky_tuan_nay": []
     }
   ]
 }
