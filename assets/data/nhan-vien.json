@@ -666,8 +666,8 @@
       "id": "nv011",
       "ho_ten": "Ngô Thanh Bình",
       "anh": "",
-      "chuc_vu": "Nhân viên kinh doanh",
-      "sdt": "",
+      "chuc_vu": "TNBH",
+      "sdt": "0971720796",
       "ngay_vao": "",
       "nhom_id": "nhom_2",
       "loai_nhan_su": "chinh_thuc",
@@ -677,7 +677,10 @@
           "fb_ca_nhan": {
             "muc_tieu": 0,
             "tuan": {
-              "1": 28
+              "1": 0,
+              "2": 0,
+              "3": 0,
+              "4": 0
             }
           },
           "mkt_cty": {
@@ -712,8 +715,14 @@
           }
         }
       },
-      "noi_dung": {},
-      "kpi_tuan": {}
+      "noi_dung": {
+        "2026-04": {
+          "videos": {}
+        }
+      },
+      "kpi_tuan": {
+        "2026-04": []
+      }
     },
     {
       "id": "nv012",
