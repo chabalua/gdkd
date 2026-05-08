@@ -1,3 +1,64 @@
 {
-  "lich_su": []
+  "lich_su": [
+    {
+      "thang": "2026-03",
+      "xe_ky_moi": 0,
+      "hd_xuat": 0,
+      "lead_phat_sinh": 0,
+      "ranking": [
+        {
+          "nv_id": "nv001",
+          "xe": 0
+        },
+        {
+          "nv_id": "nv002",
+          "xe": 0
+        },
+        {
+          "nv_id": "nv003",
+          "xe": 0
+        },
+        {
+          "nv_id": "nv004",
+          "xe": 0
+        },
+        {
+          "nv_id": "nv005",
+          "xe": 0
+        },
+        {
+          "nv_id": "nv006",
+          "xe": 0
+        },
+        {
+          "nv_id": "nv007",
+          "xe": 0
+        },
+        {
+          "nv_id": "nv008",
+          "xe": 0
+        },
+        {
+          "nv_id": "nv009",
+          "xe": 0
+        },
+        {
+          "nv_id": "nv010",
+          "xe": 0
+        },
+        {
+          "nv_id": "nv011",
+          "xe": 0
+        },
+        {
+          "nv_id": "nv012",
+          "xe": 0
+        },
+        {
+          "nv_id": "nv013",
+          "xe": 0
+        }
+      ]
+    }
+  ]
 }
