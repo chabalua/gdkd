@@ -5,17 +5,51 @@
     "dia_chi": "",
     "gdkd": "Hoàng Trọng Hiếu"
   },
-  "muc_tieu_thang": {},
-  "nhom_kinh_doanh": [
-    {
-      "id": "nhom_1",
-      "ten": "Nhóm 1"
-    },
-    {
-      "id": "nhom_2",
-      "ten": "Nhóm 2"
+  "muc_tieu_thang": {
+    "2026-04": {
+      "xe_ky_moi": 28,
+      "hd_xuat_thang": 24,
+      "lead_phat_sinh": 1296,
+      "muc_tieu_nv": {
+        "nv001": {
+          "xe_ky_moi": 3
+        },
+        "nv002": {
+          "xe_ky_moi": 3
+        },
+        "nv003": {
+          "xe_ky_moi": 3
+        },
+        "nv004": {
+          "xe_ky_moi": 3
+        },
+        "nv005": {
+          "xe_ky_moi": 1
+        },
+        "nv006": {
+          "xe_ky_moi": 1
+        },
+        "nv007": {
+          "xe_ky_moi": 4
+        },
+        "nv008": {
+          "xe_ky_moi": 1
+        },
+        "nv009": {
+          "xe_ky_moi": 1
+        },
+        "nv010": {
+          "xe_ky_moi": 4
+        },
+        "nv011": {
+          "xe_ky_moi": 3
+        },
+        "nv013": {
+          "xe_ky_moi": 1
+        }
+      }
     }
-  ],
+  },
   "lead_channels": [
     {
       "id": "fb_ca_nhan",
@@ -40,6 +74,16 @@
     {
       "id": "di_thi_truong",
       "label": "Đi thị trường"
+    }
+  ],
+  "nhom_kinh_doanh": [
+    {
+      "id": "nhom_1",
+      "ten": "Nhóm 1"
+    },
+    {
+      "id": "nhom_2",
+      "ten": "Nhóm 2"
     }
   ]
 }
