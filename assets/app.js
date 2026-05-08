@@ -30,6 +30,22 @@ import renderNhanVienDetailPage from './views/nhan-vien-detail.js';
 import renderKhachHangPage from './views/khach-hang.js';
 import renderCskhPage from './views/cskh.js';
 
+// === iOS standalone PWA: giữ navigation trong fullscreen ===
+// Khi add-to-home-screen, click <a href> sang trang khác sẽ mở Safari và mất
+// fullscreen. Chặn click cho link cùng origin và điều hướng bằng location.href.
+if (window.navigator.standalone) {
+  document.addEventListener('click', (event) => {
+    const anchor = event.target.closest('a[href]');
+    if (!anchor) return;
+    if (anchor.target && anchor.target !== '_self') return;
+    if (anchor.hasAttribute('download')) return;
+    const url = new URL(anchor.getAttribute('href'), window.location.href);
+    if (url.origin !== window.location.origin) return;
+    event.preventDefault();
+    window.location.href = url.href;
+  });
+}
+
 // === Shared mutable state ===
 // modals/* và events.js tham chiếu qua import (ESM live binding).
 export const appState = { data: null };
