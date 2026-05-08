@@ -1,6 +1,6 @@
 // assets/views/cskh.js
 // CSKH page: filter từ khach_hang (schema v2) thay vì cskh.json cũ.
-import { renderShell, renderEmptyState } from './_shell.js';
+import { renderShell, renderEmptyState } from './shell.js';
 import { escapeHtml, formatDate, numberValue } from '../ui.js';
 import { CSKH_STATUS_META, getNvLabel, getXeLabel } from '../models.js';
 

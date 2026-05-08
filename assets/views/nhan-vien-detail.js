@@ -1,5 +1,5 @@
 // assets/views/nhan-vien-detail.js
-import { renderShell, renderEmptyState } from './_shell.js';
+import { renderShell, renderEmptyState } from './shell.js';
 import { escapeHtml, calcPercent, renderProgressBar, getPercentClass, avatarHtml, formatCurrency } from '../ui.js';
 import { getLeadChannels, getLeadTuanTotal, getNvStats, getWeekOfMonth, KH_STATUS_META, ACTIVITY_UNIT_META, LOAI_NHAN_SU_META, getEmployeeGroupLabel } from '../models.js';
 

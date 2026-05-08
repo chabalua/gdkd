@@ -1,5 +1,5 @@
 // assets/views/dashboard.js
-import { renderShell } from './_shell.js';
+import { renderShell } from './shell.js';
 import {
   escapeHtml, formatDate, formatCurrency,
   renderRangePicker, getCurrentRange, getRangeLabel,

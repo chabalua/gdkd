@@ -1,6 +1,6 @@
 // assets/views/khach-hang.js
 // Render trang Quản lý Khách hàng với schema v2 (flat + FK).
-import { renderShell, renderTableEmptyRow } from './_shell.js';
+import { renderShell, renderTableEmptyRow } from './shell.js';
 import { escapeHtml, formatDate, formatCurrency } from '../ui.js';
 import { KH_STATUS_META, isSetupComplete, formatPaymentType, getXeLabel, getNvLabel } from '../models.js';
 

@@ -1,4 +1,4 @@
-// assets/views/_shell.js
+// assets/views/shell.js
 // Sidebar + topbar + bottom-nav + common card builders.
 // Mọi view đều gọi renderShell() để bọc nội dung trang.
 

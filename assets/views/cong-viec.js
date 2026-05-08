@@ -1,5 +1,5 @@
 // assets/views/cong-viec.js
-import { renderShell, renderEmptyState } from './_shell.js';
+import { renderShell, renderEmptyState } from './shell.js';
 import { escapeHtml, formatDate, calcPercent, getPercentClass, renderProgressBar } from '../ui.js';
 import { hasCongViecData } from '../models.js';
 

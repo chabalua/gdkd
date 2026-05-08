@@ -2,7 +2,7 @@
 // KPI page — hoàn toàn derive từ khach-hang.json + nhan-vien.json.
 // Không còn form gõ tay "thực tế". kpi.json không dùng nữa.
 
-import { renderShell } from './_shell.js';
+import { renderShell } from './shell.js';
 import {
   escapeHtml, getPercentClass, calcPercent,
   renderRangePicker, getCurrentRange, getRangeLabel,

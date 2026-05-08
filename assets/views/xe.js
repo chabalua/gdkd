@@ -2,7 +2,7 @@
 // Master data: catalog xe đang bán. Đây là LỚP 1 trong kiến trúc 3 lớp;
 // KH (transaction) sẽ tham chiếu xe.id qua FK ở bước 4.
 
-import { renderShell, renderEmptyState, renderTableEmptyRow } from './_shell.js';
+import { renderShell, renderEmptyState, renderTableEmptyRow } from './shell.js';
 import { escapeHtml, formatCurrency } from '../ui.js';
 import { XE_STATUS_META, countKhByXeId, formatXeFullName } from '../models.js';
 
