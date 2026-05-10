@@ -2,7 +2,7 @@
 // Form thêm/sửa KH theo schema v2: dropdown FK cho NV + Xe, tiến độ, CSKH.
 import {
   showModal, closeModal, getModalRoot,
-  escapeHtml, trimmedValue, numberValue, makeId,
+  escapeHtml, trimmedValue, numberValue, makeId, showToast,
   createField, createSelectField,
 } from '../ui.js';
 import { KH_STATUS_META, CSKH_STATUS_META, getLeadChannels } from '../models.js';
@@ -10,31 +10,38 @@ import { appState, persistFile, rerenderApp } from '../app.js';
 
 // === Helpers ===
 function nvOptions(allData, selectedId) {
-  return allData.nhanVien.nhan_vien
+  return [
+    { value: '', label: '— Chọn nhân viên phụ trách —' },
+    ...allData.nhanVien.nhan_vien
     .filter((nv) => nv.trang_thai !== 'nghi_viec')
-    .map((nv) => ({ value: nv.id, label: nv.ho_ten }));
+    .map((nv) => ({ value: nv.id, label: nv.ho_ten })),
+  ];
 }
 
 function xeOptions(allData) {
-  return allData.xe.xe
+  return [
+    { value: '', label: '— Chọn xe —' },
+    ...allData.xe.xe
     .filter((x) => ['dang_ban', 'sap_ve'].includes(x.trang_thai))
     .map((x) => {
-      const label = [x.hang, x.dong, x.bien_the].filter(Boolean).join(' ') +
+      const label = [x.ma_xe, [x.hang, x.dong, x.bien_the].filter(Boolean).join(' ')].filter(Boolean).join(' · ') +
         (x.mau ? ` · ${x.mau}` : '') +
         (x.gia_niem_yet ? ` · ${Math.round(x.gia_niem_yet / 1e9 * 10) / 10}tỷ` : '');
       return { value: x.id, label };
-    });
+    }),
+  ];
 }
 
 function renderTienDo(tienDo) {
   if (!Array.isArray(tienDo) || tienDo.length === 0) {
     return '<p class="customer-log-empty">Chưa có cập nhật nào.</p>';
   }
-  return tienDo.map((step) => [
-    '<div class="tien-do-item customer-log-item">',
+  return tienDo.map((step, i) => [
+    `<div class="tien-do-item customer-log-item" data-tiendo-index="${i}">`,
     `<span class="customer-log-date">${escapeHtml(step.ngay || '')}</span>`,
     `<span class="customer-log-step">${step.buoc || ''}</span>`,
-    `<span>${escapeHtml(step.noi_dung || '')}</span>`,
+    `<span class="customer-log-content">${escapeHtml(step.noi_dung || '')}</span>`,
+    `<button type="button" class="btn btn-ghost btn-sm" data-delete-tiendo="${i}" title="Xoá bước này">✕</button>`,
     '</div>',
   ].join('')).join('');
 }
@@ -50,6 +57,7 @@ function renderCskhList(cskhList) {
       '<div class="customer-feedback-head">',
       `<strong>${escapeHtml(c.ngay || '')} · ${escapeHtml(c.kenh || '')} · ${'⭐'.repeat(c.danh_gia || 0)}</strong>`,
       `<span class="badge ${statusMeta[1]}">${statusMeta[0]}</span>`,
+      `<button type="button" class="btn btn-ghost btn-sm" data-delete-cskh="${i}" title="Xoá phản hồi này">✕</button>`,
       `</div>`,
       c.phan_hoi ? `<p class="customer-feedback-line">💬 ${escapeHtml(c.phan_hoi)}</p>` : '',
       c.van_de ? `<p class="customer-feedback-line is-danger">⚠ ${escapeHtml(c.van_de)}</p>` : '',
@@ -106,7 +114,7 @@ export function openCustomerModal(customerId, prefillOptions) {
     createSelectField('Nhân viên phụ trách (*)', 'nhan_vien_id', nvOpts, draft.nhan_vien_id, 'required'),
     createSelectField('Xe (*)', 'xe_id', xeOpts, draft.xe_id, 'required'),
     createSelectField('Kênh lead (nguồn KH)', 'kenh_lead', [
-      { value: '', label: '— Chọn kênh lead —' },
+      { value: '', label: '— Chưa rõ kênh —' },
       ...leadChannelOptions,
     ], draft.kenh_lead || ''),
     createField('Ghi chú CTKM', 'ghi_chu_ctkm', 'textarea', draft.ghi_chu_ctkm || ''),
@@ -180,6 +188,38 @@ export function openCustomerModal(customerId, prefillOptions) {
   const root = getModalRoot();
   root.querySelector('[data-modal-cancel]').addEventListener('click', closeModal, { once: true });
 
+  // Working copies — cho phép xoá entry trước khi save
+  const workingTienDo = Array.isArray(draft.tien_do) ? draft.tien_do.slice() : [];
+  const workingCskh = Array.isArray(draft.cskh) ? draft.cskh.slice() : [];
+
+  function refreshTienDoList() {
+    root.querySelector('#tien-do-list').innerHTML = renderTienDo(workingTienDo);
+    root.querySelectorAll('[data-delete-tiendo]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const idx = Number(btn.getAttribute('data-delete-tiendo'));
+        workingTienDo.splice(idx, 1);
+        refreshTienDoList();
+      });
+    });
+    // Cập nhật giá trị mặc định "Bước (số)"
+    const buocInput = root.querySelector('[name="td_buoc"]');
+    if (buocInput) buocInput.value = String(workingTienDo.length + 1);
+  }
+
+  function refreshCskhList() {
+    root.querySelector('#cskh-list').innerHTML = renderCskhList(workingCskh);
+    root.querySelectorAll('[data-delete-cskh]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const idx = Number(btn.getAttribute('data-delete-cskh'));
+        workingCskh.splice(idx, 1);
+        refreshCskhList();
+      });
+    });
+  }
+
+  refreshTienDoList();
+  refreshCskhList();
+
   // Hiện/ẩn field khi đổi trạng thái
   const statusSelect = root.querySelector('[name="trang_thai"]');
   function toggleConditionalFields() {
@@ -200,13 +240,20 @@ export function openCustomerModal(customerId, prefillOptions) {
     // Validate required FKs
     const nvId = trimmedValue(fd, 'nhan_vien_id');
     const xeId = trimmedValue(fd, 'xe_id');
-    if (!nvId) { alert('Vui lòng chọn Nhân viên phụ trách.'); return; }
-    if (!xeId) { alert('Vui lòng chọn Xe.'); return; }
+    if (!nvId) {
+      showToast('Vui lòng chọn nhân viên phụ trách.', 'warning');
+      return;
+    }
+    if (!xeId) {
+      showToast('Vui lòng chọn xe.', 'warning');
+      return;
+    }
 
     const trangThai = trimmedValue(fd, 'trang_thai');
     const ngayGiaoThucTe = trimmedValue(fd, 'ngay_giao_thuc_te');
-    if (trangThai === 'da_giao' && !ngayGiaoThucTe) {
-      alert('Khi trạng thái là "Đã giao", cần nhập Ngày giao thực tế.'); return;
+    if (['da_giao', 'dong_cskh'].includes(trangThai) && !ngayGiaoThucTe) {
+      showToast('Khi trạng thái là đã giao hoặc đóng CSKH, cần nhập ngày giao thực tế.', 'warning');
+      return;
     }
 
     // Build payload
@@ -230,16 +277,20 @@ export function openCustomerModal(customerId, prefillOptions) {
       muc_dong_mong_muon: numberValue(fd.get('muc_dong_mong_muon')),
       so_hd: trimmedValue(fd, 'so_hd'),
       kenh_lead: trimmedValue(fd, 'kenh_lead') || '',
-      tien_do: Array.isArray(existing?.tien_do) ? existing.tien_do.slice() : [],
-      cskh: Array.isArray(existing?.cskh) ? existing.cskh.slice() : [],
+      tien_do: workingTienDo.slice(),
+      cskh: workingCskh.slice(),
     };
 
     // Append tiến độ nếu có nội dung
     const tdNd = trimmedValue(fd, 'td_noi_dung');
     if (tdNd) {
+      const requestedBuoc = numberValue(fd.get('td_buoc')) || payload.tien_do.length + 1;
+      const usedBuocs = new Set(payload.tien_do.map((s) => Number(s.buoc) || 0));
+      let finalBuoc = requestedBuoc;
+      while (usedBuocs.has(finalBuoc)) finalBuoc += 1;
       payload.tien_do.push({
         ngay: trimmedValue(fd, 'td_ngay') || new Date().toISOString().slice(0, 10),
-        buoc: numberValue(fd.get('td_buoc')) || payload.tien_do.length + 1,
+        buoc: finalBuoc,
         noi_dung: tdNd,
       });
     }
@@ -249,6 +300,7 @@ export function openCustomerModal(customerId, prefillOptions) {
     const cskhVanDe = trimmedValue(fd, 'cskh_van_de');
     if (cskhPhanHoi || cskhVanDe) {
       payload.cskh.push({
+        id: makeId('cs'),
         ngay: trimmedValue(fd, 'cskh_ngay') || new Date().toISOString().slice(0, 10),
         kenh: trimmedValue(fd, 'cskh_kenh'),
         danh_gia: numberValue(fd.get('cskh_danh_gia')) || 5,

@@ -1,10 +1,10 @@
 // assets/views/nhan-vien-detail.js
 import { renderShell, renderEmptyState } from './shell.js';
-import { escapeHtml, calcPercent, renderProgressBar, getPercentClass, avatarHtml, formatCurrency } from '../ui.js';
-import { getLeadChannels, getLeadTuanTotal, getNvStats, getWeekOfMonth, KH_STATUS_META, ACTIVITY_UNIT_META, LOAI_NHAN_SU_META, getEmployeeGroupLabel } from '../models.js';
+import { escapeHtml, calcPercent, renderProgressBar, getPercentClass, avatarHtml, formatCurrency, renderRangePicker, getCurrentRange, getRangeLabel } from '../ui.js';
+import { getLeadChannels, getLeadTuanTotal, getNvStats, getWeekOfMonth, KH_STATUS_META, ACTIVITY_UNIT_META, LOAI_NHAN_SU_META, getEmployeeGroupLabel, getActiveMonth, isSingleMonthRange } from '../models.js';
 
 // === Tab 1: Lead k\u00eanh (weekly table) ===
-function renderLeadPanel(employee, month, allKh, channels) {
+function renderLeadPanel(employee, month, allKh, channels, canEdit = true) {
   const nvId = employee.id;
   const lead = employee.lead_theo_thang?.[month] || {};
   const [yr, mn] = month.split('-');
@@ -54,9 +54,10 @@ function renderLeadPanel(employee, month, allKh, channels) {
     const pctClass = mt ? getPercentClass(calcPercent(total, mt)) : '';
     const isLeadChannel = ch.loai !== 'hoat_dong';
     const unit = ch.don_vi || 'so';
+    const disabledAttr = canEdit ? '' : ' disabled';
     const inputs = TUANS.map((t) => {
       const v = getVal(chData, t);
-      return `<td class="is-number"><input class="input is-compact" type="number" min="0" step="${getStep(unit)}" data-lead-tt-input data-field="${escapeHtml(ch.id)}" data-tuan="${t}" data-nv-id="${escapeHtml(nvId)}" data-target="${mt}" data-unit="${escapeHtml(unit)}" data-lead-channel="${isLeadChannel ? 'true' : 'false'}" value="${v}" aria-label="${escapeHtml(ch.label)} tu\u1ea7n ${t}"></td>`;
+      return `<td class="is-number"><input class="input is-compact" type="number" min="0" step="${getStep(unit)}" data-lead-tt-input data-field="${escapeHtml(ch.id)}" data-tuan="${t}" data-nv-id="${escapeHtml(nvId)}" data-target="${mt}" data-unit="${escapeHtml(unit)}" data-lead-channel="${isLeadChannel ? 'true' : 'false'}" data-month="${escapeHtml(month)}" value="${v}"${disabledAttr} aria-label="${escapeHtml(ch.label)} tu\u1ea7n ${t}"></td>`;
     }).join('');
     return `<tr><td class="channel-label">${escapeHtml(channelLabel(ch))}</td>${inputs}<td class="is-number" data-lead-total-field="${escapeHtml(ch.id)}" data-unit="${escapeHtml(unit)}">${formatValue(total, unit)}</td><td class="is-number">${mt ? formatValue(mt, unit) : '\u2014'}</td><td class="is-number ${pctClass}" data-pct-cell="${escapeHtml(ch.id)}">${pct}</td></tr>`;
   }
@@ -69,12 +70,13 @@ function renderLeadPanel(employee, month, allKh, channels) {
     const pctClass = pctValue !== null ? getPercentClass(pctValue) : '';
     const isLeadChannel = ch.loai !== 'hoat_dong';
     const unit = ch.don_vi || 'so';
+    const disabledAttr = canEdit ? '' : ' disabled';
     const weekItems = TUANS.map((t) => {
       const value = getVal(chData, t);
       return [
         '<div class="mobile-week-item">',
         `<span class="mobile-week-label">Tuần ${t}</span>`,
-        `<input class="input is-compact mobile-week-input" type="number" min="0" step="${getStep(unit)}" data-lead-tt-input data-field="${escapeHtml(ch.id)}" data-tuan="${t}" data-nv-id="${escapeHtml(nvId)}" data-target="${mt}" data-unit="${escapeHtml(unit)}" data-lead-channel="${isLeadChannel ? 'true' : 'false'}" data-view="mobile" value="${value}" aria-label="${escapeHtml(ch.label)} tuần ${t}">`,
+        `<input class="input is-compact mobile-week-input" type="number" min="0" step="${getStep(unit)}" data-lead-tt-input data-field="${escapeHtml(ch.id)}" data-tuan="${t}" data-nv-id="${escapeHtml(nvId)}" data-target="${mt}" data-unit="${escapeHtml(unit)}" data-lead-channel="${isLeadChannel ? 'true' : 'false'}" data-month="${escapeHtml(month)}" data-view="mobile" value="${value}"${disabledAttr} aria-label="${escapeHtml(ch.label)} tuần ${t}">`,
         '</div>',
       ].join('');
     }).join('');
@@ -139,12 +141,16 @@ function renderLeadPanel(employee, month, allKh, channels) {
     '</article>',
   ].join('');
 
+  const subtitle = canEdit
+    ? 'Nh\u1eadp th\u1ef1c t\u1ebf theo tu\u1ea7n \u2022 L\u01b0u t\u1ef1 \u0111\u1ed9ng 600ms'
+    : '\ud83d\udd12 \u0110ang xem \u1edf ch\u1ebf \u0111\u1ed9 \u0111\u1ecdc \u2014 ch\u1ecdn 1 th\u00e1ng c\u1ee5 th\u1ec3 trong picker \u0111\u1ec3 nh\u1eadp li\u1ec7u.';
+
   return [
     '<section class="tab-panel" data-tab-panel="lead">',
     '<article class="table-card">',
-    `<div class="table-header"><div><h3 class="table-title">Lead theo k\u00eanh \u2014 th\u00e1ng ${parseInt(mn, 10)}/${yr}</h3><p class="table-subtitle">Nh\u1eadp th\u1ef1c t\u1ebf theo tu\u1ea7n \u2022 L\u01b0u t\u1ef1 \u0111\u1ed9ng 600ms</p></div>`,
+    `<div class="table-header"><div><h3 class="table-title">Lead theo k\u00eanh \u2014 th\u00e1ng ${parseInt(mn, 10)}/${yr}</h3><p class="table-subtitle">${escapeHtml(subtitle)}</p></div>`,
     `<div class="button-row">`,
-    `<button type="button" class="btn btn-soft" data-action="open-manage-modal" data-id="${escapeHtml(nvId)}">\u2699 Qu\u1ea3n l\u00fd</button>`,
+    `<button type="button" class="btn btn-soft" data-action="open-manage-modal" data-id="${escapeHtml(nvId)}"${canEdit ? '' : ' disabled title="Ch\u1ecdn 1 th\u00e1ng \u0111\u1ec3 ch\u1ec9nh k\u00eanh"'}>\u2699 Qu\u1ea3n l\u00fd</button>`,
     `</div></div>`,
     '<div class="table-responsive lead-table-scroll desktop-lead-table"><table class="data-table data-table-lead">',
     '<thead><tr><th>K\u00eanh / n\u1ed9i dung</th><th class="is-number">T1</th><th class="is-number">T2</th><th class="is-number">T3</th><th class="is-number">T4</th><th class="is-number">T\u1ed5ng TT</th><th class="is-number">MT</th><th class="is-number">%\u0111\u1ea1t</th></tr></thead>',
@@ -159,12 +165,13 @@ function renderLeadPanel(employee, month, allKh, channels) {
 }
 
 // === Tab 2: N\u1ed9i dung (videos only) ===
-function renderContentPanel(employee, month, congViecTuyen) {
+function renderContentPanel(employee, month, congViecTuyen, canEdit = true) {
   const cnt = employee.noi_dung?.[month] || {};
   const nvId = employee.id;
+  const disabledAttr = canEdit ? '' : ' disabled';
   const videoRows = (congViecTuyen || []).map((tuyen) => {
     const count = cnt.videos?.[tuyen.id] || 0;
-    return `<tr><td>${escapeHtml(tuyen.ten)}</td><td class="is-number"><input class="input is-compact table-input-sm" type="number" min="0" data-content-input data-nv-id="${escapeHtml(nvId)}" data-type="video_${escapeHtml(tuyen.id)}" value="${count}"></td></tr>`;
+    return `<tr><td>${escapeHtml(tuyen.ten)}</td><td class="is-number"><input class="input is-compact table-input-sm" type="number" min="0" data-content-input data-nv-id="${escapeHtml(nvId)}" data-type="video_${escapeHtml(tuyen.id)}" data-month="${escapeHtml(month)}" value="${count}"${disabledAttr}></td></tr>`;
   }).join('');
   if (!congViecTuyen?.length) {
     return '<section class="tab-panel is-hidden" data-tab-panel="content"><article class="card"><p class="table-empty-note">Ch\u01b0a c\u00f3 tuy\u1ebfn n\u1ed9i dung. Th\u00eam trong trang C\u00f4ng vi\u1ec7c.</p></article></section>';
@@ -180,14 +187,15 @@ function renderContentPanel(employee, month, congViecTuyen) {
 }
 
 // === Tab 3: KPI tu\u1ea7n ===
-function renderWeeklyPanel(employee, month, allKh) {
+function renderWeeklyPanel(employee, month, allKh, canEdit = true) {
   const stored = employee.kpi_tuan?.[month] || [];
   const nvId = employee.id;
+  const disabledAttr = canEdit ? '' : ' disabled';
   const rows = [1, 2, 3, 4].map((tuan) => {
     const entry = stored.find((e) => e.tuan === tuan) || { tuan, muc_tieu_nv: 0 };
     const du_ky = allKh.filter((kh) => kh.nhan_vien_id === nvId && kh.trang_thai === 'du_ky' && (kh.ngay_du_kien_ky || '').startsWith(month) && getWeekOfMonth(kh.ngay_du_kien_ky) === tuan).length;
     const ket_qua = allKh.filter((kh) => kh.nhan_vien_id === nvId && (kh.ngay_ky || '').startsWith(month) && getWeekOfMonth(kh.ngay_ky) === tuan).length;
-    return `<tr><td>Tu\u1ea7n ${tuan}</td><td class="is-number"><input class="input is-compact table-input-sm" type="number" min="0" data-week-input data-nv-id="${escapeHtml(nvId)}" data-tuan="${tuan}" value="${entry.muc_tieu_nv || 0}"></td><td class="is-number">${du_ky}</td><td class="is-number">${ket_qua}</td></tr>`;
+    return `<tr><td>Tu\u1ea7n ${tuan}</td><td class="is-number"><input class="input is-compact table-input-sm" type="number" min="0" data-week-input data-nv-id="${escapeHtml(nvId)}" data-tuan="${tuan}" data-month="${escapeHtml(month)}" value="${entry.muc_tieu_nv || 0}"${disabledAttr}></td><td class="is-number">${du_ky}</td><td class="is-number">${ket_qua}</td></tr>`;
   }).join('');
   return [
     '<section class="tab-panel is-hidden" data-tab-panel="weekly">',
@@ -220,21 +228,25 @@ function renderKhPanel(employee, allKh, allXe, channels) {
   // Kenh pills (dynamic from channels config)
   const channelCounts = {};
   leadOnlyChannels.forEach((ch) => { channelCounts[ch.id] = myKh.filter((kh) => kh.kenh_lead === ch.id).length; });
-  const kenhPills = leadOnlyChannels.filter((ch) => channelCounts[ch.id] > 0).map((ch) =>
+  const unknownCount = myKh.filter((kh) => !kh.kenh_lead).length;
+  const kenhPillsArr = leadOnlyChannels.filter((ch) => channelCounts[ch.id] > 0).map((ch) =>
     `<button type="button" class="chip" data-kenh-filter="${escapeHtml(ch.id)}">${escapeHtml(ch.label)} <span class="badge chip-count">${channelCounts[ch.id]}</span></button>`
-  ).join('');
+  );
+  if (unknownCount > 0) {
+    kenhPillsArr.push(`<button type="button" class="chip" data-kenh-filter="">Chưa rõ kênh <span class="badge chip-count">${unknownCount}</span></button>`);
+  }
+  const kenhPills = kenhPillsArr.join('');
 
   const cards = myKh.length ? myKh.map((kh) => {
     const xe = xeMap[kh.xe_id];
     const xeLabel = xe ? `${xe.hang || ''} ${xe.dong || ''}`.trim() : '\u2014';
     const [statusLabel, statusClass] = KH_STATUS_META[kh.trang_thai] || ['\u2014', ''];
     const isCskh = needCskh(kh);
-    const filterVal = isCskh ? 'can_cskh' : (kh.trang_thai || 'all');
     const lastStep = kh.tien_do?.length ? kh.tien_do[kh.tien_do.length - 1] : null;
     const kenhLabel = kh.kenh_lead
       ? `<span class="badge is-info chip-count">${escapeHtml(channelMap[kh.kenh_lead] || kh.kenh_lead)}</span>` : '';
     return [
-      `<article class="customer-card" data-kh-card data-filter="${escapeHtml(filterVal)}" data-kenh-lead="${escapeHtml(kh.kenh_lead || '')}">`,
+      `<article class="customer-card" data-kh-card data-filter="${escapeHtml(kh.trang_thai || 'all')}" data-can-cskh="${isCskh ? 'true' : 'false'}" data-kenh-lead="${escapeHtml(kh.kenh_lead || '')}">`,
       '<div class="customer-row">',
       `<div class="content-flex-1"><h3 class="card-title">${escapeHtml(kh.ten)}</h3>`,
       `<p class="card-subtitle">${escapeHtml(xeLabel)} \u00b7 ${escapeHtml(kh.sdt || '\u2014')}</p>`,
@@ -269,9 +281,13 @@ export default function renderNhanVienDetailPage(data) {
   if (!employee) {
     return renderShell('nhanvien-detail', renderEmptyState('Ch\u01b0a c\u00f3 d\u1eef li\u1ec7u nh\u00e2n vi\u00ean', 'H\u00e3y th\u00eam nh\u00e2n vi\u00ean tr\u01b0\u1edbc.', 'Quay v\u1ec1 danh s\u00e1ch', 'open-employee-create'), data);
   }
-  const month = data.config.thang_hien_tai;
+  const range = getCurrentRange();
+  const months = range?.months || [];
+  const month = getActiveMonth(data);
+  const canEdit = isSingleMonthRange();
+  const rangeLabel = getRangeLabel(range);
   const channels = getLeadChannels(data);
-  const stats = getNvStats(data, employee.id, [month]);
+  const stats = getNvStats(data, employee.id, months.length ? months : [month]);
   const allKh = data.khachHang?.khach_hang || [];
   const congViecTuyen = data.congViec?.videos?.tuyen_noi_dung || [];
   const allXe = data.xe?.xe || [];
@@ -291,28 +307,41 @@ export default function renderNhanVienDetailPage(data) {
     '<div class="highlight-band">',
     employee.nhom_id ? `<span class="highlight-chip">Nhóm: ${escapeHtml(nhomLabel)}</span>` : '',
     `<span class="highlight-chip">${escapeHtml(loaiMeta[0])}</span>`,
+    `<span class="highlight-chip">${escapeHtml(rangeLabel)}</span>`,
     `<span class="highlight-chip">Xe k\u00fd: ${stats.xe_ky}</span>`,
     `<span class="highlight-chip">\u0110\u00e3 giao: ${stats.xe_giao}</span>`,
     `<span class="highlight-chip">Lead: ${stats.lead}</span>`,
     `<span class="highlight-chip badge ${pctClass}">M\u1ee5c ti\u00eau: ${pctLabel}</span>`,
     '</div></div>',
     '<div class="button-row detail-hero-actions">',
+    renderRangePicker(range),
     '<a class="btn btn-ghost" href="nhan-vien.html">Quay l\u1ea1i</a>',
     `<button type="button" class="btn btn-soft" data-action="open-employee-edit" data-id="${escapeHtml(employee.id)}">S\u1eeda h\u1ed3 s\u01a1</button>`,
     '</div></div></section>',
   ].join('');
 
+  const readOnlyBanner = !canEdit ? [
+    '<div class="setup-warning-card" style="background:var(--warning-light)">',
+    '<span>\ud83d\udd12</span>',
+    '<div>',
+    `<strong>\u0110ang xem ${escapeHtml(rangeLabel)}</strong>`,
+    '<p class="muted" style="margin:4px 0 0">Khi ch\u1ecdn qu\u00fd/n\u0103m, c\u00e1c \u00f4 nh\u1eadp b\u1ecb kho\u00e1. Ch\u1ecdn 1 th\u00e1ng c\u1ee5 th\u1ec3 trong picker \u0111\u1ec3 nh\u1eadp lead/KPI tu\u1ea7n.</p>',
+    '</div>',
+    '</div>',
+  ].join('') : '';
+
   const content = [
     header,
+    readOnlyBanner,
     '<div class="tab-group" role="tablist" aria-label="Chi ti\u1ebft nh\u00e2n vi\u00ean">',
     '<button type="button" class="tab-button is-active" data-tab-target="lead">Lead k\u00eanh</button>',
     '<button type="button" class="tab-button" data-tab-target="content">N\u1ed9i dung</button>',
     '<button type="button" class="tab-button" data-tab-target="weekly">KPI tu\u1ea7n</button>',
     '<button type="button" class="tab-button" data-tab-target="khachhang">KH c\u1ee7a t\u00f4i</button>',
     '</div>',
-    renderLeadPanel(employee, month, allKh, channels),
-    renderContentPanel(employee, month, congViecTuyen),
-    renderWeeklyPanel(employee, month, allKh),
+    renderLeadPanel(employee, month, allKh, channels, canEdit),
+    renderContentPanel(employee, month, congViecTuyen, canEdit),
+    renderWeeklyPanel(employee, month, allKh, canEdit),
     renderKhPanel(employee, allKh, allXe, channels),
   ].join('');
   return renderShell('nhanvien-detail', content, data);

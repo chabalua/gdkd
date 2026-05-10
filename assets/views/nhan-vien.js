@@ -1,14 +1,15 @@
 // assets/views/nhan-vien.js
 import { renderShell, renderEmptyState } from './shell.js';
-import { escapeHtml, getPercentClass, renderProgressBar, avatarHtml } from '../ui.js';
+import { escapeHtml, getPercentClass, renderProgressBar, avatarHtml, renderRangePicker, getCurrentRange, getRangeLabel } from '../ui.js';
 import {
   getNvStats, NV_STATUS_META, LOAI_NHAN_SU_META,
   getEmployeeGroups, getEmployeeGroupLabel,
-  getPerformanceTier, PERFORMANCE_TIER_META,
+  getPerformanceTier, PERFORMANCE_TIER_META, getActiveMonth,
 } from '../models.js';
 
-function buildEmployeeWithStats(employee, data, month, allKh) {
-  const stats = getNvStats(data, employee.id, [month]);
+function buildEmployeeWithStats(employee, data, months, allKh) {
+  const stats = getNvStats(data, employee.id, months);
+  const monthSet = new Set(months);
   return {
     ...employee,
     trang_thai: employee.trang_thai || 'dang_lam',
@@ -20,7 +21,8 @@ function buildEmployeeWithStats(employee, data, month, allKh) {
     duKyThang: allKh.filter((kh) =>
       kh.nhan_vien_id === employee.id &&
       kh.trang_thai === 'du_ky' &&
-      (kh.ngay_du_kien_ky || '').startsWith(month)
+      kh.ngay_du_kien_ky &&
+      monthSet.has(kh.ngay_du_kien_ky.slice(0, 7))
     ).length,
   };
 }
@@ -67,11 +69,13 @@ function renderEmployeeCard(employee, opts = {}) {
 }
 
 export default function renderNhanVienPage(data) {
-  const month = data.config.thang_hien_tai;
+  const range = getCurrentRange();
+  const months = range?.months?.length ? range.months : [getActiveMonth(data)];
+  const rangeLabel = getRangeLabel(range);
   const allKh = data.khachHang?.khach_hang || [];
   const groups = getEmployeeGroups(data);
 
-  const enriched = data.nhanVien.nhan_vien.map((emp) => buildEmployeeWithStats(emp, data, month, allKh));
+  const enriched = data.nhanVien.nhan_vien.map((emp) => buildEmployeeWithStats(emp, data, months, allKh));
 
   // Bucket theo nhom_id, fallback "khac"
   const buckets = new Map();
@@ -114,8 +118,11 @@ export default function renderNhanVienPage(data) {
 
   const content = [
     '<section class="section-header">',
-    '<div><h3 class="section-title">Đội ngũ kinh doanh</h3><p class="section-subtitle">Quản lý theo nhóm · {tháng hiện tại}</p></div>',
+    `<div><h3 class="section-title">Đội ngũ kinh doanh</h3><p class="section-subtitle">Quản lý theo nhóm · ${escapeHtml(rangeLabel)}</p></div>`,
+    '<div class="section-actions">',
+    renderRangePicker(range),
     '<button type="button" class="btn btn-primary" data-action="open-employee-create">+ Thêm nhân viên</button>',
+    '</div>',
     '</section>',
     '<div class="employee-search-wrap">',
     '<input class="input" data-employee-search placeholder="🔍 Tìm theo họ tên, SĐT, chức vụ, nhóm..." aria-label="Tìm nhân viên" />',
@@ -123,7 +130,7 @@ export default function renderNhanVienPage(data) {
     enriched.length
       ? groupSections
       : renderEmptyState('Chưa có nhân viên', 'Hãy tạo hồ sơ nhân viên đầu tiên.', 'Thêm nhân viên', 'open-employee-create'),
-  ].join('').replace('{tháng hiện tại}', `tháng ${parseInt(month.split('-')[1], 10)}/${month.split('-')[0]}`);
+  ].join('');
 
   return renderShell('nhanvien', content, data);
 }

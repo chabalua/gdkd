@@ -13,10 +13,9 @@
 //   app.js     ← file này
 
 import {
-  getToken, setToken, clearToken, verifyToken,
   readAllData, writeData, writeOverride,
 } from './api.js';
-import { showToast, escapeHtml } from './ui.js';
+import { showToast, escapeHtml, getCurrentRange, saveRange } from './ui.js';
 import { normalizeData, getPreviousMonthKey, buildMonthlySnapshot } from './models.js';
 import { checkReminders } from './notify.js';
 import { bindCommonEvents } from './events.js';
@@ -77,6 +76,59 @@ export function rerenderApp() {
   bindCommonEvents(appState.data);
 }
 
+function isMonthKey(value) {
+  return /^\d{4}-\d{2}$/.test(String(value || ''));
+}
+
+function collectAvailableMonths(data) {
+  const months = new Set();
+  const pushMonth = (value) => {
+    if (isMonthKey(value)) months.add(value);
+  };
+
+  pushMonth(data?.config?.thang_hien_tai);
+  Object.keys(data?.config?.muc_tieu_thang || {}).forEach(pushMonth);
+
+  (data?.nhanVien?.nhan_vien || []).forEach((employee) => {
+    Object.keys(employee?.lead_theo_thang || {}).forEach(pushMonth);
+    Object.keys(employee?.noi_dung || {}).forEach(pushMonth);
+    Object.keys(employee?.kpi_tuan || {}).forEach(pushMonth);
+  });
+
+  (data?.khachHang?.khach_hang || []).forEach((customer) => {
+    [customer.ngay_du_kien_ky, customer.ngay_ky, customer.ngay_giao_du_kien, customer.ngay_giao_thuc_te]
+      .filter(Boolean)
+      .forEach((dateValue) => pushMonth(String(dateValue).slice(0, 7)));
+  });
+
+  (data?.lichSu?.lich_su || []).forEach((snapshot) => pushMonth(snapshot?.thang));
+
+  return months;
+}
+
+function ensureValidStoredRange(data) {
+  const availableMonths = collectAvailableMonths(data);
+  const currentRange = getCurrentRange();
+  const currentMonths = Array.isArray(currentRange?.months) ? currentRange.months : [];
+  const filteredMonths = currentMonths.filter((month, index) => {
+    if (!isMonthKey(month)) return false;
+    if (currentMonths.indexOf(month) !== index) return false;
+    return !availableMonths.size || availableMonths.has(month);
+  });
+
+  const fallbackMonth = data?.config?.thang_hien_tai
+    || Array.from(availableMonths).sort().at(-1)
+    || null;
+
+  const nextMonths = filteredMonths.length ? filteredMonths : (fallbackMonth ? [fallbackMonth] : []);
+  const hasChanged = nextMonths.length !== currentMonths.length
+    || nextMonths.some((month, index) => month !== currentMonths[index]);
+
+  if (hasChanged && nextMonths.length) {
+    saveRange({ months: nextMonths });
+  }
+}
+
 async function ensureMonthlySnapshot() {
   const currentMonth = appState.data?.config?.thang_hien_tai;
   const previousMonth = getPreviousMonthKey(currentMonth);
@@ -126,6 +178,7 @@ async function initProtectedPage() {
   try {
     const raw = await readAllData();
     appState.data = normalizeData(raw);
+    ensureValidStoredRange(appState.data);
     await ensureMonthlySnapshot();
     rerenderApp();
     checkReminders(appState.data);
@@ -138,42 +191,16 @@ async function initProtectedPage() {
 }
 
 function initLoginPage() {
-  const form = document.querySelector('[data-login-form]');
-  if (!form) return;
   const status = document.querySelector('[data-login-status]');
-  const tokenInput = form.querySelector('input[name="token"]');
-
-  form.addEventListener('submit', async (event) => {
-    event.preventDefault();
-    const token = tokenInput.value.trim();
-    if (!token) {
-      showToast('Vui lòng nhập GitHub Personal Access Token.', 'warning');
-      return;
-    }
-    status.textContent = 'Đang kiểm tra token...';
-    const valid = await verifyToken(token);
-    if (!valid) {
-      status.textContent = 'Token chưa hợp lệ hoặc thiết bị đang mất kết nối mạng.';
-      showToast('Không xác thực được token GitHub.', 'error');
-      return;
-    }
-    setToken(token);
-    status.textContent = 'Đăng nhập thành công. Đang chuyển hướng...';
-    showToast('Đăng nhập thành công.', 'success');
-    window.setTimeout(() => {
-      window.location.href = 'index.html';
-    }, 500);
-  });
+  if (status) {
+    status.textContent = 'App không còn yêu cầu đăng nhập khi mở. Đang chuyển sang dashboard...';
+  }
+  window.setTimeout(() => {
+    window.location.href = 'index.html';
+  }, 300);
 }
 
 async function guardProtectedPage() {
-  if (document.body.dataset.requireAuth !== 'true') return true;
-  // Bỏ qua auth khi chạy localhost (dev mode)
-  if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') return true;
-  if (!getToken()) {
-    window.location.href = 'login.html';
-    return false;
-  }
   return true;
 }
 

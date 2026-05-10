@@ -10,7 +10,7 @@ import {
 import {
   isSetupComplete, getKpiSegments, getKhTon, getNvLabel,
   getRanking, getXeSucBan, getGroupSummaries,
-  getPerformanceTier, PERFORMANCE_TIER_META, getMonthPace,
+  getPerformanceTier, PERFORMANCE_TIER_META, getMonthPace, getActiveMonth,
 } from '../models.js';
 
 const KPI_FIELDS = [
@@ -104,21 +104,25 @@ function renderKpiCard(fieldMeta, data, months) {
   const pct = mucTieu > 0 ? calcPercent(total, mucTieu) : null;
   const pctClass = pct !== null ? getPercentClass(pct) : '';
   const topNv = segments.find((s) => s.value > 0);
-  const worstNv = segments.filter((s) => s.pct_personal !== null && s.pct_personal < 50).slice(-1)[0];
+  const worstNv = segments
+    .filter((s) => s.pct_personal !== null && s.pct_personal < 50)
+    .sort((a, b) => a.pct_personal - b.pct_personal || a.nv_ten.localeCompare(b.nv_ten, 'vi'))[0];
 
   const pace = getMonthPace(months, total, mucTieu);
   let paceText = '';
-  if (pace && pace.isCurrentMonth && mucTieu > 0 && field !== 'hd_ton') {
+  if (pace && pace.containsCurrent && mucTieu > 0 && field !== 'hd_ton') {
     if (total >= mucTieu) paceText = '🎉 đã vượt';
     else if (pace.dailyNeeded > 0) paceText = `cần ${pace.dailyNeeded.toFixed(2)}/ngày · còn ${pace.daysLeft}d`;
   } else if (pace && field !== 'hd_ton') {
     paceText = `tb ${pace.dailyDone.toFixed(2)}/ngày`;
   }
 
+  const isHdTon = field === 'hd_ton';
+  const topLabel = isHdTon ? 'Tồn nhiều nhất' : 'Top';
   const compactNote = [
     paceText,
-    topNv ? `Top ${topNv.nv_ten}: ${topNv.value}` : '',
-    worstNv && worstNv !== topNv ? `Cần đẩy ${worstNv.nv_ten}: ${worstNv.pct_personal}%` : '',
+    topNv ? `${topLabel} ${topNv.nv_ten}: ${topNv.value}` : '',
+    !isHdTon && worstNv && worstNv !== topNv ? `Cần đẩy ${worstNv.nv_ten}: ${worstNv.pct_personal}%` : '',
   ].filter(Boolean).join(' · ') || 'Nhấn để xem chi tiết theo nhân viên';
 
   const expandContent = field === 'hd_ton'
@@ -153,10 +157,10 @@ function renderKpiCard(fieldMeta, data, months) {
     paceText ? `<span class="kpi-core-meta-note">${paceText}</span>` : '',
     '</div>',
     total > 0 ? `<div class="kpi-row-stack">${renderNvChipStack(segments, total)}</div>` : '',
-    topNv || (worstNv && worstNv !== topNv) ? [
+    topNv || (!isHdTon && worstNv && worstNv !== topNv) ? [
       '<div class="kpi-row-hints">',
-      topNv ? `<span class="kpi-hint kpi-hint-top">🥇 ${escapeHtml(topNv.nv_ten)} · ${topNv.value}</span>` : '',
-      worstNv && worstNv !== topNv ? `<span class="kpi-hint kpi-hint-warn">🆘 ${escapeHtml(worstNv.nv_ten)} · ${worstNv.pct_personal}%</span>` : '',
+      topNv ? `<span class="kpi-hint kpi-hint-top">${isHdTon ? '⚠️' : '🥇'} ${escapeHtml(topNv.nv_ten)} · ${topNv.value}</span>` : '',
+      !isHdTon && worstNv && worstNv !== topNv ? `<span class="kpi-hint kpi-hint-warn">🆘 ${escapeHtml(worstNv.nv_ten)} · ${worstNv.pct_personal}%</span>` : '',
       '</div>',
     ].join('') : '',
     '</div>',
@@ -279,7 +283,7 @@ export default function renderKpiPage(data) {
   const range = getCurrentRange();
   const months = range.months || [];
   const rangeLabel = getRangeLabel(range);
-  const month = data.config.thang_hien_tai;
+  const month = getActiveMonth(data);
   const mt = data.config.muc_tieu_thang?.[month];
 
   const setupWarning = !setup.all ? [
@@ -302,7 +306,7 @@ export default function renderKpiPage(data) {
     '<div class="section-actions">',
     renderRangePicker(range),
     '<button type="button" class="btn btn-primary" data-action="open-setup-muc-tieu">',
-    mt ? '✏️ Sửa mục tiêu' : '⚙️ Setup mục tiêu tháng',
+    mt ? `✏️ Sửa MT tháng ${parseInt(month.split('-')[1], 10)}/${month.split('-')[0]}` : `⚙️ Setup MT tháng ${parseInt(month.split('-')[1], 10)}/${month.split('-')[0]}`,
     '</button>',
     '</div>',
     '</section>',

@@ -4,7 +4,7 @@
 
 import {
   showModal, closeModal, getModalRoot,
-  escapeHtml, trimmedValue, numberValue, makeId,
+  escapeHtml, trimmedValue, numberValue, makeId, showToast,
   createField, createSelectField,
 } from '../ui.js';
 import { XE_STATUS_META, suggestMaXe } from '../models.js';
@@ -48,7 +48,7 @@ export function openXeModal(xeId) {
     createField('Biến thể', 'bien_the', 'text', draft.bien_the, 'placeholder="Premium / Tiêu chuẩn"'),
     createField('Màu', 'mau', 'text', draft.mau, 'placeholder="Trắng"'),
     createField('Năm sản xuất', 'nam', 'number', draft.nam || new Date().getFullYear(), 'min="2000" max="2099"'),
-    createField('Giá niêm yết (VND)', 'gia_niem_yet', 'number', draft.gia_niem_yet || 0, 'min="0" step="1000000"'),
+    createField('Giá niêm yết (VND)', 'gia_niem_yet', 'number', draft.gia_niem_yet || 0, 'min="0" step="1"'),
     createSelectField('Trạng thái', 'trang_thai', statusOptions, draft.trang_thai || 'dang_ban'),
 
     '<div class="button-row" style="grid-column: 1 / -1;">',
@@ -78,10 +78,20 @@ export function openXeModal(xeId) {
   root.querySelector('[data-xe-form]').addEventListener('submit', async (event) => {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
+    const maXe = trimmedValue(formData, 'ma_xe');
+
+    const duplicate = appState.data.xe.xe.find((item) =>
+      item.id !== draft.id &&
+      String(item.ma_xe || '').trim().toLowerCase() === maXe.toLowerCase()
+    );
+    if (duplicate) {
+      showToast('Mã xe đã tồn tại trong catalog. Hãy dùng mã khác để tránh trùng dòng xe.', 'warning');
+      return;
+    }
 
     const payload = {
       id: trimmedValue(formData, 'xe_id'),
-      ma_xe: trimmedValue(formData, 'ma_xe'),
+      ma_xe: maXe,
       hang: trimmedValue(formData, 'hang'),
       dong: trimmedValue(formData, 'dong'),
       bien_the: trimmedValue(formData, 'bien_the'),

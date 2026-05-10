@@ -2,7 +2,25 @@
 // Constants + normalize raw JSON + derive helpers (lead totals, KPI %, counters).
 // Pure functions — không truy cập DOM.
 
-import { numberValue, calcPercent, getCurrentMonth } from './ui.js';
+import { numberValue, calcPercent, getCurrentMonth, getCurrentRange } from './ui.js';
+
+// === Active month — nguồn DUY NHẤT cho cả thống kê và nhập liệu ===
+// Lấy từ Range picker (sessionStorage). Nếu range > 1 tháng (quý/năm),
+// dùng tháng cuối trong range làm tháng nhập (gần thực tế nhất).
+// Fallback: config.thang_hien_tai → tháng hiện tại của hệ thống.
+export function getActiveMonth(data) {
+  const range = getCurrentRange();
+  const months = Array.isArray(range?.months) ? range.months : [];
+  if (months.length) return months[months.length - 1];
+  return data?.config?.thang_hien_tai || getCurrentMonth();
+}
+
+// True nếu user đang chọn 1 tháng đơn lẻ (cho phép nhập liệu).
+// False khi range là quý/năm — chỉ cho xem, không cho nhập per-week.
+export function isSingleMonthRange() {
+  const range = getCurrentRange();
+  return Array.isArray(range?.months) && range.months.length === 1;
+}
 
 // === Navigation ===
 export const NAV_ITEMS = [
@@ -385,18 +403,16 @@ export function hasOperationalData(data) {
 export function isSetupComplete(data) {
   const co_xe = data.xe.xe.length > 0;
   const co_nv = data.nhanVien.nhan_vien.filter((nv) => nv.trang_thai !== 'nghi_viec').length > 0;
-  const month = data.config.thang_hien_tai;
+  const month = getActiveMonth(data);
   const mt = data.config.muc_tieu_thang?.[month];
+  // Có ít nhất 1 mục tiêu = đủ điều kiện thêm KH (gating gốc)
   const co_muc_tieu = Boolean(mt && (mt.xe_ky_moi || mt.hd_xuat_thang || mt.lead_phat_sinh));
-  return { co_xe, co_nv, co_muc_tieu, all: co_xe && co_nv && co_muc_tieu };
+  // Đủ 3 mục tiêu công ty = setup chuẩn để dashboard hiển thị đầy đủ
+  const muc_tieu_day_du = Boolean(mt && mt.xe_ky_moi && mt.hd_xuat_thang && mt.lead_phat_sinh);
+  return { co_xe, co_nv, co_muc_tieu, muc_tieu_day_du, all: co_xe && co_nv && co_muc_tieu };
 }
 
 // === Derive helpers ===
-export function mapLeadTotal(employee, month) {
-  const block = employee.lead_theo_thang?.[month] || {};
-  return DEFAULT_LEAD_CHANNELS.reduce((sum, ch) => sum + getLeadTuanTotal(block[ch.id]), 0);
-}
-
 export function getEmployeeLeadTotal(employee, month, channels = DEFAULT_LEAD_CHANNELS) {
   const block = employee?.lead_theo_thang?.[month] || {};
   return channels.reduce((sum, channel) => sum + getLeadTuanTotal(block[channel.id]), 0);
@@ -527,7 +543,12 @@ export function getKpiSegments(allData, kpiField, months) {
       value = allKh.filter((kh) => kh.nhan_vien_id === nv.id && kh.ngay_giao_thuc_te && monthSet.has(kh.ngay_giao_thuc_te.slice(0, 7))).length;
     } else if (kpiField === 'hd_ton') {
       const minMonth = months[0];
-      value = allKh.filter((kh) => kh.nhan_vien_id === nv.id && kh.ngay_ky && kh.ngay_ky.slice(0, 7) < minMonth && !kh.ngay_giao_thuc_te).length;
+      value = allKh.filter((kh) =>
+        kh.nhan_vien_id === nv.id &&
+        kh.ngay_ky && kh.ngay_ky.slice(0, 7) < minMonth &&
+        !kh.ngay_giao_thuc_te &&
+        kh.trang_thai !== 'da_giao' && kh.trang_thai !== 'dong_cskh'
+      ).length;
     } else if (kpiField === 'lead_phat_sinh') {
       value = months.reduce((sum, m) => {
         return sum + getEmployeeLeadTotal(nv, m, leadChannels);
@@ -548,15 +569,19 @@ export function getKpiSegments(allData, kpiField, months) {
   }).sort((a, b) => b.value - a.value);
 }
 
-// KH tồn: ký trước tháng đầu trong range và chưa có ngày giao thực tế.
+// KH tồn: ký trước tháng đầu trong range và chưa giao xe.
+// "Chưa giao" = thiếu ngay_giao_thuc_te VÀ status không phải da_giao/dong_cskh.
 // Sort desc theo số ngày tồn.
 export function getKhTon(allData, months) {
   if (!months?.length) return [];
   const minMonth = months[0];
   const today = new Date();
   today.setHours(0, 0, 0, 0);
+  const isDelivered = (kh) => kh.ngay_giao_thuc_te
+    || kh.trang_thai === 'da_giao'
+    || kh.trang_thai === 'dong_cskh';
   return (allData.khachHang?.khach_hang || [])
-    .filter((kh) => kh.ngay_ky && kh.ngay_ky.slice(0, 7) < minMonth && !kh.ngay_giao_thuc_te)
+    .filter((kh) => kh.ngay_ky && kh.ngay_ky.slice(0, 7) < minMonth && !isDelivered(kh))
     .map((kh) => {
       const d = new Date(kh.ngay_ky);
       return { ...kh, days_ton: Number.isNaN(d.getTime()) ? 0 : Math.round((today - d) / 86400000) };
@@ -583,7 +608,12 @@ export function getRanking(allData, months) {
     }, 0);
     const pct_muc_tieu = personalTarget > 0 ? calcPercent(xe_ky, personalTarget) : null;
     return { nv_id: nv.id, nv_ten: nv.ho_ten, xe_ky, xe_giao, lead, pct_muc_tieu };
-  }).sort((a, b) => b.xe_ky - a.xe_ky);
+  }).sort((a, b) =>
+    (b.xe_ky - a.xe_ky)
+    || (b.xe_giao - a.xe_giao)
+    || (b.lead - a.lead)
+    || a.nv_ten.localeCompare(b.nv_ten, 'vi')
+  );
 }
 
 // getNvStats: KPI cá nhân NV trong range tháng.
@@ -622,7 +652,12 @@ export function getGroupSummaries(allData, months) {
     const xe_ky = allKh.filter((kh) => memberIds.has(kh.nhan_vien_id) && kh.ngay_ky && monthSet.has(kh.ngay_ky.slice(0, 7))).length;
     const xe_giao = allKh.filter((kh) => memberIds.has(kh.nhan_vien_id) && kh.ngay_giao_thuc_te && monthSet.has(kh.ngay_giao_thuc_te.slice(0, 7))).length;
     const du_ky = allKh.filter((kh) => memberIds.has(kh.nhan_vien_id) && kh.trang_thai === 'du_ky' && kh.ngay_du_kien_ky && monthSet.has(kh.ngay_du_kien_ky.slice(0, 7))).length;
-    const hd_ton = allKh.filter((kh) => memberIds.has(kh.nhan_vien_id) && kh.ngay_ky && kh.ngay_ky.slice(0, 7) < minMonth && !kh.ngay_giao_thuc_te).length;
+    const hd_ton = allKh.filter((kh) =>
+      memberIds.has(kh.nhan_vien_id) &&
+      kh.ngay_ky && kh.ngay_ky.slice(0, 7) < minMonth &&
+      !kh.ngay_giao_thuc_te &&
+      kh.trang_thai !== 'da_giao' && kh.trang_thai !== 'dong_cskh'
+    ).length;
     const lead = members.reduce((sum, member) => sum + months.reduce((monthSum, month) => monthSum + getEmployeeLeadTotal(member, month, leadChannels), 0), 0);
     const gio_live = members.reduce((sum, member) => sum + months.reduce((monthSum, month) => monthSum + getEmployeeActivityTotal(member, month, 'gio_live'), 0), 0);
     const luot_lai_thu = members.reduce((sum, member) => sum + months.reduce((monthSum, month) => monthSum + getEmployeeActivityTotal(member, month, 'luot_lai_thu'), 0), 0);
@@ -709,12 +744,14 @@ export const PERFORMANCE_TIER_META = {
   none:      { label: 'Chưa có mục tiêu', emoji: '·', color: 'var(--neutral)',     dot: '#90a4ae' },
 };
 
-// Số ngày trong tháng + tốc độ cần thiết để về đích.
-// Trả { daysInMonth, daysPassed, daysLeft, dailyDone, dailyNeeded }
+// Số ngày trong range + tốc độ cần thiết để về đích.
+// Hỗ trợ cả range nhiều tháng (quý/năm): nếu range chứa tháng hiện tại,
+// daysPassed tính tới hôm nay; ngược lại tính cả range = đã đóng sổ.
 export function getMonthPace(months, totalDone, target) {
   if (!months?.length) return null;
   const today = new Date();
   const todayKey = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}`;
+  const containsCurrent = months.includes(todayKey);
   const isCurrentMonth = months.length === 1 && months[0] === todayKey;
   const [year, mon] = months[0].split('-').map(Number);
   const daysInMonth = new Date(year, mon, 0).getDate();
@@ -722,11 +759,22 @@ export function getMonthPace(months, totalDone, target) {
     const [y, mm] = m.split('-').map(Number);
     return sum + new Date(y, mm, 0).getDate();
   }, 0);
-  const daysPassed = isCurrentMonth ? today.getDate() : totalDays;
+  // Tính số ngày đã trôi qua trong range
+  let daysPassed = totalDays;
+  if (containsCurrent) {
+    daysPassed = months.reduce((sum, m) => {
+      if (m > todayKey) return sum;
+      if (m < todayKey) {
+        const [y, mm] = m.split('-').map(Number);
+        return sum + new Date(y, mm, 0).getDate();
+      }
+      return sum + today.getDate();
+    }, 0);
+  }
   const daysLeft = Math.max(0, totalDays - daysPassed);
   const dailyDone = daysPassed > 0 ? totalDone / daysPassed : 0;
   const dailyNeeded = daysLeft > 0 && target > totalDone ? (target - totalDone) / daysLeft : 0;
-  return { daysInMonth, totalDays, daysPassed, daysLeft, dailyDone, dailyNeeded, isCurrentMonth };
+  return { daysInMonth, totalDays, daysPassed, daysLeft, dailyDone, dailyNeeded, isCurrentMonth, containsCurrent };
 }
 
 // Sức bán theo dòng xe: [{xe_id, xe_ten, so_ky, so_giao, top_nv_ten}]

@@ -2,10 +2,11 @@
 // Sidebar + topbar + bottom-nav + common card builders.
 // Mọi view đều gọi renderShell() để bọc nội dung trang.
 
-import { escapeHtml, getCurrentMonth, calcPercent, getPercentClass, renderProgressBar, avatarHtml } from '../ui.js';
+import { escapeHtml, getCurrentMonth, calcPercent, getPercentClass, renderProgressBar, avatarHtml, getCurrentRange, getRangeLabel } from '../ui.js';
 import { NAV_ITEMS, PAGE_META, countNotifications } from '../models.js';
 
 export function createSidebar(activePage, config) {
+  const rangeLabel = getRangeLabel(getCurrentRange());
   return [
     '<aside class="sidebar" aria-label="Điều hướng chính">',
     '<div class="brand">',
@@ -28,10 +29,10 @@ export function createSidebar(activePage, config) {
     avatarHtml(config.gdkd || 'GĐ', true),
     '<div>',
     `<div class="brand-title">${escapeHtml(config.gdkd || 'Giám Đốc Kinh Doanh')}</div>`,
-    `<div class="brand-subtitle">Tháng ${escapeHtml(config.thang_hien_tai || getCurrentMonth())}</div>`,
+    `<div class="brand-subtitle">${escapeHtml(rangeLabel)}</div>`,
     '</div>',
     '</div>',
-    '<button type="button" class="btn btn-ghost sidebar-logout" data-action="logout">Đăng xuất</button>',
+    '<button type="button" class="btn btn-ghost sidebar-logout" data-action="logout">Xoá token</button>',
     '</div>',
     '</aside>',
   ].join('');
@@ -40,11 +41,12 @@ export function createSidebar(activePage, config) {
 export function createTopBar(activePage, data) {
   const meta = PAGE_META[activePage] || PAGE_META.dashboard;
   const notificationCount = countNotifications(data);
+  const rangeLabel = getRangeLabel(getCurrentRange());
   return [
     '<header class="topbar">',
     '<div class="page-meta">',
     `<span class="page-kicker">${escapeHtml(meta.kicker)}</span>`,
-    `<h1 class="page-title">${escapeHtml(meta.title)} · ${escapeHtml(data.config.thang_hien_tai || getCurrentMonth())}</h1>`,
+    `<h1 class="page-title">${escapeHtml(meta.title)} · ${escapeHtml(rangeLabel)}</h1>`,
     '</div>',
     '<div class="topbar-actions">',
     '<button type="button" class="icon-button" data-action="open-settings" aria-label="Cấu hình GitHub">⚙️</button>',
@@ -52,7 +54,7 @@ export function createTopBar(activePage, data) {
     '<span aria-hidden="true">🔔</span>',
     notificationCount ? `<span class="icon-badge">${notificationCount}</span>` : '',
     '</button>',
-    '<button type="button" class="btn btn-ghost" data-action="logout">Đăng xuất</button>',
+    '<button type="button" class="btn btn-ghost" data-action="logout">Xoá token</button>',
     '</div>',
     '</header>',
   ].join('');

@@ -54,11 +54,16 @@ function wasReminderSent(id) {
   return Boolean(localStorage.getItem(`${REMINDER_PREFIX}${id}`));
 }
 
-function canNotify() {
+export function canNotify() {
   return 'Notification' in window;
 }
 
-async function requestPermission() {
+export function getNotificationPermission() {
+  if (!canNotify()) return 'unsupported';
+  return Notification.permission;
+}
+
+export async function requestPermission() {
   if (!canNotify()) return 'unsupported';
   if (Notification.permission === 'granted') return 'granted';
   if (Notification.permission === 'denied') return 'denied';
@@ -158,15 +163,14 @@ export function checkReminders(allData) {
   const pendingItems = getReminderItems(allData).filter((item) => !wasReminderSent(item.id)).slice(0, 4);
   if (!pendingItems.length) return;
 
-  requestPermission().then((permission) => {
-    if (permission !== 'granted') return;
-    pendingItems.forEach((item) => {
+  if (getNotificationPermission() !== 'granted') return;
+
+  pendingItems.forEach((item) => {
+    try {
       new Notification(item.title, { body: item.body });
       markReminderSent(item.id);
-    });
-  }).catch((error) => {
-    console.error('Notification permission failed', error);
+    } catch (error) {
+      console.error('Notification display failed', error);
+    }
   });
 }
-
-export { requestPermission };

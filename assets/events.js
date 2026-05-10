@@ -68,9 +68,9 @@ function filterCskhCards() {
 export function bindCommonEvents(data) {
   document.querySelectorAll('[data-action="logout"]').forEach((button) => {
     button.addEventListener('click', () => {
-      confirmAction('Bạn muốn đăng xuất khỏi ứng dụng?', () => {
+      confirmAction('Xoá token GitHub đã lưu trên thiết bị này?', () => {
         clearToken();
-        window.location.href = 'login.html';
+        showToast('Đã xoá token khỏi thiết bị này. App vẫn dùng dữ liệu local hiện có.', 'success');
       });
     });
   });
@@ -240,10 +240,16 @@ export function bindCommonEvents(data) {
       const parent = pill.closest('[data-tab-panel]') || document;
       parent.querySelectorAll('[data-kh-filter]').forEach((p) => p.classList.remove('is-active'));
       pill.classList.add('is-active');
+      // Reset pill kênh để 2 filter không xung đột
+      parent.querySelectorAll('[data-kenh-filter]').forEach((p) => p.classList.remove('is-active'));
       const filterVal = pill.getAttribute('data-kh-filter');
       document.querySelectorAll('[data-kh-card]').forEach((card) => {
         const cardFilter = card.getAttribute('data-filter') || '';
-        card.style.display = (filterVal === 'all' || cardFilter === filterVal) ? '' : 'none';
+        const canCskh = card.getAttribute('data-can-cskh') === 'true';
+        const isVisible = filterVal === 'all'
+          || cardFilter === filterVal
+          || (filterVal === 'can_cskh' && canCskh);
+        card.style.display = isVisible ? '' : 'none';
       });
     });
   });
@@ -298,7 +304,7 @@ export function bindCommonEvents(data) {
       clearTimeout(leadDebounceTimer);
       leadDebounceTimer = setTimeout(async () => {
         const nvId = input.getAttribute('data-nv-id');
-        const month = appState.data.config.thang_hien_tai;
+        const month = input.getAttribute('data-month') || appState.data.config.thang_hien_tai;
         const nvIdx = appState.data.nhanVien.nhan_vien.findIndex((n) => n.id === nvId);
         if (nvIdx < 0) return;
         const emp = appState.data.nhanVien.nhan_vien[nvIdx];
@@ -327,7 +333,7 @@ export function bindCommonEvents(data) {
       clearTimeout(contentDebounceTimer);
       contentDebounceTimer = setTimeout(async () => {
         const nvId = input.getAttribute('data-nv-id');
-        const month = appState.data.config.thang_hien_tai;
+        const month = input.getAttribute('data-month') || appState.data.config.thang_hien_tai;
         const nvIdx = appState.data.nhanVien.nhan_vien.findIndex((n) => n.id === nvId);
         if (nvIdx < 0) return;
         const emp = appState.data.nhanVien.nhan_vien[nvIdx];
@@ -356,11 +362,10 @@ export function bindCommonEvents(data) {
       const kenhVal = pill.getAttribute('data-kenh-filter');
       document.querySelectorAll('[data-kh-card]').forEach((card) => {
         const cardKenh = card.getAttribute('data-kenh-lead') || '';
-        card.style.display = (kenhVal === 'all' || cardKenh === kenhVal) ? '' : 'none';
+        card.style.display = cardKenh === kenhVal ? '' : 'none';
       });
-      // Reset status pills
-      const parent2 = pill.closest('[data-tab-panel]') || document;
-      parent2.querySelectorAll('[data-kh-filter]').forEach((p) => p.classList.remove('is-active'));
+      // Reset status pills (2 filter cùng lúc gây nhầm lẫn)
+      parent.querySelectorAll('[data-kh-filter]').forEach((p) => p.classList.remove('is-active'));
     });
   });
 
@@ -373,7 +378,7 @@ export function bindCommonEvents(data) {
         const nvId = input.getAttribute('data-nv-id');
         const tuan = Number(input.getAttribute('data-tuan'));
         const value = Math.max(0, Number(input.value || 0));
-        const month = appState.data.config.thang_hien_tai;
+        const month = input.getAttribute('data-month') || appState.data.config.thang_hien_tai;
         const nvIdx = appState.data.nhanVien.nhan_vien.findIndex((n) => n.id === nvId);
         if (nvIdx < 0) return;
         const emp = appState.data.nhanVien.nhan_vien[nvIdx];

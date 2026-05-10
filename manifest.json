@@ -2,7 +2,7 @@
   "name": "GĐKD Omoda",
   "short_name": "GĐKD",
   "description": "Ứng dụng quản lý nội bộ Giám Đốc Kinh Doanh - Omoda Đắk Lắk",
-  "start_url": "login.html",
+  "start_url": "index.html",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",

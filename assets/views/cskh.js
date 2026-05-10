@@ -7,10 +7,11 @@ import { CSKH_STATUS_META, getNvLabel, getXeLabel } from '../models.js';
 // KH cần CSKH: đã giao && (chưa có cskh nào sau 7 ngày || có cskh chưa xử lý xong)
 function needsCskh(kh) {
   if (!['da_giao', 'dong_cskh'].includes(kh.trang_thai)) return false;
-  if (!Array.isArray(kh.cskh)) return true;
-  const hasUnresolved = kh.cskh.some((c) => c.trang_thai_xu_ly !== 'da_xu_ly');
+  const cskhList = Array.isArray(kh.cskh) ? kh.cskh : [];
+  const hasUnresolved = cskhList.some((c) => c.trang_thai_xu_ly !== 'da_xu_ly');
   if (hasUnresolved) return true;
-  if (kh.cskh.length === 0 && kh.ngay_giao_thuc_te) {
+  // Chưa có entry nào: chỉ cảnh báo nếu giao xe đã > 7 ngày
+  if (cskhList.length === 0 && kh.ngay_giao_thuc_te) {
     const days = Math.round((Date.now() - new Date(kh.ngay_giao_thuc_te).getTime()) / 86400000);
     return days > 7;
   }

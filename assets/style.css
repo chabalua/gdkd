@@ -772,6 +772,7 @@ img {
 .customer-log-item {
   display: flex;
   gap: 8px;
+  align-items: center;
   padding: 6px 0;
   font-size: 0.85rem;
   border-bottom: 1px solid var(--border);
@@ -785,6 +786,20 @@ img {
 .customer-log-step {
   min-width: 24px;
   color: var(--primary);
+}
+
+.customer-log-content {
+  flex: 1;
+  min-width: 0;
+  word-break: break-word;
+}
+
+.customer-feedback-head [data-delete-cskh],
+.customer-log-item [data-delete-tiendo] {
+  flex-shrink: 0;
+  padding: 2px 8px;
+  font-size: 0.85rem;
+  line-height: 1;
 }
 
 .customer-feedback-item {
@@ -3806,4 +3821,62 @@ img {
   .mobile-week-item { padding: 7px 8px; }
   .mobile-week-label { font-size: 0.66rem; }
   .mobile-week-input { min-height: 38px; font-size: 0.86rem; }
+}
+
+/* Setup mục tiêu — bảng mục tiêu cá nhân NV */
+.muc-tieu-nv-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.muc-tieu-nv-row {
+  display: grid;
+  grid-template-columns: minmax(120px, 1fr) 2.5fr;
+  gap: 12px;
+  align-items: center;
+  padding: 10px 12px;
+  background: var(--surface-alt, rgba(0, 0, 0, 0.02));
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.muc-tieu-nv-name {
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.muc-tieu-nv-inputs {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.muc-tieu-nv-inputs .field-label {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  margin-bottom: 2px;
+}
+
+.muc-tieu-nv-inputs .input {
+  padding: 6px 8px;
+  font-size: 0.86rem;
+}
+
+@media (max-width: 600px) {
+  .muc-tieu-nv-row {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+  .muc-tieu-nv-inputs {
+    gap: 6px;
+  }
+}
+
+/* Btn-sm cho các nút xoá nhỏ trong list */
+.btn-sm {
+  padding: 4px 10px;
+  font-size: 0.8rem;
+  min-height: 28px;
 }

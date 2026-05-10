@@ -4,11 +4,12 @@ import {
   escapeHtml, trimmedValue, numberValue, makeId, getCurrentMonth,
   createField, createSelectField,
 } from '../ui.js';
-import { ensureEmployeeMonth, NV_STATUS_META, LOAI_NHAN_SU_META, DEFAULT_LEAD_CHANNELS, getLeadChannels, ACTIVITY_UNIT_META, getEmployeeGroups } from '../models.js';
+import { ensureEmployeeMonth, NV_STATUS_META, LOAI_NHAN_SU_META, DEFAULT_LEAD_CHANNELS, getLeadChannels, ACTIVITY_UNIT_META, getEmployeeGroups, getActiveMonth } from '../models.js';
 import { appState, persistFile, rerenderApp } from '../app.js';
 
 function createEmployeeDraft(existing) {
-  const month = appState.data.config.thang_hien_tai || getCurrentMonth();
+  const month = getActiveMonth(appState.data);
+  const channels = getLeadChannels(appState.data);
   const employee = existing ? JSON.parse(JSON.stringify(existing)) : {
     id: makeId('nv'),
     ho_ten: '',
@@ -27,14 +28,15 @@ function createEmployeeDraft(existing) {
   if (!employee.trang_thai) employee.trang_thai = 'dang_lam';
   if (!employee.loai_nhan_su) employee.loai_nhan_su = 'chinh_thuc';
   if (!employee.nhom_id) employee.nhom_id = getEmployeeGroups(appState.data)[0]?.id || 'nhom_1';
-  ensureEmployeeMonth(employee, month);
+  ensureEmployeeMonth(employee, month, channels);
   return employee;
 }
 
 export function openEmployeeModal(employeeId) {
   const existing = appState.data.nhanVien.nhan_vien.find((item) => item.id === employeeId);
   const draft = createEmployeeDraft(existing);
-  const month = appState.data.config.thang_hien_tai || getCurrentMonth();
+  const month = getActiveMonth(appState.data);
+  const channels = getLeadChannels(appState.data);
   const groups = getEmployeeGroups(appState.data);
 
   showModal([
@@ -73,7 +75,7 @@ export function openEmployeeModal(employeeId) {
     employee.loai_nhan_su = trimmedValue(formData, 'loai_nhan_su') || 'chinh_thuc';
     employee.ngay_vao = trimmedValue(formData, 'ngay_vao');
     employee.trang_thai = trimmedValue(formData, 'trang_thai') || 'dang_lam';
-    ensureEmployeeMonth(employee, month);
+    ensureEmployeeMonth(employee, month, channels);
 
     if (existing) {
       const index = appState.data.nhanVien.nhan_vien.findIndex((item) => item.id === existing.id);
@@ -91,7 +93,7 @@ export function openEmployeeModal(employeeId) {
 export function openManageModal(nvId) {
   const nv = appState.data.nhanVien.nhan_vien.find((n) => n.id === nvId);
   if (!nv) return;
-  const month = appState.data.config.thang_hien_tai || getCurrentMonth();
+  const month = getActiveMonth(appState.data);
   let channels = getLeadChannels(appState.data).map((channel) => ({ ...channel }));
   ensureEmployeeMonth(nv, month, channels);
   const lead = nv.lead_theo_thang[month];

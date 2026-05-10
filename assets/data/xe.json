@@ -2,7 +2,7 @@
   "xe": [
     {
       "id": "xmowbio102kag",
-      "ma_xe": "JAECOO",
+      "ma_xe": "JAECOO-J7-NEWVER-2026",
       "hang": "JAECOO",
       "dong": "J7",
       "bien_the": "NEWVER",
@@ -13,7 +13,7 @@
     },
     {
       "id": "xmowbi4rpwwqq",
-      "ma_xe": "JAECOO",
+      "ma_xe": "JAECOO-J7AWD-FLAG-2026",
       "hang": "JAECOO",
       "dong": "J7 AWD",
       "bien_the": "FLAGSHIP",
@@ -24,7 +24,7 @@
     },
     {
       "id": "xmowbf6k23jdf",
-      "ma_xe": "JAECOO",
+      "ma_xe": "JAECOO-J7SHS-FLAG-2026",
       "hang": "JAECOO",
       "dong": "J7 SHS",
       "bien_the": "FLAGSHIP",
@@ -35,10 +35,10 @@
     },
     {
       "id": "xmowbeny8yqvh",
-      "ma_xe": "JAECOO",
+      "ma_xe": "JAECOO-J7-FLAG-2026",
       "hang": "JAECOO",
       "dong": "J7",
-      "bien_the": "FALGSHIP",
+      "bien_the": "FLAGSHIP",
       "mau": "",
       "nam": 2026,
       "gia_niem_yet": 0,
@@ -46,7 +46,7 @@
     },
     {
       "id": "xmowalx5hajtq",
-      "ma_xe": "OMODA",
+      "ma_xe": "OMODA-C5SHS-FLAG-2026",
       "hang": "OMODA",
       "dong": "C5 SHS",
       "bien_the": "FLAGSHIP",
@@ -57,7 +57,7 @@
     },
     {
       "id": "xmowalih69vxg",
-      "ma_xe": "OMODA",
+      "ma_xe": "OMODA-C5SHS-PREM-2026",
       "hang": "OMODA",
       "dong": "C5 SHS",
       "bien_the": "PREMIUM",
@@ -68,7 +68,7 @@
     },
     {
       "id": "xmowal5fff334",
-      "ma_xe": "OMODA",
+      "ma_xe": "OMODA-C5-FLAG-2026",
       "hang": "OMODA",
       "dong": "C5",
       "bien_the": "FLAGSHIP",
@@ -79,7 +79,7 @@
     },
     {
       "id": "xmowaktm42yuj",
-      "ma_xe": "OMODA",
+      "ma_xe": "OMODA-C5-PREM-2026",
       "hang": "OMODA",
       "dong": "C5",
       "bien_the": "PREMIUM",
@@ -90,7 +90,7 @@
     },
     {
       "id": "xmowaj0jx0gzw",
-      "ma_xe": "OMODA C5",
+      "ma_xe": "OMODA-C5-LUX-2026",
       "hang": "OMODA",
       "dong": "C5",
       "bien_the": "LUXURY",

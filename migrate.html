@@ -101,7 +101,7 @@
 
     btnMigrate.addEventListener('click', async () => {
       if (!getToken() || !getRepoConfig().owner) {
-        log('Cần đăng nhập GitHub trước. Mở login.html và đăng nhập.', 'err');
+        log('Cần cấu hình token/repo GitHub trước. Mở app, vào Cài đặt để nhập token.', 'err');
         return;
       }
       try {

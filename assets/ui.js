@@ -173,9 +173,9 @@ export function createField(label, name, type, value, extra = '') {
   return `<label class="field"><span class="field-label">${escapeHtml(label)}</span><input class="input" type="${escapeHtml(type)}" name="${escapeHtml(name)}" value="${escapeHtml(value || '')}" ${extra}></label>`;
 }
 
-export function createSelectField(label, name, options, value) {
+export function createSelectField(label, name, options, value, extra = '') {
   return [
-    `<label class="field"><span class="field-label">${escapeHtml(label)}</span><select class="select" name="${escapeHtml(name)}">`,
+    `<label class="field"><span class="field-label">${escapeHtml(label)}</span><select class="select" name="${escapeHtml(name)}" ${extra}>`,
     options.map((option) => `<option value="${escapeHtml(option.value)}"${option.value === value ? ' selected' : ''}>${escapeHtml(option.label)}</option>`).join(''),
     '</select></label>',
   ].join('');
