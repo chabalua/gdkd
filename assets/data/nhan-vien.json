@@ -60,6 +60,10 @@
           "sr": {
             "muc_tieu": 0,
             "tuan": {}
+          },
+          "so_tien_chay_quang_cao": {
+            "muc_tieu": 0,
+            "tuan": {}
           }
         }
       },
