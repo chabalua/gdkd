@@ -5,6 +5,8 @@
     "dia_chi": "",
     "gdkd": "Hoàng Trọng Hiếu"
   },
+  "cong_ty": "",
+  "gdkd": "Hoàng Trọng Hiếu",
   "muc_tieu_thang": {
     "2026-04": {
       "xe_ky_moi": 28,
@@ -98,6 +100,12 @@
       "label": "Giới thiệu",
       "loai": "lead",
       "don_vi": "so"
+    },
+    {
+      "id": "so_tien_chay_quang_cao",
+      "label": "Số tiền chạy quảng cáo",
+      "loai": "hoat_dong",
+      "don_vi": "tien"
     }
   ],
   "nhom_kinh_doanh": [
