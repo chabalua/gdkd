@@ -13,7 +13,8 @@
 //   app.js     ← file này
 
 import {
-  readAllData, writeData, savePendingWrite, clearPendingWrite,
+  readAllData, writeData, savePendingWrite, clearPendingWrite, getPendingWriteCount,
+  pushPendingWrites, getRepoConfig, getToken,
 } from './api.js';
 import { showToast, escapeHtml, getCurrentRange, saveRange } from './ui.js';
 import { normalizeData, serializeFilePayload, getPreviousMonthKey, buildMonthlySnapshot } from './models.js';
@@ -172,6 +173,28 @@ function ensureReminderLoop() {
   }, 30 * 60 * 1000);
 }
 
+async function syncPendingWritesOnStartup() {
+  const pendingCount = getPendingWriteCount();
+  if (!pendingCount) return;
+  const repoConfig = getRepoConfig();
+  if (!repoConfig.owner || !repoConfig.repo || !getToken()) return;
+
+  const result = await pushPendingWrites();
+  if (result.synced.length && !result.failures.length) {
+    showToast(`Đã tự đồng bộ ${result.synced.length} thay đổi lên GitHub.`, 'success');
+    return;
+  }
+
+  if (result.synced.length && result.failures.length) {
+    showToast(`Đã tự đồng bộ ${result.synced.length} thay đổi, còn ${result.failures.length} thay đổi cần kiểm tra.`, 'warning');
+    return;
+  }
+
+  if (result.failures.length) {
+    showToast(`Chưa tự đồng bộ được. Mở GitHub để kiểm tra cấu hình.`, 'warning');
+  }
+}
+
 function getProtectedRenderer(page) {
   switch (page) {
     case 'dashboard': return renderDashboard;
@@ -196,6 +219,7 @@ async function initProtectedPage() {
     const raw = await readAllData();
     appState.data = normalizeData(raw);
     ensureValidStoredRange(appState.data);
+    await syncPendingWritesOnStartup();
     await ensureMonthlySnapshot();
     rerenderApp();
     checkReminders(appState.data);

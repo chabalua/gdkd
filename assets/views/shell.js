@@ -4,6 +4,7 @@
 
 import { escapeHtml, getCurrentMonth, calcPercent, getPercentClass, renderProgressBar, avatarHtml, getCurrentRange, getRangeLabel } from '../ui.js';
 import { NAV_ITEMS, PAGE_META, countNotifications } from '../models.js';
+import { getPendingWriteCount, getRepoConfig, getToken } from '../api.js';
 
 export function createSidebar(activePage, config) {
   const rangeLabel = getRangeLabel(getCurrentRange());
@@ -42,6 +43,11 @@ export function createTopBar(activePage, data) {
   const meta = PAGE_META[activePage] || PAGE_META.dashboard;
   const notificationCount = countNotifications(data);
   const rangeLabel = getRangeLabel(getCurrentRange());
+  const pendingCount = getPendingWriteCount();
+  const repoConfig = getRepoConfig();
+  const hasGithubConfig = Boolean(repoConfig.owner && repoConfig.repo && getToken());
+  const githubButtonLabel = pendingCount ? `Đồng bộ ${pendingCount}` : (hasGithubConfig ? 'GitHub' : 'Cấu hình GitHub');
+  const githubButtonAction = pendingCount ? 'sync-pending-writes' : 'open-settings';
   return [
     '<header class="topbar">',
     '<div class="page-meta">',
@@ -49,6 +55,7 @@ export function createTopBar(activePage, data) {
     `<h1 class="page-title">${escapeHtml(meta.title)} · ${escapeHtml(rangeLabel)}</h1>`,
     '</div>',
     '<div class="topbar-actions">',
+    `<button type="button" class="btn btn-soft" data-action="${githubButtonAction}">${escapeHtml(githubButtonLabel)}</button>`,
     `<a class="icon-button${activePage === 'settings' ? ' is-active' : ''}" href="settings.html" aria-label="Mở trang thiết lập">⚙️</a>`,
     '<button type="button" class="icon-button" data-action="show-notifications" aria-label="Thông báo">',
     '<span aria-hidden="true">🔔</span>',
