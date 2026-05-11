@@ -11,7 +11,7 @@
 ### Tóm tắt nhanh
 
 - **Giai đoạn 1:** gần như xong. `migrate-v3.html` đã có, `assets/data/_backup_v2/` đã có, data runtime đang chạy trên schema v3 và `kpi.json` / `cskh.json` đã bị loại khỏi `assets/data/`.
-- **Giai đoạn 2:** đã làm phần lớn UI/core. Đã có `settings.html` + `assets/views/settings.js`, `assets/components/week-grid.js`, `assets/components/kpi-core.js`, CRUD phòng ban/nhiệm vụ, NV detail 2 tab, shared KPI card, mobile fix cho NV detail.
+- **Giai đoạn 2:** đã làm phần lớn UI/core. Đã có `settings.html` + `assets/views/settings.js`, `assets/components/week-grid.js`, `assets/components/kpi-core.js`, CRUD phòng ban/nhiệm vụ, NV detail 2 tab, shared KPI card, mobile fix cho NV detail, hỗ trợ chọn màu xe theo từng KH.
 - **Giai đoạn 3:** mới làm **một phần**. Chưa có polling/focus refresh/retry queue kiểu VNM gốc. Thay vào đó hiện tại app dùng cơ chế **lưu nháp cục bộ + đồng bộ GitHub thủ công** qua `pending writes`.
 
 ### Sai khác giữa kế hoạch gốc và code hiện tại
@@ -27,6 +27,11 @@
 - `assets/events.js` chưa tách thành nhiều file con.
 - Chưa có polling 30s + refresh on focus + retry queue tự động.
 - Dashboard vẫn còn lệch một phần so với bố cục tối giản trong prompt gốc.
+
+### Ghi chú bổ sung sau khi chốt dữ liệu xe
+
+- Catalog xe hiện cho phép nhập nhiều màu trong cùng một dòng xe qua trường `mau` dạng danh sách.
+- Form khách hàng đã có thêm `mau_xe` để lưu màu khách chốt thực tế mà không cần nhân bản `xe_id` theo từng màu.
 
 ---
 

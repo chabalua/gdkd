@@ -90,9 +90,9 @@ App quản lý nội bộ cho **GĐKD showroom ô tô tại Đắk Lắk**, 1 us
 - [x] **Bước 4**: `khach-hang.json` schema mới + form FK + migration data cũ
 - [x] **Bước 5**: Dashboard mới (stacked bar + time range + click expand)
 - [x] **Bước 6**: KPI page (derive + setup mục tiêu)
-- [ ] **Bước 7**: NV detail 4 tab có form input
-- [ ] **Bước 8**: CSKH filter view + reminders + snapshot tháng cũ
-- [ ] **Bước 9**: Test responsive + deploy
+- [x] **Bước 7**: NV detail đã chuyển sang 2 tab (`Nhập tuần` + `KH của tôi`), có week-grid MT/TT, autosave draft và filter KH theo nhân viên
+- [~] **Bước 8**: CSKH filter view đã chạy, reminders đã có; snapshot/polling/sync tự động vẫn chưa hoàn tất
+- [~] **Bước 9**: Responsive đã được test lại trên local origin sạch, đã push GitHub; vẫn còn một số hạng mục polish ngoài roadmap gốc
 
 ---
 
@@ -138,8 +138,9 @@ Chi tiết trong [SPEC.md mục Schema JSON v2](SPEC.md). Tóm tắt:
 }
 
 // xe.json (master)
-{ "xe": [{ "id", "ma_xe", "hang", "dong", "bien_the", "mau", "nam",
-           "gia_niem_yet", "trang_thai" }] }
+{ "xe": [{ "id", "ma_xe", "hang", "dong", "bien_the",
+           "mau",               // string, có thể nhập nhiều màu dạng "Trắng, Đen, Xám"
+           "nam", "gia_niem_yet", "trang_thai" }] }
 
 // nhan-vien.json (master + input theo tháng)
 { "nhan_vien": [{ "id", "ho_ten", "anh", "chuc_vu", "sdt", "trang_thai",
@@ -153,6 +154,7 @@ Chi tiết trong [SPEC.md mục Schema JSON v2](SPEC.md). Tóm tắt:
   "id", "ten", "sdt",
   "nhan_vien_id",        // FK → nhan-vien.json
   "xe_id",               // FK → xe.json
+  "mau_xe",              // màu khách chốt thực tế cho mẫu xe đã chọn
   "trang_thai",          // du_ky | moi_ky | dang_xu_ly | cho_giao | da_giao | dong_cskh
   "ngay_du_kien_ky", "ngay_ky", "ngay_giao_du_kien", "ngay_giao_thuc_te",
   "hinh_thuc_tt", "ngan_hang", "so_tien_vay", "so_hd",
@@ -160,6 +162,11 @@ Chi tiết trong [SPEC.md mục Schema JSON v2](SPEC.md). Tóm tắt:
   "cskh":    [{ "ngay", "kenh", "danh_gia", "phan_hoi", "van_de",
                 "trang_thai_xu_ly", "ghi_chu_noi_bo" }]
 }]}
+
+// Ghi chú runtime hiện tại
+// - Catalog xe vẫn giữ 1 dòng / 1 mẫu xe, không nhân bản theo màu.
+// - Màu khả dụng được nhập trong `xe.mau` theo dạng danh sách, còn `kh.mau_xe`
+//   lưu màu chốt cuối cùng của riêng khách hàng.
 
 // cong-viec.json (chỉ cấp công ty)
 { "thang", "su_kien_lai_thu", "tuyen_noi_dung": [{id, ten}], "zalo_oa" }
