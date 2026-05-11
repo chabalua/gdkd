@@ -412,19 +412,24 @@
       "chuc_vu": "Host Livestream",
       "sdt": "0389428985",
       "ngay_vao": "2026-05-04",
-      "phong_ban_id": "kd_1",
+      "phong_ban_id": "mkt",
       "loai_nhan_su": "thu_viec",
       "trang_thai": "dang_lam",
       "nhiem_vu_ids": [
-        "fb_ca_nhan",
-        "mkt_cty",
-        "tiktok",
-        "telesales",
-        "sr_tiep_khach",
-        "di_thi_truong"
+        "gio_live",
+        "so_video"
       ],
       "du_lieu": {
         "2026-04": {
+          "tuan": {
+            "1": {},
+            "2": {},
+            "3": {},
+            "4": {},
+            "5": {}
+          }
+        },
+        "2026-05": {
           "tuan": {
             "1": {},
             "2": {},
