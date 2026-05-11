@@ -10,12 +10,14 @@ import {
 function buildEmployeeWithStats(employee, data, months, allKh) {
   const stats = getNvStats(data, employee.id, months);
   const monthSet = new Set(months);
+  const phongBanId = employee.phong_ban_id || employee.nhom_id || '';
   return {
     ...employee,
     trang_thai: employee.trang_thai || 'dang_lam',
     loai_nhan_su: employee.loai_nhan_su || 'chinh_thuc',
-    nhom_id: employee.nhom_id || '',
-    nhom_ten: getEmployeeGroupLabel(data, employee.nhom_id),
+    phong_ban_id: phongBanId,
+    nhom_id: phongBanId,
+    nhom_ten: getEmployeeGroupLabel(data, phongBanId),
     ...stats,
     kpiPct: stats.pct_muc_tieu,
     duKyThang: allKh.filter((kh) =>
@@ -77,12 +79,12 @@ export default function renderNhanVienPage(data) {
 
   const enriched = data.nhanVien.nhan_vien.map((emp) => buildEmployeeWithStats(emp, data, months, allKh));
 
-  // Bucket theo nhom_id, fallback "khac"
+  // Bucket theo phong_ban_id, fallback "khac"
   const buckets = new Map();
   groups.forEach((g) => buckets.set(g.id, { id: g.id, ten: g.ten, members: [] }));
-  buckets.set('_khac', { id: '_khac', ten: 'Chưa gán nhóm', members: [] });
+  buckets.set('_khac', { id: '_khac', ten: 'Chưa gán phòng ban', members: [] });
   enriched.forEach((emp) => {
-    const key = buckets.has(emp.nhom_id) ? emp.nhom_id : '_khac';
+    const key = buckets.has(emp.phong_ban_id) ? emp.phong_ban_id : '_khac';
     buckets.get(key).members.push(emp);
   });
 
@@ -118,14 +120,15 @@ export default function renderNhanVienPage(data) {
 
   const content = [
     '<section class="section-header">',
-    `<div><h3 class="section-title">Đội ngũ kinh doanh</h3><p class="section-subtitle">Quản lý theo nhóm · ${escapeHtml(rangeLabel)}</p></div>`,
+    `<div><h3 class="section-title">Đội ngũ nhân sự</h3><p class="section-subtitle">Quản lý theo phòng ban · ${escapeHtml(rangeLabel)}</p></div>`,
     '<div class="section-actions">',
     renderRangePicker(range),
+    '<button type="button" class="btn btn-soft" data-action="open-group-manager">+ Thêm nhóm</button>',
     '<button type="button" class="btn btn-primary" data-action="open-employee-create">+ Thêm nhân viên</button>',
     '</div>',
     '</section>',
     '<div class="employee-search-wrap">',
-    '<input class="input" data-employee-search placeholder="🔍 Tìm theo họ tên, SĐT, chức vụ, nhóm..." aria-label="Tìm nhân viên" />',
+    '<input class="input" data-employee-search placeholder="🔍 Tìm theo họ tên, SĐT, chức vụ, phòng ban..." aria-label="Tìm nhân viên" />',
     '</div>',
     enriched.length
       ? groupSections

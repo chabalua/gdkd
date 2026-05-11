@@ -3,14 +3,14 @@
 // Tách khỏi app.js để mỗi file < 350 dòng. Không có state riêng — đọc state
 // qua import từ app.js (ESM live binding).
 
-import { clearToken } from './api.js';
+import { clearToken, pushPendingWrites } from './api.js';
 import { showToast, confirmAction, showModal, getModalRoot, closeModal, saveRange, parseRangeValue, calcPercent, getPercentClass } from './ui.js';
 import { TODO_MESSAGE, countKhByXeId } from './models.js';
 
 import { openRepoSettingsModal } from './modals/repo-settings.js';
-import { openSetupMucTieuModal } from './modals/setup-muc-tieu.js';
+import { openTaskLibraryManagerModal } from './modals/admin.js';
 import { openXeModal } from './modals/xe.js';
-import { openEmployeeModal, openLeadModal, openManageChannelsModal, openManageModal } from './modals/employee.js';
+import { openEmployeeModal, openGroupManagerModal, openEmployeeTaskModal, openLeadModal, openManageChannelsModal, openManageModal } from './modals/employee.js';
 import { openCustomerModal } from './modals/customer.js';
 import { openCskhModal } from './modals/cskh.js';
 import { renderNotificationsPanel } from './modals/notifications.js';
@@ -66,6 +66,12 @@ function filterCskhCards() {
 
 // === Common event delegation (data-action="...") ===
 export function bindCommonEvents(data) {
+  const getVisibleElements = (selector) => {
+    const allElements = Array.from(document.querySelectorAll(selector));
+    const visibleElements = allElements.filter((element) => element.offsetParent !== null);
+    return visibleElements.length ? visibleElements : allElements;
+  };
+
   document.querySelectorAll('[data-action="logout"]').forEach((button) => {
     button.addEventListener('click', () => {
       confirmAction('Xoá token GitHub đã lưu trên thiết bị này?', () => {
@@ -79,15 +85,27 @@ export function bindCommonEvents(data) {
     button.addEventListener('click', openRepoSettingsModal);
   });
 
+  document.querySelectorAll('[data-action="sync-pending-writes"]').forEach((button) => {
+    button.addEventListener('click', async () => {
+      const result = await pushPendingWrites();
+      if (result.synced.length && !result.failures.length) {
+        showToast(`Đã đồng bộ ${result.synced.length} thay đổi lên GitHub.`, 'success');
+      } else if (result.synced.length && result.failures.length) {
+        showToast(`Đã đồng bộ ${result.synced.length} thay đổi, còn ${result.failures.length} thay đổi cần xử lý thêm.`, 'warning');
+      } else if (result.failures.length) {
+        showToast(`Chưa thể đồng bộ: ${result.failures[0].message}`, 'error');
+      } else {
+        showToast('Không có thay đổi nào chờ đồng bộ.', 'success');
+      }
+      rerenderApp();
+    });
+  });
+
   document.querySelectorAll('[data-action="show-notifications"]').forEach((button) => {
     button.addEventListener('click', () => renderNotificationsPanel(data));
   });
 
   // open-kpi-form và reset-kpi đã xoá (bước 6 — KPI là derive, không gõ tay)
-
-  document.querySelectorAll('[data-action="open-setup-muc-tieu"]').forEach((button) => {
-    button.addEventListener('click', openSetupMucTieuModal);
-  });
 
   // === Xe catalog ===
   document.querySelectorAll('[data-action="open-xe-create"]').forEach((button) => {
@@ -120,6 +138,12 @@ export function bindCommonEvents(data) {
   document.querySelectorAll('[data-action="open-employee-create"]').forEach((button) => {
     button.addEventListener('click', () => openEmployeeModal());
   });
+  document.querySelectorAll('[data-action="open-group-manager"]').forEach((button) => {
+    button.addEventListener('click', () => openGroupManagerModal());
+  });
+  document.querySelectorAll('[data-action="open-task-library-manager"]').forEach((button) => {
+    button.addEventListener('click', () => openTaskLibraryManagerModal());
+  });
   document.querySelectorAll('[data-action="open-lead-modal"]').forEach((button) => {
     button.addEventListener('click', () => openLeadModal(
       button.getAttribute('data-id') || new URLSearchParams(window.location.search).get('id'),
@@ -151,7 +175,7 @@ export function bindCommonEvents(data) {
     button.addEventListener('click', openManageChannelsModal);
   });
   document.querySelectorAll('[data-action="open-manage-modal"]').forEach((button) => {
-    button.addEventListener('click', () => openManageModal(
+    button.addEventListener('click', () => openEmployeeTaskModal(
       button.getAttribute('data-id') || new URLSearchParams(window.location.search).get('id'),
     ));
   });
@@ -254,103 +278,103 @@ export function bindCommonEvents(data) {
     });
   });
 
-  // === Lead thực tế inline autosave (Tab 1 NV detail — nhập theo tuần) ===
-  let leadDebounceTimer = null;
-  const getActiveLeadInputs = (selector) => {
-    const allInputs = Array.from(document.querySelectorAll(selector));
-    const visibleInputs = allInputs.filter((element) => element.offsetParent !== null);
-    return visibleInputs.length ? visibleInputs : allInputs;
-  };
-  document.querySelectorAll('[data-lead-tt-input]').forEach((input) => {
-    const syncLeadInput = () => {
-      const field = input.getAttribute('data-field');
-      const tuan = input.getAttribute('data-tuan');
-      const targetVal = Number(input.getAttribute('data-target') || 0);
-      const unit = input.getAttribute('data-unit') || 'so';
-      const isLeadChannel = input.getAttribute('data-lead-channel') === 'true';
-      // Update row total cell
-      const rowTotalCells = document.querySelectorAll(`[data-lead-total-field="${field}"]`);
-      if (rowTotalCells.length) {
-        const rowInputs = getActiveLeadInputs(`[data-lead-tt-input][data-field="${field}"]`);
-        const rowSum = Array.from(rowInputs).reduce((s, inp) => s + Math.max(0, Number(inp.value || 0)), 0);
-        rowTotalCells.forEach((cell) => {
-          cell.textContent = unit === 'tien' ? `${rowSum.toLocaleString('vi-VN')} đ` : rowSum;
-        });
-        // Update % cell
-        const pctCells = document.querySelectorAll(`[data-pct-cell="${field}"]`);
-        pctCells.forEach((cell) => {
-          const pctText = targetVal ? calcPercent(rowSum, targetVal) + '%' : '—';
-          cell.textContent = pctText;
-          const badge = cell.closest('.badge');
-          if (badge) {
-            badge.classList.remove('is-success', 'is-warning', 'is-danger');
-            if (targetVal) badge.classList.add(getPercentClass(calcPercent(rowSum, targetVal)));
-          }
-        });
+  // === Week grid inline autosave (NV detail v3) ===
+  let weekGridDebounceTimer = null;
+  const syncWeekTaskInput = (input) => {
+      const taskId = input.getAttribute('data-task-id');
+      const week = input.getAttribute('data-tuan');
+      const rowActualInputs = getVisibleElements(`[data-week-task-input][data-task-id="${taskId}"]`);
+      const rowTargetInputs = getVisibleElements(`[data-week-task-target][data-task-id="${taskId}"]`);
+      const rowSum = rowActualInputs.reduce((sum, element) => sum + Math.max(0, Number(element.value || 0)), 0);
+      const rowTarget = rowTargetInputs.reduce((sum, element) => sum + Math.max(0, Number(element.value || 0)), 0);
+      const rowTotalCells = getVisibleElements(`[data-task-total="${taskId}"]`);
+      const rowTargetCells = getVisibleElements(`[data-task-target="${taskId}"]`);
+      const rowPctCells = getVisibleElements(`[data-task-pct="${taskId}"]`);
+      rowTotalCells.forEach((cell) => { cell.textContent = rowSum; });
+      rowTargetCells.forEach((cell) => {
+        cell.textContent = cell.textContent?.trim().startsWith('MT') ? `MT ${rowTarget || '—'}` : (rowTarget || '—');
+      });
+      rowPctCells.forEach((cell) => {
+        const pct = rowTarget > 0 ? calcPercent(rowSum, rowTarget) : null;
+        cell.textContent = pct !== null ? `${pct}%` : '—';
+        cell.classList.remove('is-success', 'is-warning', 'is-danger');
+        if (pct !== null) cell.classList.add(getPercentClass(pct));
+      });
+
+      const weekInputs = getVisibleElements(`[data-week-task-input][data-tuan="${week}"][data-task-loai="lead"]`);
+      const weekLeadTotal = weekInputs.reduce((sum, element) => sum + Math.max(0, Number(element.value || 0)), 0);
+      const weekLeadCell = getVisibleElements(`[data-week-lead-total="${week}"]`)[0];
+      if (weekLeadCell && weekLeadCell.textContent !== '—') {
+        weekLeadCell.innerHTML = `<strong>${weekLeadTotal}</strong>`;
       }
-      // Update per-week lead total (only for lead channels)
-      if (isLeadChannel) {
-        const weekInputs = getActiveLeadInputs(`[data-lead-tt-input][data-lead-channel="true"][data-tuan="${tuan}"]`);
-        const weekSum = Array.from(weekInputs).reduce((s, inp) => s + Math.max(0, Number(inp.value || 0)), 0);
-        const weekCell = document.querySelector(`[data-week-lead-total="${tuan}"]`);
-        if (weekCell) weekCell.innerHTML = `<strong>${weekSum}</strong>`;
-        // Grand total
-        const allLeadInputs = getActiveLeadInputs('[data-lead-tt-input][data-lead-channel="true"]');
-        const grandTotal = Array.from(allLeadInputs).reduce((s, inp) => s + Math.max(0, Number(inp.value || 0)), 0);
-        const grandCell = document.querySelector('[data-all-lead-total]');
-        if (grandCell) grandCell.innerHTML = `<strong>${grandTotal}</strong>`;
+
+      const allLeadInputs = getVisibleElements('[data-week-task-input][data-task-loai="lead"]');
+      const allLeadTotal = allLeadInputs.reduce((sum, element) => sum + Math.max(0, Number(element.value || 0)), 0);
+      const allLeadTargetInputs = getVisibleElements('[data-week-task-target][data-task-loai="lead"]');
+        const allLeadTarget = allLeadTargetInputs.reduce((sum, element) => sum + Math.max(0, Number(element.value || 0)), 0);
+      const grandCells = getVisibleElements('[data-all-lead-total]');
+      grandCells.forEach((cell) => {
+        if (cell.tagName === 'STRONG') cell.textContent = `${allLeadTotal}`;
+        else cell.innerHTML = `<strong>${allLeadTotal}</strong>`;
+      });
+        const leadChip = document.querySelector('[data-nv-lead-chip]');
+        if (leadChip) leadChip.textContent = `Lead: ${allLeadTotal}`;
+        const progressChip = document.querySelector('[data-nv-progress-chip]');
+        if (progressChip) {
+          const progressPct = allLeadTarget > 0 ? calcPercent(allLeadTotal, allLeadTarget) : null;
+          progressChip.textContent = `M\u1ee5c ti\u00eau: ${progressPct !== null ? `${progressPct}%` : '—'}`;
+          progressChip.classList.remove('is-success', 'is-warning', 'is-danger');
+          if (progressPct !== null) progressChip.classList.add(getPercentClass(progressPct));
+        }
+
+      const duKyCell = document.querySelector(`[data-week-du-ky="${week}"]`);
+      const weekCvCell = document.querySelector(`[data-week-cv="${week}"]`);
+      const duKyValue = duKyCell && duKyCell.textContent !== '—' ? Number(duKyCell.textContent || 0) : 0;
+      if (weekCvCell && weekCvCell.textContent !== '—') {
+        weekCvCell.textContent = weekLeadTotal > 0 ? `${Math.round((duKyValue / weekLeadTotal) * 100)}%` : '—';
       }
-      // Debounce save
-      clearTimeout(leadDebounceTimer);
-      leadDebounceTimer = setTimeout(async () => {
+
+      const allDuKy = Array.from(document.querySelectorAll('[data-week-du-ky]')).reduce((sum, element) => {
+        if (element.textContent === '—') return sum;
+        return sum + Number(element.textContent || 0);
+      }, 0);
+      const allCvCells = getVisibleElements('[data-all-cv]');
+      allCvCells.forEach((cell) => {
+        cell.textContent = allLeadTotal > 0 ? `${Math.round((allDuKy / allLeadTotal) * 100)}%` : '—';
+      });
+
+      clearTimeout(weekGridDebounceTimer);
+      weekGridDebounceTimer = setTimeout(async () => {
         const nvId = input.getAttribute('data-nv-id');
         const month = input.getAttribute('data-month') || appState.data.config.thang_hien_tai;
-        const nvIdx = appState.data.nhanVien.nhan_vien.findIndex((n) => n.id === nvId);
+        const nvIdx = appState.data.nhanVien.nhan_vien.findIndex((item) => item.id === nvId);
         if (nvIdx < 0) return;
-        const emp = appState.data.nhanVien.nhan_vien[nvIdx];
-        if (!emp.lead_theo_thang) emp.lead_theo_thang = {};
-        if (!emp.lead_theo_thang[month]) emp.lead_theo_thang[month] = {};
-        const leadBlock = emp.lead_theo_thang[month];
-        // Collect all values from DOM for the same field
-        getActiveLeadInputs(`[data-lead-tt-input][data-field="${field}"]`).forEach((inp) => {
-          const t = inp.getAttribute('data-tuan');
-          const v = Math.max(0, Number(inp.value || 0));
-          if (!leadBlock[field]) leadBlock[field] = { tuan: {} };
-          if (!leadBlock[field].tuan) leadBlock[field].tuan = {};
-          leadBlock[field].tuan[t] = v;
+        const employee = appState.data.nhanVien.nhan_vien[nvIdx];
+        if (!employee.du_lieu) employee.du_lieu = {};
+        if (!employee.du_lieu[month]) employee.du_lieu[month] = { tuan: { 1: {}, 2: {}, 3: {}, 4: {}, 5: {} } };
+        if (!employee.du_lieu[month].tuan) employee.du_lieu[month].tuan = { 1: {}, 2: {}, 3: {}, 4: {}, 5: {} };
+        const allTaskWeeks = new Set([
+          ...rowActualInputs.map((element) => element.getAttribute('data-tuan')),
+          ...rowTargetInputs.map((element) => element.getAttribute('data-tuan')),
+        ]);
+        allTaskWeeks.forEach((inputWeek) => {
+          const actualInput = rowActualInputs.find((element) => element.getAttribute('data-tuan') === inputWeek);
+          const targetInput = rowTargetInputs.find((element) => element.getAttribute('data-tuan') === inputWeek);
+          const actual = Math.max(0, Number(actualInput?.value || 0));
+          const target = Math.max(0, Number(targetInput?.value || 0));
+          if (!employee.du_lieu[month].tuan[inputWeek]) employee.du_lieu[month].tuan[inputWeek] = {};
+          employee.du_lieu[month].tuan[inputWeek][taskId] = { muc_tieu: target, thuc_te: actual };
         });
-        await persistFile('nhan-vien.json', appState.data.nhanVien, null); // silent save
+        try {
+          await persistFile('nhan-vien.json', appState.data.nhanVien, null);
+        } catch (error) {
+          // Keep inline edits in memory; persistFile already surfaced the sync error via toast.
+        }
       }, 600);
     };
-    input.addEventListener('input', syncLeadInput);
-    input.addEventListener('change', syncLeadInput);
-  });
-
-  // === Content (video) inline autosave (Tab 2 NV detail) ===
-  let contentDebounceTimer = null;
-  document.querySelectorAll('[data-content-input]').forEach((input) => {
-    input.addEventListener('input', () => {
-      clearTimeout(contentDebounceTimer);
-      contentDebounceTimer = setTimeout(async () => {
-        const nvId = input.getAttribute('data-nv-id');
-        const month = input.getAttribute('data-month') || appState.data.config.thang_hien_tai;
-        const nvIdx = appState.data.nhanVien.nhan_vien.findIndex((n) => n.id === nvId);
-        if (nvIdx < 0) return;
-        const emp = appState.data.nhanVien.nhan_vien[nvIdx];
-        if (!emp.noi_dung) emp.noi_dung = {};
-        if (!emp.noi_dung[month]) emp.noi_dung[month] = {};
-        const cnt = emp.noi_dung[month];
-        document.querySelectorAll('[data-content-input]').forEach((inp) => {
-          const t = inp.getAttribute('data-type');
-          const val = Math.max(0, Number(inp.value || 0));
-          if (t && t.startsWith('video_')) {
-            if (!cnt.videos) cnt.videos = {};
-            cnt.videos[t.replace('video_', '')] = val;
-          }
-        });
-        await persistFile('nhan-vien.json', appState.data.nhanVien, null); // silent
-      }, 600);
-    });
+  document.querySelectorAll('[data-week-task-input],[data-week-task-target]').forEach((input) => {
+    input.addEventListener('input', () => syncWeekTaskInput(input));
+    input.addEventListener('change', () => syncWeekTaskInput(input));
   });
 
   // === Kenh lead filter pills in NV detail KH tab ===
@@ -366,32 +390,6 @@ export function bindCommonEvents(data) {
       });
       // Reset status pills (2 filter cùng lúc gây nhầm lẫn)
       parent.querySelectorAll('[data-kh-filter]').forEach((p) => p.classList.remove('is-active'));
-    });
-  });
-
-  // === Weekly target inline autosave (Tab 3 NV detail) ===
-  let weekDebounceTimer = null;
-  document.querySelectorAll('[data-week-input]').forEach((input) => {
-    input.addEventListener('input', () => {
-      clearTimeout(weekDebounceTimer);
-      weekDebounceTimer = setTimeout(async () => {
-        const nvId = input.getAttribute('data-nv-id');
-        const tuan = Number(input.getAttribute('data-tuan'));
-        const value = Math.max(0, Number(input.value || 0));
-        const month = input.getAttribute('data-month') || appState.data.config.thang_hien_tai;
-        const nvIdx = appState.data.nhanVien.nhan_vien.findIndex((n) => n.id === nvId);
-        if (nvIdx < 0) return;
-        const emp = appState.data.nhanVien.nhan_vien[nvIdx];
-        if (!emp.kpi_tuan) emp.kpi_tuan = {};
-        if (!emp.kpi_tuan[month]) emp.kpi_tuan[month] = [];
-        const weekIdx = emp.kpi_tuan[month].findIndex((e) => e.tuan === tuan);
-        if (weekIdx >= 0) {
-          emp.kpi_tuan[month][weekIdx].muc_tieu_nv = value;
-        } else {
-          emp.kpi_tuan[month].push({ tuan, muc_tieu_nv: value });
-        }
-        await persistFile('nhan-vien.json', appState.data.nhanVien, `Đã lưu mục tiêu tuần ${tuan}.`);
-      }, 600);
     });
   });
 

@@ -1,0 +1,121 @@
+{
+  "thang_hien_tai": "2026-04",
+  "showroom": {
+    "ten": "",
+    "dia_chi": "",
+    "gdkd": "Hoàng Trọng Hiếu"
+  },
+  "cong_ty": "",
+  "gdkd": "Hoàng Trọng Hiếu",
+  "muc_tieu_thang": {
+    "2026-04": {
+      "xe_ky_moi": 28,
+      "hd_xuat_thang": 24,
+      "lead_phat_sinh": 1296,
+      "muc_tieu_nv": {
+        "nv001": {
+          "xe_ky_moi": 3
+        },
+        "nv002": {
+          "xe_ky_moi": 3
+        },
+        "nv003": {
+          "xe_ky_moi": 3
+        },
+        "nv004": {
+          "xe_ky_moi": 3
+        },
+        "nv005": {
+          "xe_ky_moi": 1
+        },
+        "nv006": {
+          "xe_ky_moi": 1
+        },
+        "nv007": {
+          "xe_ky_moi": 4
+        },
+        "nv008": {
+          "xe_ky_moi": 1
+        },
+        "nv009": {
+          "xe_ky_moi": 1
+        },
+        "nv010": {
+          "xe_ky_moi": 4
+        },
+        "nv011": {
+          "xe_ky_moi": 3
+        },
+        "nv013": {
+          "xe_ky_moi": 1
+        }
+      }
+    }
+  },
+  "lead_channels": [
+    {
+      "id": "fb_ca_nhan",
+      "label": "FB Cá nhân (QC)",
+      "loai": "lead",
+      "don_vi": "so"
+    },
+    {
+      "id": "mkt_cty",
+      "label": "MKT Công ty phân bổ",
+      "loai": "lead",
+      "don_vi": "so"
+    },
+    {
+      "id": "tiktok",
+      "label": "TikTok khai thác",
+      "loai": "lead",
+      "don_vi": "so"
+    },
+    {
+      "id": "telesales",
+      "label": "Telesales",
+      "loai": "lead",
+      "don_vi": "so"
+    },
+    {
+      "id": "sr_tiep_khach",
+      "label": "SR tiếp khách",
+      "loai": "lead",
+      "don_vi": "so"
+    },
+    {
+      "id": "di_thi_truong",
+      "label": "Đi thị trường",
+      "loai": "lead",
+      "don_vi": "so"
+    },
+    {
+      "id": "luot_lai_thu",
+      "label": "Lượt lái thử",
+      "loai": "hoat_dong",
+      "don_vi": "luot"
+    },
+    {
+      "id": "sr",
+      "label": "Giới thiệu",
+      "loai": "lead",
+      "don_vi": "so"
+    },
+    {
+      "id": "so_tien_chay_quang_cao",
+      "label": "Số tiền chạy quảng cáo",
+      "loai": "hoat_dong",
+      "don_vi": "tien"
+    }
+  ],
+  "nhom_kinh_doanh": [
+    {
+      "id": "nhom_1",
+      "ten": "Nhóm 1"
+    },
+    {
+      "id": "nhom_2",
+      "ten": "Nhóm 2"
+    }
+  ]
+}

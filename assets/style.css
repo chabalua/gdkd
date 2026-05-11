@@ -496,6 +496,11 @@ img {
   border: 1px solid rgba(220, 227, 234, 0.92);
 }
 
+.icon-button.is-active {
+  border-color: rgba(26, 58, 92, 0.28);
+  background: rgba(26, 58, 92, 0.08);
+}
+
 .icon-badge {
   position: absolute;
   top: -4px;
@@ -717,6 +722,46 @@ img {
 .simple-table td.is-number,
 .simple-table th.is-number {
   text-align: right;
+}
+
+.admin-add-grid,
+.admin-editor-grid {
+  display: grid;
+  gap: 10px;
+}
+
+.admin-editor-card {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: rgba(244, 246, 249, 0.72);
+  padding: 12px;
+}
+
+.task-dept-picker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.chip-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: #fff;
+  cursor: pointer;
+}
+
+.chip-toggle input {
+  margin: 0;
+}
+
+.chip-toggle.is-active {
+  border-color: rgba(26, 58, 92, 0.24);
+  background: rgba(26, 58, 92, 0.08);
 }
 
 .cell-truncate {
@@ -1031,6 +1076,29 @@ img {
   margin-inline: auto;
 }
 
+.week-cell-stack {
+  display: grid;
+  gap: 4px;
+  min-width: 5.5rem;
+}
+
+.week-cell-label {
+  display: grid;
+  gap: 2px;
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  text-align: left;
+}
+
+.week-cell-input {
+  width: 100%;
+  margin-inline: 0;
+}
+
+.week-cell-input.is-target {
+  background: rgba(26, 58, 92, 0.05);
+}
+
 .derived-row td {
   background: var(--bg);
 }
@@ -1156,6 +1224,23 @@ img {
 
 .mobile-summary-card.is-activity {
   background: rgba(232, 160, 32, 0.1);
+}
+
+.mobile-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  padding: 0 12px 12px;
+}
+
+.mobile-week-empty {
+  min-height: 40px;
+  display: grid;
+  place-items: center;
+  border-radius: 10px;
+  background: rgba(26, 58, 92, 0.04);
+  color: var(--text-muted);
+  font-weight: 700;
 }
 
 .mobile-summary-title {
@@ -1638,6 +1723,10 @@ img {
     gap: 10px;
   }
 
+  .mobile-summary-grid {
+    padding: 0 12px 12px;
+  }
+
   .mobile-lead-head {
     flex-direction: column;
   }
@@ -1784,6 +1873,11 @@ img {
 }
 
 @media (max-width: 767px) {
+  .admin-add-grid,
+  .admin-editor-grid {
+    grid-template-columns: 1fr;
+  }
+
   .dashboard-header,
   .section-header,
   .table-header,
@@ -1847,6 +1941,12 @@ img {
 @media (min-width: 768px) {
   .page-wrap {
     padding: 24px 24px calc(var(--bottom-nav-height) + 20px);
+  }
+
+  .admin-add-grid,
+  .admin-editor-grid {
+    grid-template-columns: minmax(0, 1.6fr) minmax(160px, 0.8fr) minmax(160px, 0.8fr) auto;
+    align-items: center;
   }
 
   .form-grid-two {
@@ -3821,6 +3921,7 @@ img {
   .mobile-week-item { padding: 7px 8px; }
   .mobile-week-label { font-size: 0.66rem; }
   .mobile-week-input { min-height: 38px; font-size: 0.86rem; }
+  .mobile-summary-grid { grid-template-columns: 1fr; padding: 0 10px 10px; }
 }
 
 /* Setup mục tiêu — bảng mục tiêu cá nhân NV */

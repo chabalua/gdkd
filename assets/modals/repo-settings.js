@@ -1,6 +1,6 @@
 // assets/modals/repo-settings.js
 import { showModal, closeModal, showToast, getModalRoot, trimmedValue, createField } from '../ui.js';
-import { saveRepoConfig, getRepoConfig, getToken, setToken, clearToken, verifyToken } from '../api.js';
+import { saveRepoConfig, getRepoConfig, getToken, setToken, clearToken, verifyToken, getPendingWriteCount } from '../api.js';
 
 export function openRepoSettingsModal() {
   const repoConfig = getRepoConfig();
@@ -51,6 +51,7 @@ export function openRepoSettingsModal() {
       trimmedValue(formData, 'branch') || 'main',
     );
     closeModal();
-    showToast('Đã lưu cấu hình GitHub.', 'success');
+    const pendingCount = getPendingWriteCount();
+    showToast(pendingCount ? `Đã lưu cấu hình GitHub. Có ${pendingCount} thay đổi chờ đồng bộ trong Thiết lập.` : 'Đã lưu cấu hình GitHub.', 'success');
   });
 }

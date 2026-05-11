@@ -1,0 +1,22 @@
+{
+  "thang": "2026-05",
+  "su_kien_lai_thu": {
+    "muc_tieu": 0,
+    "danh_sach": []
+  },
+  "videos": {
+    "tuyen_noi_dung": [],
+    "muc_tieu": 0,
+    "da_hoan_thanh": 0
+  },
+  "livestream": {
+    "muc_tieu_gio": 0,
+    "da_live_gio": 0,
+    "lich": []
+  },
+  "zalo_oa": {
+    "muc_tieu": 0,
+    "thuc_te": 0,
+    "theo_tuan": []
+  }
+}

@@ -40,8 +40,8 @@ function getWeeklyKpiProgress(allData, now = new Date()) {
     kh.ngay_ky && kh.ngay_ky.startsWith(month) && getWeekOfMonth(kh.ngay_ky) === week
   ).length;
   const target = (allData?.nhanVien?.nhan_vien || []).reduce((sum, employee) => {
-    const entry = (employee?.kpi_tuan?.[month] || []).find((item) => Number(item?.tuan) === week);
-    return sum + Number(entry?.muc_tieu_nv || entry?.muc_tieu || 0);
+    const monthBlock = employee?.du_lieu?.[month]?.tuan?.[String(week)] || employee?.du_lieu?.[month]?.tuan?.[week] || {};
+    return sum + Object.values(monthBlock).reduce((weekSum, metrics) => weekSum + Number(metrics?.muc_tieu || 0), 0);
   }, 0);
   return { month, week, actual, target };
 }
@@ -143,16 +143,14 @@ export function getReminderItems(allData, now = new Date()) {
   }
 
   if (now.getDate() === 28 && now.getHours() >= 9) {
-    const monthTarget = Number(allData?.config?.muc_tieu_thang?.[month]?.xe_ky_moi || 0);
     const monthActual = allKh.filter((kh) => kh.ngay_ky && kh.ngay_ky.startsWith(month)).length;
-    const needMore = Math.max(0, monthTarget - monthActual);
     items.push({
       id: `month-end:${month}`,
       kind: 'month-end',
       title: '🎯 Cảnh báo cuối tháng',
-      body: `Còn ${endOfMonthDaysLeft(now)} ngày, cần thêm ${needMore} xe để đạt KPI tháng.`,
+      body: `Còn ${endOfMonthDaysLeft(now)} ngày, hiện đã ký ${monthActual} xe trong tháng ${month}.`,
       label: '🎯 Cuối tháng',
-      detail: `${monthActual}/${monthTarget} xe · còn ${endOfMonthDaysLeft(now)} ngày`,
+      detail: `${monthActual} xe ký · còn ${endOfMonthDaysLeft(now)} ngày`,
     });
   }
 

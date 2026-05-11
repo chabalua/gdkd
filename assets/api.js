@@ -1,7 +1,7 @@
 // assets/api.js
-// GitHub Contents API wrapper + auth + repo config + localStorage override.
+// GitHub Contents API wrapper + auth + repo config.
 // writeData() throws when GitHub fails — caller (persistFile in app.js) decides
-// whether to fall back to localStorage with a clear warning.
+// how to surface the failure and retry.
 
 export const APP_CONFIG = {
   owner: '',
@@ -15,17 +15,70 @@ const STORAGE_KEYS = {
   repoOwner: 'gdkd_repo_owner',
   repoName: 'gdkd_repo_name',
   repoBranch: 'gdkd_repo_branch',
-  overrides: {
-    'config.json': 'gdkd_override_config',
-    'cong-viec.json': 'gdkd_override_cong_viec',
-    'xe.json': 'gdkd_override_xe',
-    'nhan-vien.json': 'gdkd_override_nhan_vien',
-    'khach-hang.json': 'gdkd_override_khach_hang',
-    'lich-su.json': 'gdkd_override_lich_su',
-    'cskh.json': 'gdkd_override_cskh',   // giữ để backward compat migration
-    'orphan-cskh.json': 'gdkd_override_orphan_cskh',
-  },
+  pendingWrites: 'gdkd_pending_writes',
 };
+
+function safeJsonParse(rawValue, fallback) {
+  if (!rawValue) return fallback;
+  try {
+    return JSON.parse(rawValue);
+  } catch (error) {
+    console.warn('Không parse được JSON lưu cục bộ.', error);
+    return fallback;
+  }
+}
+
+function savePendingWritesMap(pendingWrites) {
+  localStorage.setItem(STORAGE_KEYS.pendingWrites, JSON.stringify(pendingWrites));
+}
+
+export function getPendingWrites() {
+  return safeJsonParse(localStorage.getItem(STORAGE_KEYS.pendingWrites), {});
+}
+
+export function getPendingWriteCount() {
+  return Object.keys(getPendingWrites()).length;
+}
+
+export function savePendingWrite(filename, data, errorMessage = '') {
+  const pendingWrites = getPendingWrites();
+  pendingWrites[filename] = {
+    data,
+    error: errorMessage,
+    updated_at: new Date().toISOString(),
+  };
+  savePendingWritesMap(pendingWrites);
+}
+
+export function clearPendingWrite(filename) {
+  const pendingWrites = getPendingWrites();
+  if (!pendingWrites[filename]) return;
+  delete pendingWrites[filename];
+  savePendingWritesMap(pendingWrites);
+}
+
+export async function pushPendingWrites() {
+  const pendingWrites = getPendingWrites();
+  const nextPendingWrites = { ...pendingWrites };
+  const synced = [];
+  const failures = [];
+  for (const [filename, payload] of Object.entries(pendingWrites)) {
+    try {
+      await writeData(filename, payload?.data);
+      delete nextPendingWrites[filename];
+      synced.push(filename);
+    } catch (error) {
+      nextPendingWrites[filename] = {
+        ...(payload || {}),
+        error: error.message,
+        updated_at: new Date().toISOString(),
+      };
+      failures.push({ filename, message: error.message });
+    }
+  }
+  savePendingWritesMap(nextPendingWrites);
+  return { synced, failures, remaining: Object.keys(nextPendingWrites).length };
+}
 
 // === Auth token ===
 export function getToken() {
@@ -75,36 +128,6 @@ export function saveRepoConfig(owner, repo, branch) {
   localStorage.setItem(STORAGE_KEYS.repoBranch, branch || 'main');
 }
 
-// === Local override (browser-only fallback when GitHub fails) ===
-function overrideStorageKey(filename) {
-  return STORAGE_KEYS.overrides[filename];
-}
-
-export function readOverride(filename) {
-  const key = overrideStorageKey(filename);
-  if (!key) return null;
-  const raw = localStorage.getItem(key);
-  if (!raw) return null;
-  try {
-    return JSON.parse(raw);
-  } catch (error) {
-    console.error('Không parse được dữ liệu local override', error);
-    return null;
-  }
-}
-
-export function writeOverride(filename, data) {
-  const key = overrideStorageKey(filename);
-  if (!key) return;
-  localStorage.setItem(key, JSON.stringify(data));
-}
-
-export function clearOverride(filename) {
-  const key = overrideStorageKey(filename);
-  if (!key) return;
-  localStorage.removeItem(key);
-}
-
 // === Token verification ===
 export async function verifyToken(token = getToken()) {
   if (!token) return false;
@@ -152,10 +175,6 @@ async function readRemoteData(filename) {
 }
 
 export async function readData(filename) {
-  // Override (đã save offline) ưu tiên — TODO bước sau: cảnh báo khi override stale.
-  const override = readOverride(filename);
-  if (override) return override;
-
   const repoConfig = getRepoConfig();
   if (repoConfig.owner && repoConfig.repo && getToken()) {
     try {
@@ -206,8 +225,6 @@ export async function writeData(filename, data) {
     const errorBody = await putResponse.text().catch(() => '');
     throw new Error(`GitHub API trả về ${putResponse.status} khi ghi ${filename}. ${errorBody}`);
   }
-
-  clearOverride(filename);
   return putResponse.json();
 }
 
@@ -222,7 +239,7 @@ async function readOptionalData(filename, fallback) {
 
 // === Read all data files cùng lúc ===
 export async function readAllData() {
-  const [config, congViec, xe, nhanVien, khachHang, lichSu] = await Promise.all([
+  let [config, congViec, xe, nhanVien, khachHang, lichSu] = await Promise.all([
     readData('config.json'),
     readData('cong-viec.json'),
     readData('xe.json'),
@@ -230,5 +247,12 @@ export async function readAllData() {
     readData('khach-hang.json'),
     readOptionalData('lich-su.json', { lich_su: [] }),
   ]);
+  const pendingWrites = getPendingWrites();
+  config = pendingWrites['config.json']?.data || config;
+  congViec = pendingWrites['cong-viec.json']?.data || congViec;
+  xe = pendingWrites['xe.json']?.data || xe;
+  nhanVien = pendingWrites['nhan-vien.json']?.data || nhanVien;
+  khachHang = pendingWrites['khach-hang.json']?.data || khachHang;
+  lichSu = pendingWrites['lich-su.json']?.data || lichSu;
   return { config, congViec, xe, nhanVien, khachHang, lichSu };
 }

@@ -7,78 +7,30 @@
       "chuc_vu": "TNBH",
       "sdt": "0335678385",
       "ngay_vao": "2025-04-01",
-      "nhom_id": "nhom_1",
+      "phong_ban_id": "kd_1",
       "loai_nhan_su": "chinh_thuc",
       "trang_thai": "dang_lam",
-      "lead_theo_thang": {
+      "nhiem_vu_ids": [
+        "fb_ca_nhan",
+        "mkt_cty",
+        "tiktok",
+        "telesales",
+        "sr_tiep_khach",
+        "di_thi_truong",
+        "luot_lai_thu",
+        "sr",
+        "so_tien_chay_quang_cao"
+      ],
+      "du_lieu": {
         "2026-04": {
-          "fb_ca_nhan": {
-            "muc_tieu": 0,
-            "tuan": {
-              "1": 0,
-              "2": 0,
-              "3": 0,
-              "4": 0
-            }
-          },
-          "mkt_cty": {
-            "muc_tieu": 0,
-            "tuan": {
-              "1": 0,
-              "2": 0,
-              "3": 0,
-              "4": 0
-            }
-          },
-          "tiktok": {
-            "muc_tieu": 0,
-            "tuan": {
-              "1": 0
-            }
-          },
-          "telesales": {
-            "muc_tieu": 0,
-            "tuan": {}
-          },
-          "sr_tiep_khach": {
-            "muc_tieu": 0,
-            "tuan": {}
-          },
-          "di_thi_truong": {
-            "muc_tieu": 0,
-            "tuan": {}
-          },
-          "luot_lai_thu": {
-            "muc_tieu": 0,
-            "tuan": {
-              "1": 0,
-              "2": 0,
-              "3": 0,
-              "4": 0
-            }
-          },
-          "sr": {
-            "muc_tieu": 0,
-            "tuan": {}
-          },
-          "so_tien_chay_quang_cao": {
-            "muc_tieu": 0,
-            "tuan": {}
+          "tuan": {
+            "1": {},
+            "2": {},
+            "3": {},
+            "4": {},
+            "5": {}
           }
         }
-      },
-      "noi_dung": {
-        "2026-04": {
-          "videos": {}
-        }
-      },
-      "kpi_tuan": {
-        "2026-04": [
-          {
-            "tuan": 1,
-            "muc_tieu_nv": 10
-          }
-        ]
       }
     },
     {
@@ -88,68 +40,28 @@
       "chuc_vu": "Nhân viên kinh doanh",
       "sdt": "0889932782",
       "ngay_vao": "",
-      "nhom_id": "nhom_1",
+      "phong_ban_id": "kd_1",
       "loai_nhan_su": "chinh_thuc",
       "trang_thai": "dang_lam",
-      "lead_theo_thang": {
+      "nhiem_vu_ids": [
+        "fb_ca_nhan",
+        "mkt_cty",
+        "tiktok",
+        "telesales",
+        "sr_tiep_khach",
+        "di_thi_truong",
+        "luot_lai_thu"
+      ],
+      "du_lieu": {
         "2026-04": {
-          "fb_ca_nhan": {
-            "muc_tieu": 0,
-            "tuan": {
-              "1": 0,
-              "2": 0,
-              "3": 0,
-              "4": 0
-            }
-          },
-          "mkt_cty": {
-            "muc_tieu": 0,
-            "tuan": {
-              "1": 0,
-              "2": 0,
-              "3": 0,
-              "4": 0
-            }
-          },
-          "tiktok": {
-            "muc_tieu": 0,
-            "tuan": {
-              "1": 0,
-              "2": 0,
-              "3": 0,
-              "4": 0
-            }
-          },
-          "telesales": {
-            "muc_tieu": 0,
-            "tuan": {}
-          },
-          "sr_tiep_khach": {
-            "muc_tieu": 0,
-            "tuan": {}
-          },
-          "di_thi_truong": {
-            "muc_tieu": 0,
-            "tuan": {}
-          },
-          "luot_lai_thu": {
-            "muc_tieu": 0,
-            "tuan": {
-              "1": 0,
-              "2": 0,
-              "3": 0,
-              "4": 0
-            }
+          "tuan": {
+            "1": {},
+            "2": {},
+            "3": {},
+            "4": {},
+            "5": {}
           }
         }
-      },
-      "noi_dung": {
-        "2026-04": {
-          "videos": {}
-        }
-      },
-      "kpi_tuan": {
-        "2026-04": []
       }
     },
     {
@@ -159,73 +71,28 @@
       "chuc_vu": "Nhân viên kinh doanh",
       "sdt": "0372127886",
       "ngay_vao": "",
-      "nhom_id": "nhom_1",
+      "phong_ban_id": "kd_1",
       "loai_nhan_su": "chinh_thuc",
       "trang_thai": "dang_lam",
-      "lead_theo_thang": {
+      "nhiem_vu_ids": [
+        "fb_ca_nhan",
+        "mkt_cty",
+        "tiktok",
+        "telesales",
+        "sr_tiep_khach",
+        "di_thi_truong",
+        "luot_lai_thu"
+      ],
+      "du_lieu": {
         "2026-04": {
-          "fb_ca_nhan": {
-            "muc_tieu": 0,
-            "tuan": {
-              "1": 0,
-              "2": 0,
-              "3": 0,
-              "4": 0
-            }
-          },
-          "mkt_cty": {
-            "muc_tieu": 0,
-            "tuan": {
-              "1": 0,
-              "2": 0,
-              "3": 0,
-              "4": 0
-            }
-          },
-          "tiktok": {
-            "muc_tieu": 0,
-            "tuan": {
-              "1": 0,
-              "2": 0,
-              "3": 0,
-              "4": 0
-            }
-          },
-          "telesales": {
-            "muc_tieu": 0,
-            "tuan": {}
-          },
-          "sr_tiep_khach": {
-            "muc_tieu": 0,
-            "tuan": {}
-          },
-          "di_thi_truong": {
-            "muc_tieu": 0,
-            "tuan": {}
-          },
-          "luot_lai_thu": {
-            "muc_tieu": 0,
-            "tuan": {
-              "1": 0,
-              "2": 0,
-              "3": 0,
-              "4": 0
-            }
+          "tuan": {
+            "1": {},
+            "2": {},
+            "3": {},
+            "4": {},
+            "5": {}
           }
         }
-      },
-      "noi_dung": {
-        "2026-04": {
-          "videos": {}
-        }
-      },
-      "kpi_tuan": {
-        "2026-04": [
-          {
-            "tuan": 1,
-            "muc_tieu_nv": 2
-          }
-        ]
       }
     },
     {
@@ -235,63 +102,29 @@
       "chuc_vu": "Nhân viên kinh doanh",
       "sdt": "",
       "ngay_vao": "",
-      "nhom_id": "nhom_1",
+      "phong_ban_id": "kd_1",
       "loai_nhan_su": "chinh_thuc",
       "trang_thai": "dang_lam",
-      "lead_theo_thang": {
+      "nhiem_vu_ids": [
+        "fb_ca_nhan",
+        "mkt_cty",
+        "tiktok",
+        "telesales",
+        "sr_tiep_khach",
+        "di_thi_truong",
+        "luot_lai_thu"
+      ],
+      "du_lieu": {
         "2026-04": {
-          "fb_ca_nhan": {
-            "muc_tieu": 0,
-            "tuan": {
-              "1": 0,
-              "2": 0,
-              "3": 0,
-              "4": 0
-            }
-          },
-          "mkt_cty": {
-            "muc_tieu": 0,
-            "tuan": {
-              "1": 0,
-              "2": 0,
-              "3": 0,
-              "4": 0
-            }
-          },
-          "tiktok": {
-            "muc_tieu": 0,
-            "tuan": {
-              "1": 0,
-              "2": 0,
-              "3": 0,
-              "4": 0
-            }
-          },
-          "telesales": {
-            "muc_tieu": 0,
-            "tuan": {}
-          },
-          "sr_tiep_khach": {
-            "muc_tieu": 0,
-            "tuan": {}
-          },
-          "di_thi_truong": {
-            "muc_tieu": 0,
-            "tuan": {}
-          },
-          "luot_lai_thu": {
-            "muc_tieu": 0,
-            "tuan": {
-              "1": 0,
-              "2": 0,
-              "3": 0,
-              "4": 0
-            }
+          "tuan": {
+            "1": {},
+            "2": {},
+            "3": {},
+            "4": {},
+            "5": {}
           }
         }
-      },
-      "noi_dung": {},
-      "kpi_tuan": {}
+      }
     },
     {
       "id": "nv005",
@@ -300,51 +133,29 @@
       "chuc_vu": "Nhân viên kinh doanh",
       "sdt": "",
       "ngay_vao": "",
-      "nhom_id": "nhom_1",
+      "phong_ban_id": "kd_1",
       "loai_nhan_su": "hoc_viec",
       "trang_thai": "dang_lam",
-      "lead_theo_thang": {
+      "nhiem_vu_ids": [
+        "fb_ca_nhan",
+        "mkt_cty",
+        "tiktok",
+        "telesales",
+        "sr_tiep_khach",
+        "di_thi_truong",
+        "luot_lai_thu"
+      ],
+      "du_lieu": {
         "2026-04": {
-          "fb_ca_nhan": {
-            "muc_tieu": 0,
-            "tuan": {
-              "1": 0
-            }
-          },
-          "mkt_cty": {
-            "muc_tieu": 0,
-            "tuan": {
-              "1": 0
-            }
-          },
-          "tiktok": {
-            "muc_tieu": 0,
-            "tuan": {
-              "1": 0
-            }
-          },
-          "telesales": {
-            "muc_tieu": 0,
-            "tuan": {}
-          },
-          "sr_tiep_khach": {
-            "muc_tieu": 0,
-            "tuan": {}
-          },
-          "di_thi_truong": {
-            "muc_tieu": 0,
-            "tuan": {}
-          },
-          "luot_lai_thu": {
-            "muc_tieu": 0,
-            "tuan": {
-              "1": 0
-            }
+          "tuan": {
+            "1": {},
+            "2": {},
+            "3": {},
+            "4": {},
+            "5": {}
           }
         }
-      },
-      "noi_dung": {},
-      "kpi_tuan": {}
+      }
     },
     {
       "id": "nv006",
@@ -353,68 +164,28 @@
       "chuc_vu": "Nhân viên kinh doanh",
       "sdt": "0966992914",
       "ngay_vao": "",
-      "nhom_id": "nhom_1",
+      "phong_ban_id": "kd_1",
       "loai_nhan_su": "thu_viec",
       "trang_thai": "dang_lam",
-      "lead_theo_thang": {
+      "nhiem_vu_ids": [
+        "fb_ca_nhan",
+        "mkt_cty",
+        "tiktok",
+        "telesales",
+        "sr_tiep_khach",
+        "di_thi_truong",
+        "luot_lai_thu"
+      ],
+      "du_lieu": {
         "2026-04": {
-          "fb_ca_nhan": {
-            "muc_tieu": 0,
-            "tuan": {
-              "1": 0,
-              "2": 0,
-              "3": 0,
-              "4": 0
-            }
-          },
-          "mkt_cty": {
-            "muc_tieu": 0,
-            "tuan": {
-              "1": 0,
-              "2": 0,
-              "3": 0,
-              "4": 0
-            }
-          },
-          "tiktok": {
-            "muc_tieu": 0,
-            "tuan": {
-              "1": 0,
-              "2": 0,
-              "3": 0,
-              "4": 0
-            }
-          },
-          "telesales": {
-            "muc_tieu": 0,
-            "tuan": {}
-          },
-          "sr_tiep_khach": {
-            "muc_tieu": 0,
-            "tuan": {}
-          },
-          "di_thi_truong": {
-            "muc_tieu": 0,
-            "tuan": {}
-          },
-          "luot_lai_thu": {
-            "muc_tieu": 0,
-            "tuan": {
-              "1": 0,
-              "2": 0,
-              "3": 0,
-              "4": 0
-            }
+          "tuan": {
+            "1": {},
+            "2": {},
+            "3": {},
+            "4": {},
+            "5": {}
           }
         }
-      },
-      "noi_dung": {
-        "2026-04": {
-          "videos": {}
-        }
-      },
-      "kpi_tuan": {
-        "2026-04": []
       }
     },
     {
@@ -424,63 +195,29 @@
       "chuc_vu": "Nhân viên kinh doanh",
       "sdt": "",
       "ngay_vao": "",
-      "nhom_id": "nhom_2",
+      "phong_ban_id": "kd_2",
       "loai_nhan_su": "chinh_thuc",
       "trang_thai": "dang_lam",
-      "lead_theo_thang": {
+      "nhiem_vu_ids": [
+        "fb_ca_nhan",
+        "mkt_cty",
+        "tiktok",
+        "telesales",
+        "sr_tiep_khach",
+        "di_thi_truong",
+        "luot_lai_thu"
+      ],
+      "du_lieu": {
         "2026-04": {
-          "fb_ca_nhan": {
-            "muc_tieu": 0,
-            "tuan": {
-              "1": 0,
-              "2": 0,
-              "3": 0,
-              "4": 0
-            }
-          },
-          "mkt_cty": {
-            "muc_tieu": 0,
-            "tuan": {
-              "1": 0,
-              "2": 0,
-              "3": 0,
-              "4": 0
-            }
-          },
-          "tiktok": {
-            "muc_tieu": 0,
-            "tuan": {
-              "1": 0,
-              "2": 0,
-              "3": 0,
-              "4": 0
-            }
-          },
-          "telesales": {
-            "muc_tieu": 0,
-            "tuan": {}
-          },
-          "sr_tiep_khach": {
-            "muc_tieu": 0,
-            "tuan": {}
-          },
-          "di_thi_truong": {
-            "muc_tieu": 0,
-            "tuan": {}
-          },
-          "luot_lai_thu": {
-            "muc_tieu": 0,
-            "tuan": {
-              "1": 0,
-              "2": 0,
-              "3": 0,
-              "4": 0
-            }
+          "tuan": {
+            "1": {},
+            "2": {},
+            "3": {},
+            "4": {},
+            "5": {}
           }
         }
-      },
-      "noi_dung": {},
-      "kpi_tuan": {}
+      }
     },
     {
       "id": "nv008",
@@ -489,54 +226,29 @@
       "chuc_vu": "Nhân viên kinh doanh",
       "sdt": "",
       "ngay_vao": "",
-      "nhom_id": "nhom_2",
+      "phong_ban_id": "kd_2",
       "loai_nhan_su": "thu_viec",
       "trang_thai": "dang_lam",
-      "lead_theo_thang": {
+      "nhiem_vu_ids": [
+        "fb_ca_nhan",
+        "mkt_cty",
+        "tiktok",
+        "telesales",
+        "sr_tiep_khach",
+        "di_thi_truong",
+        "luot_lai_thu"
+      ],
+      "du_lieu": {
         "2026-04": {
-          "fb_ca_nhan": {
-            "muc_tieu": 0,
-            "tuan": {
-              "1": 0,
-              "2": 0,
-              "3": 0,
-              "4": 0
-            }
-          },
-          "mkt_cty": {
-            "muc_tieu": 0,
-            "tuan": {
-              "1": 0
-            }
-          },
-          "tiktok": {
-            "muc_tieu": 0,
-            "tuan": {
-              "1": 0
-            }
-          },
-          "telesales": {
-            "muc_tieu": 0,
-            "tuan": {}
-          },
-          "sr_tiep_khach": {
-            "muc_tieu": 0,
-            "tuan": {}
-          },
-          "di_thi_truong": {
-            "muc_tieu": 0,
-            "tuan": {}
-          },
-          "luot_lai_thu": {
-            "muc_tieu": 0,
-            "tuan": {
-              "1": 0
-            }
+          "tuan": {
+            "1": {},
+            "2": {},
+            "3": {},
+            "4": {},
+            "5": {}
           }
         }
-      },
-      "noi_dung": {},
-      "kpi_tuan": {}
+      }
     },
     {
       "id": "nv009",
@@ -545,62 +257,28 @@
       "chuc_vu": "Nhân viên kinh doanh",
       "sdt": "0984632077",
       "ngay_vao": "",
-      "nhom_id": "nhom_2",
+      "phong_ban_id": "kd_2",
       "loai_nhan_su": "thu_viec",
       "trang_thai": "dang_lam",
-      "lead_theo_thang": {
+      "nhiem_vu_ids": [
+        "fb_ca_nhan",
+        "mkt_cty",
+        "tiktok",
+        "telesales",
+        "sr_tiep_khach",
+        "di_thi_truong",
+        "luot_lai_thu"
+      ],
+      "du_lieu": {
         "2026-04": {
-          "fb_ca_nhan": {
-            "muc_tieu": 0,
-            "tuan": {
-              "1": 0,
-              "2": 0,
-              "3": 0,
-              "4": 0
-            }
-          },
-          "mkt_cty": {
-            "muc_tieu": 0,
-            "tuan": {
-              "1": 0
-            }
-          },
-          "tiktok": {
-            "muc_tieu": 0,
-            "tuan": {
-              "1": 0
-            }
-          },
-          "telesales": {
-            "muc_tieu": 0,
-            "tuan": {}
-          },
-          "sr_tiep_khach": {
-            "muc_tieu": 0,
-            "tuan": {}
-          },
-          "di_thi_truong": {
-            "muc_tieu": 0,
-            "tuan": {}
-          },
-          "luot_lai_thu": {
-            "muc_tieu": 0,
-            "tuan": {
-              "1": 0,
-              "2": 0,
-              "3": 0,
-              "4": 0
-            }
+          "tuan": {
+            "1": {},
+            "2": {},
+            "3": {},
+            "4": {},
+            "5": {}
           }
         }
-      },
-      "noi_dung": {
-        "2026-04": {
-          "videos": {}
-        }
-      },
-      "kpi_tuan": {
-        "2026-04": []
       }
     },
     {
@@ -610,65 +288,28 @@
       "chuc_vu": "Nhân viên kinh doanh",
       "sdt": "0988000547",
       "ngay_vao": "",
-      "nhom_id": "nhom_2",
+      "phong_ban_id": "kd_2",
       "loai_nhan_su": "thu_viec",
       "trang_thai": "dang_lam",
-      "lead_theo_thang": {
+      "nhiem_vu_ids": [
+        "fb_ca_nhan",
+        "mkt_cty",
+        "tiktok",
+        "telesales",
+        "sr_tiep_khach",
+        "di_thi_truong",
+        "luot_lai_thu"
+      ],
+      "du_lieu": {
         "2026-04": {
-          "fb_ca_nhan": {
-            "muc_tieu": 0,
-            "tuan": {
-              "1": 0,
-              "2": 0,
-              "3": 0,
-              "4": 0
-            }
-          },
-          "mkt_cty": {
-            "muc_tieu": 0,
-            "tuan": {
-              "1": 0,
-              "2": 0,
-              "3": 0,
-              "4": 0
-            }
-          },
-          "tiktok": {
-            "muc_tieu": 0,
-            "tuan": {
-              "1": 0
-            }
-          },
-          "telesales": {
-            "muc_tieu": 0,
-            "tuan": {}
-          },
-          "sr_tiep_khach": {
-            "muc_tieu": 0,
-            "tuan": {}
-          },
-          "di_thi_truong": {
-            "muc_tieu": 0,
-            "tuan": {}
-          },
-          "luot_lai_thu": {
-            "muc_tieu": 0,
-            "tuan": {
-              "1": 0,
-              "2": 0,
-              "3": 0,
-              "4": 0
-            }
+          "tuan": {
+            "1": {},
+            "2": {},
+            "3": {},
+            "4": {},
+            "5": {}
           }
         }
-      },
-      "noi_dung": {
-        "2026-04": {
-          "videos": {}
-        }
-      },
-      "kpi_tuan": {
-        "2026-04": []
       }
     },
     {
@@ -678,68 +319,28 @@
       "chuc_vu": "TNBH",
       "sdt": "0971720796",
       "ngay_vao": "",
-      "nhom_id": "nhom_2",
+      "phong_ban_id": "kd_2",
       "loai_nhan_su": "chinh_thuc",
       "trang_thai": "dang_lam",
-      "lead_theo_thang": {
+      "nhiem_vu_ids": [
+        "fb_ca_nhan",
+        "mkt_cty",
+        "tiktok",
+        "telesales",
+        "sr_tiep_khach",
+        "di_thi_truong",
+        "luot_lai_thu"
+      ],
+      "du_lieu": {
         "2026-04": {
-          "fb_ca_nhan": {
-            "muc_tieu": 0,
-            "tuan": {
-              "1": 0,
-              "2": 0,
-              "3": 0,
-              "4": 0
-            }
-          },
-          "mkt_cty": {
-            "muc_tieu": 0,
-            "tuan": {
-              "1": 0,
-              "2": 0,
-              "3": 0,
-              "4": 0
-            }
-          },
-          "tiktok": {
-            "muc_tieu": 0,
-            "tuan": {
-              "1": 0,
-              "2": 0,
-              "3": 0,
-              "4": 0
-            }
-          },
-          "telesales": {
-            "muc_tieu": 0,
-            "tuan": {}
-          },
-          "sr_tiep_khach": {
-            "muc_tieu": 0,
-            "tuan": {}
-          },
-          "di_thi_truong": {
-            "muc_tieu": 0,
-            "tuan": {}
-          },
-          "luot_lai_thu": {
-            "muc_tieu": 0,
-            "tuan": {
-              "1": 0,
-              "2": 0,
-              "3": 0,
-              "4": 0
-            }
+          "tuan": {
+            "1": {},
+            "2": {},
+            "3": {},
+            "4": {},
+            "5": {}
           }
         }
-      },
-      "noi_dung": {
-        "2026-04": {
-          "videos": {}
-        }
-      },
-      "kpi_tuan": {
-        "2026-04": []
       }
     },
     {
@@ -749,43 +350,29 @@
       "chuc_vu": "Nhân viên kinh doanh",
       "sdt": "",
       "ngay_vao": "",
-      "nhom_id": "nhom_2",
+      "phong_ban_id": "kd_2",
       "loai_nhan_su": "hoc_viec",
       "trang_thai": "dang_lam",
-      "lead_theo_thang": {
+      "nhiem_vu_ids": [
+        "fb_ca_nhan",
+        "mkt_cty",
+        "tiktok",
+        "telesales",
+        "sr_tiep_khach",
+        "di_thi_truong",
+        "luot_lai_thu"
+      ],
+      "du_lieu": {
         "2026-04": {
-          "fb_ca_nhan": {
-            "muc_tieu": 0,
-            "tuan": {}
-          },
-          "mkt_cty": {
-            "muc_tieu": 0,
-            "tuan": {}
-          },
-          "tiktok": {
-            "muc_tieu": 0,
-            "tuan": {}
-          },
-          "telesales": {
-            "muc_tieu": 0,
-            "tuan": {}
-          },
-          "sr_tiep_khach": {
-            "muc_tieu": 0,
-            "tuan": {}
-          },
-          "di_thi_truong": {
-            "muc_tieu": 0,
-            "tuan": {}
-          },
-          "luot_lai_thu": {
-            "muc_tieu": 0,
-            "tuan": {}
+          "tuan": {
+            "1": {},
+            "2": {},
+            "3": {},
+            "4": {},
+            "5": {}
           }
         }
-      },
-      "noi_dung": {},
-      "kpi_tuan": {}
+      }
     },
     {
       "id": "nv013",
@@ -794,68 +381,28 @@
       "chuc_vu": "Nhân viên kinh doanh",
       "sdt": "0905103433",
       "ngay_vao": "",
-      "nhom_id": "nhom_2",
+      "phong_ban_id": "kd_2",
       "loai_nhan_su": "thu_viec",
       "trang_thai": "dang_lam",
-      "lead_theo_thang": {
+      "nhiem_vu_ids": [
+        "fb_ca_nhan",
+        "mkt_cty",
+        "tiktok",
+        "telesales",
+        "sr_tiep_khach",
+        "di_thi_truong",
+        "luot_lai_thu"
+      ],
+      "du_lieu": {
         "2026-04": {
-          "fb_ca_nhan": {
-            "muc_tieu": 0,
-            "tuan": {
-              "1": 0,
-              "2": 0,
-              "3": 0,
-              "4": 0
-            }
-          },
-          "mkt_cty": {
-            "muc_tieu": 0,
-            "tuan": {
-              "1": 0,
-              "2": 0,
-              "3": 0,
-              "4": 0
-            }
-          },
-          "tiktok": {
-            "muc_tieu": 0,
-            "tuan": {
-              "1": 0,
-              "2": 0,
-              "3": 0,
-              "4": 0
-            }
-          },
-          "telesales": {
-            "muc_tieu": 0,
-            "tuan": {}
-          },
-          "sr_tiep_khach": {
-            "muc_tieu": 0,
-            "tuan": {}
-          },
-          "di_thi_truong": {
-            "muc_tieu": 0,
-            "tuan": {}
-          },
-          "luot_lai_thu": {
-            "muc_tieu": 0,
-            "tuan": {
-              "1": 0,
-              "2": 0,
-              "3": 0,
-              "4": 0
-            }
+          "tuan": {
+            "1": {},
+            "2": {},
+            "3": {},
+            "4": {},
+            "5": {}
           }
         }
-      },
-      "noi_dung": {
-        "2026-04": {
-          "videos": {}
-        }
-      },
-      "kpi_tuan": {
-        "2026-04": []
       }
     },
     {
@@ -864,47 +411,29 @@
       "anh": "",
       "chuc_vu": "Host Livestream",
       "sdt": "0389428985",
-      "nhom_id": "nhom_1",
-      "loai_nhan_su": "thu_viec",
       "ngay_vao": "2026-05-04",
+      "phong_ban_id": "kd_1",
+      "loai_nhan_su": "thu_viec",
       "trang_thai": "dang_lam",
-      "lead_theo_thang": {
+      "nhiem_vu_ids": [
+        "fb_ca_nhan",
+        "mkt_cty",
+        "tiktok",
+        "telesales",
+        "sr_tiep_khach",
+        "di_thi_truong"
+      ],
+      "du_lieu": {
         "2026-04": {
-          "fb_ca_nhan": {
-            "muc_tieu": 0,
-            "tuan": {}
-          },
-          "mkt_cty": {
-            "muc_tieu": 0,
-            "tuan": {}
-          },
-          "tiktok": {
-            "muc_tieu": 0,
-            "tuan": {}
-          },
-          "telesales": {
-            "muc_tieu": 0,
-            "tuan": {}
-          },
-          "sr_tiep_khach": {
-            "muc_tieu": 0,
-            "tuan": {}
-          },
-          "di_thi_truong": {
-            "muc_tieu": 0,
-            "tuan": {}
+          "tuan": {
+            "1": {},
+            "2": {},
+            "3": {},
+            "4": {},
+            "5": {}
           }
         }
-      },
-      "noi_dung": {
-        "2026-04": {
-          "videos": {}
-        }
-      },
-      "kpi_tuan": {
-        "2026-04": []
-      },
-      "du_ky_tuan_nay": []
+      }
     }
   ]
 }

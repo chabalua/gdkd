@@ -93,7 +93,6 @@ export default function renderKhachHangPage(data) {
     '<ul class="muted-link-list">',
     !setup.co_xe ? '<li>Chưa có xe trong catalog — <a href="xe.html">Thêm xe</a></li>' : '',
     !setup.co_nv ? '<li>Chưa có nhân viên đang làm — <a href="nhan-vien.html">Thêm NV</a></li>' : '',
-    !setup.co_muc_tieu ? '<li>Chưa có mục tiêu tháng — <a href="kpi.html">Setup mục tiêu</a></li>' : '',
     '</ul>',
     '</div>',
     '</div>',

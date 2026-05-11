@@ -42,17 +42,7 @@ export const PAGE_META = {
   'nhanvien-detail': { title: 'Chi Tiết Nhân Viên', kicker: 'Dashboard / Nhân viên / Chi tiết' },
   khachhang: { title: 'Quản Lý Khách Hàng', kicker: 'Dashboard / Khách hàng' },
   cskh: { title: 'CSKH Sau Giao Xe', kicker: 'Dashboard / CSKH' },
-};
-
-// === KH/CSKH metadata ===
-// Legacy (v1) — giữ lại cho migration
-export const KH_PROGRESS_META = {
-  1: ['Chờ duyệt vay', 'is-warning'],
-  2: ['NH thẩm định', 'is-info'],
-  3: ['Chờ giải ngân', 'is-warning'],
-  4: ['Chờ đăng ký xe', 'is-purple'],
-  5: ['Chờ bàn giao', 'is-danger'],
-  6: ['Hoàn thành', 'is-success'],
+  settings: { title: 'Thiết Lập', kicker: 'Dashboard / Thiết lập' },
 };
 
 // V2 schema — 6 trạng thái pipeline 1 chiều
@@ -94,31 +84,54 @@ export const ACTIVITY_UNIT_META = {
   tien: 'Tiền',
 };
 
-export const LEGACY_ACTIVITY_CHANNELS = [
-  { id: 'gio_live', label: 'Giờ live', loai: 'hoat_dong', don_vi: 'gio' },
-  { id: 'luot_lai_thu', label: 'Lượt lái thử', loai: 'hoat_dong', don_vi: 'luot' },
-  { id: 'so_tien_qc', label: 'Số tiền quảng cáo', loai: 'hoat_dong', don_vi: 'tien' },
+const DEFAULT_DEPARTMENTS = [
+  { id: 'kd_1', ten: 'Kinh doanh 1', loai: 'ban_hang' },
+  { id: 'kd_2', ten: 'Kinh doanh 2', loai: 'ban_hang' },
+  { id: 'mkt', ten: 'Marketing', loai: 'ho_tro' },
+  { id: 'kt', ten: 'Kế toán', loai: 'ho_tro' },
 ];
 
-function getLegacyChannelMeta(channelId) {
-  return LEGACY_ACTIVITY_CHANNELS.find((channel) => channel.id === channelId) || null;
+const STATIC_ACTIVITY_CHANNELS = [
+  { id: 'gio_live', label: 'Giờ livestream', loai: 'hoat_dong', don_vi: 'gio' },
+  { id: 'luot_lai_thu', label: 'Lượt lái thử', loai: 'hoat_dong', don_vi: 'luot' },
+  { id: 'so_video', label: 'Số video', loai: 'hoat_dong', don_vi: 'so' },
+  { id: 'so_tien_chay_quang_cao', label: 'Tiền chạy quảng cáo', loai: 'hoat_dong', don_vi: 'tien' },
+  { id: 'so_tien_qc', label: 'Tiền chạy quảng cáo', loai: 'hoat_dong', don_vi: 'tien' },
+];
+
+const DEFAULT_TASK_LIBRARY = [
+  { id: 'fb_ca_nhan', ten: 'FB Cá nhân (QC)', phong_ban_ids: ['kd_1', 'kd_2'], loai: 'lead', don_vi: 'so' },
+  { id: 'mkt_cty', ten: 'MKT công ty phân bổ', phong_ban_ids: ['kd_1', 'kd_2'], loai: 'lead', don_vi: 'so' },
+  { id: 'tiktok', ten: 'TikTok khai thác', phong_ban_ids: ['kd_1', 'kd_2'], loai: 'lead', don_vi: 'so' },
+  { id: 'telesales', ten: 'Telesales', phong_ban_ids: ['kd_1', 'kd_2'], loai: 'lead', don_vi: 'so' },
+  { id: 'sr_tiep_khach', ten: 'SR tiếp khách', phong_ban_ids: ['kd_1', 'kd_2'], loai: 'lead', don_vi: 'so' },
+  { id: 'di_thi_truong', ten: 'Đi thị trường', phong_ban_ids: ['kd_1', 'kd_2'], loai: 'lead', don_vi: 'so' },
+  { id: 'sr', ten: 'Giới thiệu', phong_ban_ids: ['kd_1', 'kd_2'], loai: 'lead', don_vi: 'so' },
+  { id: 'luot_lai_thu', ten: 'Lượt lái thử', phong_ban_ids: ['kd_1', 'kd_2'], loai: 'hoat_dong', don_vi: 'luot' },
+  { id: 'gio_live', ten: 'Giờ livestream', phong_ban_ids: ['mkt'], loai: 'hoat_dong', don_vi: 'gio' },
+  { id: 'so_video', ten: 'Số video', phong_ban_ids: ['mkt'], loai: 'hoat_dong', don_vi: 'so' },
+  { id: 'so_tien_chay_quang_cao', ten: 'Tiền chạy quảng cáo', phong_ban_ids: ['mkt'], loai: 'hoat_dong', don_vi: 'tien' },
+];
+
+function getStaticChannelMeta(channelId) {
+  return STATIC_ACTIVITY_CHANNELS.find((channel) => channel.id === channelId) || null;
 }
 
 function normalizeLeadChannel(channel) {
-  const legacy = getLegacyChannelMeta(channel?.id);
-  const loai = channel?.loai === 'hoat_dong' ? 'hoat_dong' : (legacy?.loai || 'lead');
+  const fallback = getStaticChannelMeta(channel?.id);
+  const loai = channel?.loai === 'hoat_dong' ? 'hoat_dong' : (fallback?.loai || 'lead');
   const don_vi = loai === 'hoat_dong'
-    ? (channel?.don_vi || legacy?.don_vi || 'so')
+    ? (channel?.don_vi || fallback?.don_vi || 'so')
     : 'so';
   return {
     id: channel?.id,
-    label: channel?.label || legacy?.label || channel?.id || 'Nội dung',
+    label: channel?.label || channel?.ten || fallback?.label || channel?.id || 'Nội dung',
     loai,
     don_vi,
   };
 }
 
-function hasLegacyActivityData(allData, channelId) {
+function hasActivityData(allData, channelId) {
   return (allData?.nhanVien?.nhan_vien || []).some((employee) =>
     Object.values(employee?.lead_theo_thang || {}).some((monthBlock) => monthBlock && typeof monthBlock[channelId] === 'object')
   );
@@ -131,8 +144,8 @@ export function getLeadChannels(allData) {
   const channels = source.map(normalizeLeadChannel);
   const existingIds = new Set(channels.map((channel) => channel.id));
 
-  LEGACY_ACTIVITY_CHANNELS.forEach((channel) => {
-    if (!existingIds.has(channel.id) && hasLegacyActivityData(allData, channel.id)) {
+  STATIC_ACTIVITY_CHANNELS.forEach((channel) => {
+    if (!existingIds.has(channel.id) && hasActivityData(allData, channel.id)) {
       channels.push(channel);
     }
   });
@@ -202,23 +215,31 @@ function normalizeEmployeeRecord(employee, groups) {
   const normalized = { ...employee };
   const validGroupIds = new Set(groups.map((group) => group.id));
   const fallbackGroupId = groups[0]?.id || DEFAULT_EMPLOYEE_GROUPS[0].id;
+  const compatGroupId = employee?.phong_ban_id && validGroupIds.has(employee.phong_ban_id)
+    ? employee.phong_ban_id
+    : (employee?.nhom_id && validGroupIds.has(employee.nhom_id) ? employee.nhom_id : null);
   const legacyGroupId = employee?.nhom && validGroupIds.has(employee.nhom)
     ? employee.nhom
     : groups.find((group) => group.ten === employee?.nhom)?.id;
-  normalized.nhom_id = employee?.nhom_id && validGroupIds.has(employee.nhom_id)
-    ? employee.nhom_id
-    : (legacyGroupId || fallbackGroupId);
+  normalized.nhom_id = compatGroupId || legacyGroupId || fallbackGroupId;
+  normalized.phong_ban_id = normalized.nhom_id;
   normalized.loai_nhan_su = employee?.loai_nhan_su || 'chinh_thuc';
   delete normalized.nhom;
   return normalized;
 }
 
 export function getEmployeeGroups(allData) {
+  if (Array.isArray(allData?.config?.phong_ban) && allData.config.phong_ban.length) {
+    return allData.config.phong_ban.map((department, index) => ({
+      id: department?.id || `phong_ban_${index + 1}`,
+      ten: department?.ten || `Phòng ban ${index + 1}`,
+    }));
+  }
   return normalizeEmployeeGroups(allData?.config?.nhom_kinh_doanh);
 }
 
 export function getEmployeeGroupLabel(allData, nhomId) {
-  if (!nhomId) return 'Chưa gán nhóm';
+  if (!nhomId) return 'Chưa gán phòng ban';
   const group = getEmployeeGroups(allData).find((item) => item.id === nhomId);
   return group?.ten || nhomId;
 }
@@ -227,50 +248,384 @@ export function getEmployeesByGroup(allData, nhomId, options = {}) {
   const { includeInactive = false } = options;
   return (allData?.nhanVien?.nhan_vien || []).filter((employee) => {
     if (!includeInactive && employee.trang_thai === 'nghi_viec') return false;
-    return employee.nhom_id === nhomId;
+    return (employee.phong_ban_id || employee.nhom_id) === nhomId;
   });
 }
 
 export const TODO_MESSAGE = 'Chức năng này đã có khung dữ liệu thật, phần còn lại sẽ tiếp tục được mở rộng nếu cần.';
 
+function mapLegacyGroupId(groupId) {
+  if (groupId === 'nhom_1') return 'kd_1';
+  if (groupId === 'nhom_2') return 'kd_2';
+  return groupId || 'kd_1';
+}
+
+function normalizeDepartments(rawDepartments, rawGroups) {
+  const base = Array.isArray(rawDepartments) && rawDepartments.length
+    ? rawDepartments.map((department, index) => ({
+      id: department?.id || `pb_${index + 1}`,
+      ten: department?.ten || `Phòng ban ${index + 1}`,
+      loai: department?.loai === 'ho_tro' ? 'ho_tro' : 'ban_hang',
+    }))
+    : normalizeEmployeeGroups(rawGroups).map((group, index) => ({
+      id: mapLegacyGroupId(group.id || `nhom_${index + 1}`),
+      ten: group.ten?.replace(/^Nhóm\s+/i, 'Kinh doanh ') || `Kinh doanh ${index + 1}`,
+      loai: 'ban_hang',
+    }));
+  const next = [...base];
+  DEFAULT_DEPARTMENTS.forEach((department) => {
+    if (!next.some((item) => item.id === department.id)) {
+      next.push({ ...department });
+    }
+  });
+  return next;
+}
+
+function normalizeTaskLibrary(rawTasks, rawChannels) {
+  const source = Array.isArray(rawTasks) && rawTasks.length
+    ? rawTasks
+    : (Array.isArray(rawChannels) && rawChannels.length
+      ? rawChannels.map((channel) => ({
+        id: channel.id,
+        ten: channel.label || channel.ten || channel.id,
+        phong_ban_ids: ['kd_1', 'kd_2'],
+        loai: channel.loai || 'lead',
+        don_vi: channel.don_vi || 'so',
+      }))
+      : DEFAULT_TASK_LIBRARY);
+
+  const deduped = [];
+  const seen = new Set();
+  source.forEach((task) => {
+    const id = task?.id;
+    if (!id || seen.has(id)) return;
+    seen.add(id);
+    const phong_ban_ids = Array.isArray(task?.phong_ban_ids) && task.phong_ban_ids.length
+      ? task.phong_ban_ids.filter(Boolean)
+      : [task?.phong_ban_id || 'kd_1'];
+    deduped.push({
+      id,
+      ten: task?.ten || task?.label || id,
+      phong_ban_ids,
+      loai: task?.loai === 'hoat_dong' ? 'hoat_dong' : 'lead',
+      don_vi: task?.don_vi || 'so',
+    });
+  });
+  DEFAULT_TASK_LIBRARY.forEach((task) => {
+    if (!seen.has(task.id)) deduped.push({ ...task });
+  });
+  return deduped;
+}
+
+function buildCompatChannels(taskLibrary) {
+  return taskLibrary.map((task) => normalizeLeadChannel({
+    id: task.id,
+    label: task.ten,
+    loai: task.loai,
+    don_vi: task.don_vi,
+  }));
+}
+
+function buildCompatGroups(departments) {
+  return departments
+    .filter((department) => department.loai === 'ban_hang')
+    .map((department, index) => ({
+      id: department.id,
+      ten: department.ten || `Nhóm ${index + 1}`,
+    }));
+}
+
+function collectEmployeeTaskIds(employee) {
+  const ids = new Set(Array.isArray(employee?.nhiem_vu_ids) ? employee.nhiem_vu_ids : []);
+  Object.values(employee?.du_lieu || {}).forEach((monthBlock) => {
+    Object.values(monthBlock?.tuan || {}).forEach((weekBlock) => {
+      Object.keys(weekBlock || {}).forEach((taskId) => ids.add(taskId));
+    });
+  });
+  return Array.from(ids);
+}
+
+function buildCompatEmployeeData(employee, taskLibrary, departments) {
+  const taskMap = Object.fromEntries(taskLibrary.map((task) => [task.id, task]));
+  const phong_ban_id = employee?.phong_ban_id || mapLegacyGroupId(employee?.nhom_id) || departments[0]?.id || 'kd_1';
+  const monthData = {};
+  const contentData = {};
+  const weeklyTargets = {};
+
+  Object.entries(employee?.du_lieu || {}).forEach(([month, monthBlock]) => {
+    monthData[month] = {};
+    contentData[month] = { videos: {} };
+    weeklyTargets[month] = [];
+    for (let week = 1; week <= 5; week += 1) {
+      const weekBlock = monthBlock?.tuan?.[String(week)] || monthBlock?.tuan?.[week] || {};
+      let weeklyTarget = 0;
+      Object.entries(weekBlock).forEach(([taskId, metrics]) => {
+        const target = numberValue(metrics?.muc_tieu);
+        const actual = numberValue(metrics?.thuc_te);
+        if (!monthData[month][taskId]) {
+          monthData[month][taskId] = { muc_tieu: 0, tuan: {} };
+        }
+        monthData[month][taskId].muc_tieu += target;
+        if (actual || target) {
+          monthData[month][taskId].tuan[week] = actual;
+        }
+        if (taskId === 'so_video' && actual) {
+          contentData[month].videos.tong = numberValue(contentData[month].videos.tong) + actual;
+        }
+        if (taskMap[taskId]?.loai !== 'hoat_dong') {
+          weeklyTarget += target;
+        }
+      });
+      if (weeklyTarget) {
+        weeklyTargets[month].push({ tuan: week, muc_tieu_nv: weeklyTarget });
+      }
+    }
+  });
+
+  const assignedTaskIds = collectEmployeeTaskIds(employee);
+  const defaultTaskIds = taskLibrary
+    .filter((task) => task.phong_ban_ids.includes(phong_ban_id))
+    .map((task) => task.id);
+
+  return {
+    ...employee,
+    phong_ban_id,
+    nhom_id: phong_ban_id,
+    nhiem_vu_ids: assignedTaskIds.length ? assignedTaskIds : defaultTaskIds,
+    lead_theo_thang: monthData,
+    noi_dung: contentData,
+    kpi_tuan: weeklyTargets,
+  };
+}
+
+function collectMonthsFromEmployees(employees) {
+  const months = new Set();
+  employees.forEach((employee) => {
+    Object.keys(employee?.du_lieu || {}).forEach((month) => months.add(month));
+  });
+  return Array.from(months).sort();
+}
+
+function buildCompatMonthlyTargets(employees, taskLibrary) {
+  const taskMap = Object.fromEntries(taskLibrary.map((task) => [task.id, task]));
+  return collectMonthsFromEmployees(employees).reduce((accumulator, month) => {
+    let lead_phat_sinh = 0;
+    const muc_tieu_nv = {};
+    employees.forEach((employee) => {
+      let employeeLeadTarget = 0;
+      Object.values(employee?.du_lieu?.[month]?.tuan || {}).forEach((weekBlock) => {
+        Object.entries(weekBlock || {}).forEach(([taskId, metrics]) => {
+          if (taskMap[taskId]?.loai === 'hoat_dong') return;
+          employeeLeadTarget += numberValue(metrics?.muc_tieu);
+        });
+      });
+      if (employeeLeadTarget) {
+        muc_tieu_nv[employee.id] = { lead_phat_sinh: employeeLeadTarget, xe_ky_moi: 0, hd_xuat_thang: 0 };
+        lead_phat_sinh += employeeLeadTarget;
+      }
+    });
+    accumulator[month] = {
+      xe_ky_moi: 0,
+      hd_xuat_thang: 0,
+      lead_phat_sinh,
+      muc_tieu_nv,
+    };
+    return accumulator;
+  }, {});
+}
+
+function buildCompatCongViec(rawCongViec, employees) {
+  const next = {
+    su_kien_lai_thu: {
+      muc_tieu: 0,
+      danh_sach: Array.isArray(rawCongViec?.su_kien_lai_thu?.danh_sach) ? rawCongViec.su_kien_lai_thu.danh_sach : [],
+    },
+    videos: {
+      tuyen_noi_dung: [],
+      muc_tieu: 0,
+      da_hoan_thanh: 0,
+    },
+    livestream: {
+      muc_tieu_gio: 0,
+      da_live_gio: 0,
+      lich: [],
+    },
+    zalo_oa: {
+      muc_tieu: numberValue(rawCongViec?.zalo_oa?.muc_tieu),
+      thuc_te: numberValue(rawCongViec?.zalo_oa?.thuc_te),
+      theo_tuan: Array.isArray(rawCongViec?.zalo_oa?.theo_tuan) ? rawCongViec.zalo_oa.theo_tuan : [],
+    },
+  };
+
+  employees.forEach((employee) => {
+    Object.entries(employee?.du_lieu || {}).forEach(([, monthBlock]) => {
+      Object.values(monthBlock?.tuan || {}).forEach((weekBlock) => {
+        const gioLive = numberValue(weekBlock?.gio_live?.thuc_te);
+        const gioLiveTarget = numberValue(weekBlock?.gio_live?.muc_tieu);
+        const soVideo = numberValue(weekBlock?.so_video?.thuc_te);
+        const soVideoTarget = numberValue(weekBlock?.so_video?.muc_tieu);
+        next.livestream.da_live_gio += gioLive;
+        next.livestream.muc_tieu_gio += gioLiveTarget;
+        next.videos.da_hoan_thanh += soVideo;
+        next.videos.muc_tieu += soVideoTarget;
+      });
+    });
+  });
+
+  return next;
+}
+
+function serializeConfigV3(config) {
+  return {
+    thang_hien_tai: config?.thang_hien_tai || getCurrentMonth(),
+    showroom: config?.showroom || { ten: '', dia_chi: '', gdkd: '' },
+    phong_ban: normalizeDepartments(config?.phong_ban, config?.nhom_kinh_doanh),
+    nhiem_vu_lib: normalizeTaskLibrary(config?.nhiem_vu_lib, config?.lead_channels),
+  };
+}
+
+function serializeNhanVienV3(payload) {
+  const list = Array.isArray(payload?.nhan_vien) ? payload.nhan_vien : [];
+  return {
+    nhan_vien: list.map((employee) => {
+      const du_lieu = {};
+      const months = new Set([
+        ...Object.keys(employee?.du_lieu || {}),
+        ...Object.keys(employee?.lead_theo_thang || {}),
+        ...Object.keys(employee?.noi_dung || {}),
+      ]);
+
+      months.forEach((month) => {
+        du_lieu[month] = { tuan: { 1: {}, 2: {}, 3: {}, 4: {}, 5: {} } };
+        Object.entries(employee?.lead_theo_thang?.[month] || {}).forEach(([taskId, metrics]) => {
+          for (let week = 1; week <= 5; week += 1) {
+            const actual = numberValue(metrics?.tuan?.[week]);
+            const target = week === 1 ? numberValue(metrics?.muc_tieu) : 0;
+            if (!actual && !target) continue;
+            du_lieu[month].tuan[week][taskId] = { muc_tieu: target, thuc_te: actual };
+          }
+        });
+
+        const videoTotal = Object.values(employee?.noi_dung?.[month]?.videos || {}).reduce((sum, value) => sum + numberValue(value), 0);
+        if (videoTotal && !du_lieu[month].tuan[1].so_video) {
+          du_lieu[month].tuan[1].so_video = { muc_tieu: 0, thuc_te: videoTotal };
+        }
+      });
+
+      return {
+        id: employee.id,
+        ho_ten: employee.ho_ten || '',
+        anh: employee.anh || '',
+        chuc_vu: employee.chuc_vu || '',
+        sdt: employee.sdt || '',
+        ngay_vao: employee.ngay_vao || '',
+        phong_ban_id: employee.phong_ban_id || employee.nhom_id || 'kd_1',
+        loai_nhan_su: employee.loai_nhan_su || 'chinh_thuc',
+        trang_thai: employee.trang_thai || 'dang_lam',
+        nhiem_vu_ids: Array.isArray(employee.nhiem_vu_ids) ? employee.nhiem_vu_ids : collectEmployeeTaskIds(employee),
+        du_lieu,
+      };
+    }),
+  };
+}
+
+function serializeCongViecV3(payload) {
+  return {
+    su_kien_lai_thu: {
+      danh_sach: Array.isArray(payload?.su_kien_lai_thu?.danh_sach) ? payload.su_kien_lai_thu.danh_sach : [],
+    },
+    zalo_oa: {
+      muc_tieu: numberValue(payload?.zalo_oa?.muc_tieu),
+      thuc_te: numberValue(payload?.zalo_oa?.thuc_te),
+      theo_tuan: Array.isArray(payload?.zalo_oa?.theo_tuan) ? payload.zalo_oa.theo_tuan : [],
+    },
+  };
+}
+
+function serializeKhachHangV3(payload) {
+  const list = Array.isArray(payload?.khach_hang) ? payload.khach_hang : [];
+  return {
+    khach_hang: list.map((customer) => ({
+      id: customer.id,
+      ten: customer.ten || '',
+      sdt: customer.sdt || '',
+      dia_chi: customer.dia_chi || '',
+      nhan_vien_id: customer.nhan_vien_id || '',
+      xe_id: customer.xe_id || '',
+      ghi_chu_ctkm: customer.ghi_chu_ctkm || '',
+      trang_thai: customer.trang_thai || 'du_ky',
+      ngay_du_kien_ky: customer.ngay_du_kien_ky || null,
+      ngay_ky: customer.ngay_ky || null,
+      ngay_giao_du_kien: customer.ngay_giao_du_kien || null,
+      ngay_giao_thuc_te: customer.ngay_giao_thuc_te || null,
+      hinh_thuc_tt: customer.hinh_thuc_tt || '',
+      ngan_hang: customer.ngan_hang || '',
+      so_tien_vay: numberValue(customer.so_tien_vay),
+      muc_dong_mong_muon: numberValue(customer.muc_dong_mong_muon),
+      so_hd: customer.so_hd || '',
+      kenh_lead: customer.kenh_lead || '',
+      tien_do: Array.isArray(customer.tien_do) ? customer.tien_do : [],
+      cskh: Array.isArray(customer.cskh) ? customer.cskh : [],
+    })),
+  };
+}
+
+export function serializeFilePayload(filename, payload) {
+  switch (filename) {
+    case 'config.json':
+      return serializeConfigV3(payload);
+    case 'nhan-vien.json':
+      return serializeNhanVienV3(payload);
+    case 'cong-viec.json':
+      return serializeCongViecV3(payload);
+    case 'khach-hang.json':
+      return serializeKhachHangV3(payload);
+    default:
+      return payload;
+  }
+}
+
 // === Normalize ===
 export function normalizeData(rawData) {
-  const currentMonth = rawData?.config?.thang_hien_tai || rawData?.kpi?.thang || rawData?.congViec?.thang || getCurrentMonth();
-  const lichSu = Array.isArray(rawData?.lichSu?.lich_su)
-    ? rawData.lichSu.lich_su
-    : (Array.isArray(rawData?.kpi?.lich_su) ? rawData.kpi.lich_su : []);
-  const nhomKinhDoanh = normalizeEmployeeGroups(rawData?.config?.nhom_kinh_doanh);
-  const normalizedEmployees = Array.isArray(rawData?.nhanVien?.nhan_vien)
-    ? rawData.nhanVien.nhan_vien.map((employee) => normalizeEmployeeRecord(employee, nhomKinhDoanh))
-    : [];
+  const currentMonth = rawData?.config?.thang_hien_tai || getCurrentMonth();
+  const lichSu = Array.isArray(rawData?.lichSu?.lich_su) ? rawData.lichSu.lich_su : [];
+  const departments = normalizeDepartments(rawData?.config?.phong_ban, rawData?.config?.nhom_kinh_doanh);
+  const taskLibrary = normalizeTaskLibrary(rawData?.config?.nhiem_vu_lib, rawData?.config?.lead_channels);
+  const compatGroups = buildCompatGroups(departments);
+  const rawEmployees = Array.isArray(rawData?.nhanVien?.nhan_vien) ? rawData.nhanVien.nhan_vien : [];
+  const normalizedEmployees = rawEmployees
+    .map((employee) => buildCompatEmployeeData(employee, taskLibrary, departments))
+    .map((employee) => normalizeEmployeeRecord(employee, departments));
+  const compatTargets = buildCompatMonthlyTargets(rawEmployees, taskLibrary);
   return {
     config: {
       thang_hien_tai: currentMonth,
       showroom: rawData?.config?.showroom || { ten: '', dia_chi: '', gdkd: '' },
-      // backward compat với field cũ
       cong_ty: rawData?.config?.showroom?.ten || rawData?.config?.cong_ty || '',
       gdkd: rawData?.config?.showroom?.gdkd || rawData?.config?.gdkd || '',
-      muc_tieu_thang: rawData?.config?.muc_tieu_thang || {},
-      lead_channels: rawData?.config?.lead_channels || null,
-      nhom_kinh_doanh: nhomKinhDoanh,
+      muc_tieu_thang: compatTargets,
+      lead_channels: buildCompatChannels(taskLibrary),
+      nhom_kinh_doanh: compatGroups,
+      phong_ban: departments,
+      nhiem_vu_lib: taskLibrary,
     },
     kpi: {
-      thang: rawData?.kpi?.thang || currentMonth,
+      thang: currentMonth,
       xe_ky_moi: {
-        muc_tieu: numberValue(rawData?.kpi?.xe_ky_moi?.muc_tieu),
-        thuc_te: numberValue(rawData?.kpi?.xe_ky_moi?.thuc_te),
+        muc_tieu: 0,
+        thuc_te: 0,
       },
       hd_xuat_thang: {
-        muc_tieu: numberValue(rawData?.kpi?.hd_xuat_thang?.muc_tieu),
-        thuc_te: numberValue(rawData?.kpi?.hd_xuat_thang?.thuc_te),
+        muc_tieu: 0,
+        thuc_te: 0,
       },
       hd_ton_thang_cu: {
-        tong: numberValue(rawData?.kpi?.hd_ton_thang_cu?.tong),
-        da_giai_quyet: numberValue(rawData?.kpi?.hd_ton_thang_cu?.da_giai_quyet),
+        tong: 0,
+        da_giai_quyet: 0,
       },
       lead_phat_sinh: {
-        muc_tieu: numberValue(rawData?.kpi?.lead_phat_sinh?.muc_tieu),
-        thuc_te: numberValue(rawData?.kpi?.lead_phat_sinh?.thuc_te),
+        muc_tieu: numberValue(compatTargets?.[currentMonth]?.lead_phat_sinh),
+        thuc_te: 0,
       },
       lich_su: lichSu,
     },
@@ -278,26 +633,8 @@ export function normalizeData(rawData) {
       lich_su: lichSu,
     },
     congViec: {
-      thang: rawData?.congViec?.thang || currentMonth,
-      su_kien_lai_thu: {
-        muc_tieu: numberValue(rawData?.congViec?.su_kien_lai_thu?.muc_tieu),
-        danh_sach: Array.isArray(rawData?.congViec?.su_kien_lai_thu?.danh_sach) ? rawData.congViec.su_kien_lai_thu.danh_sach : [],
-      },
-      videos: {
-        tuyen_noi_dung: Array.isArray(rawData?.congViec?.videos?.tuyen_noi_dung) ? rawData.congViec.videos.tuyen_noi_dung : [],
-        muc_tieu: numberValue(rawData?.congViec?.videos?.muc_tieu),
-        da_hoan_thanh: numberValue(rawData?.congViec?.videos?.da_hoan_thanh),
-      },
-      livestream: {
-        muc_tieu_gio: numberValue(rawData?.congViec?.livestream?.muc_tieu_gio),
-        da_live_gio: numberValue(rawData?.congViec?.livestream?.da_live_gio),
-        lich: Array.isArray(rawData?.congViec?.livestream?.lich) ? rawData.congViec.livestream.lich : [],
-      },
-      zalo_oa: {
-        muc_tieu: numberValue(rawData?.congViec?.zalo_oa?.muc_tieu),
-        thuc_te: numberValue(rawData?.congViec?.zalo_oa?.thuc_te),
-        theo_tuan: Array.isArray(rawData?.congViec?.zalo_oa?.theo_tuan) ? rawData.congViec.zalo_oa.theo_tuan : [],
-      },
+      thang: currentMonth,
+      ...buildCompatCongViec(rawData?.congViec, rawEmployees),
     },
     xe: {
       xe: Array.isArray(rawData?.xe?.xe) ? rawData.xe.xe : [],
@@ -306,57 +643,11 @@ export function normalizeData(rawData) {
       nhan_vien: normalizedEmployees,
     },
     khachHang: {
-      // V2 schema: flat array với FK
       khach_hang: Array.isArray(rawData?.khachHang?.khach_hang)
         ? rawData.khachHang.khach_hang
-        // fallback: migrate cục bộ nếu vẫn còn dử liệu schema cũ
-        : migrateKhachHangLegacy(rawData?.khachHang),
+        : [],
     },
   };
-}
-
-// Migration helper: nếu vẫn còn schema cũ {ton_thang_cu, ky_moi} thì convert
-function migrateKhachHangLegacy(rawKH) {
-  const result = [];
-  if (!rawKH) return result;
-  const STEP_TO_STATUS = { 1: 'dang_xu_ly', 2: 'dang_xu_ly', 3: 'dang_xu_ly', 4: 'cho_giao', 5: 'cho_giao', 6: 'da_giao' };
-  const OLD_STATUS_MAP = {
-    vua_ky: 'moi_ky', dang_lam_vay: 'dang_xu_ly',
-    cho_xe_ve: 'cho_giao', san_sang: 'cho_giao', da_giao_xe: 'da_giao',
-  };
-  if (Array.isArray(rawKH.ton_thang_cu)) {
-    rawKH.ton_thang_cu.forEach((item) => result.push({
-      id: item.id, ten: item.ten || '', sdt: item.sdt || '', dia_chi: '',
-      nhan_vien_id: null, xe_id: null,
-      ghi_chu_ctkm: item.vuong_mac || '',
-      trang_thai: STEP_TO_STATUS[item.buoc_hien_tai] || 'dang_xu_ly',
-      ngay_du_kien_ky: null, ngay_ky: item.ngay_ky || null,
-      ngay_giao_du_kien: item.du_kien_nhan_xe || null, ngay_giao_thuc_te: null,
-      hinh_thuc_tt: item.hinh_thuc_tt || 'vay_von',
-      ngan_hang: item.ngan_hang || '', so_tien_vay: numberValue(item.so_tien_vay),
-      muc_dong_mong_muon: 0, so_hd: item.so_hd || '',
-      tien_do: Array.isArray(item.cap_nhat)
-        ? item.cap_nhat.map((u, i) => ({ ngay: u.ngay || '', buoc: i + 1, noi_dung: u.noi_dung || '' }))
-        : [],
-      cskh: [],
-    }));
-  }
-  if (Array.isArray(rawKH.ky_moi)) {
-    rawKH.ky_moi.forEach((item) => result.push({
-      id: item.id, ten: item.ten || '', sdt: item.sdt || '', dia_chi: '',
-      nhan_vien_id: null, xe_id: null,
-      ghi_chu_ctkm: item.ghi_chu || '',
-      trang_thai: OLD_STATUS_MAP[item.trang_thai] || 'moi_ky',
-      ngay_du_kien_ky: null, ngay_ky: item.ngay_ky || null,
-      ngay_giao_du_kien: item.du_kien_nhan_xe || null, ngay_giao_thuc_te: null,
-      hinh_thuc_tt: item.hinh_thuc_tt || 'vay_von',
-      ngan_hang: '', so_tien_vay: 0,
-      muc_dong_mong_muon: numberValue(item.muc_dong_mong_muon),
-      so_hd: item.so_hd || '',
-      tien_do: [], cskh: [],
-    }));
-  }
-  return result;
 }
 
 // === "Has data" checks (empty-state guards) ===
@@ -404,12 +695,13 @@ export function isSetupComplete(data) {
   const co_xe = data.xe.xe.length > 0;
   const co_nv = data.nhanVien.nhan_vien.filter((nv) => nv.trang_thai !== 'nghi_viec').length > 0;
   const month = getActiveMonth(data);
-  const mt = data.config.muc_tieu_thang?.[month];
-  // Có ít nhất 1 mục tiêu = đủ điều kiện thêm KH (gating gốc)
-  const co_muc_tieu = Boolean(mt && (mt.xe_ky_moi || mt.hd_xuat_thang || mt.lead_phat_sinh));
-  // Đủ 3 mục tiêu công ty = setup chuẩn để dashboard hiển thị đầy đủ
-  const muc_tieu_day_du = Boolean(mt && mt.xe_ky_moi && mt.hd_xuat_thang && mt.lead_phat_sinh);
-  return { co_xe, co_nv, co_muc_tieu, muc_tieu_day_du, all: co_xe && co_nv && co_muc_tieu };
+  const co_muc_tieu = data.nhanVien.nhan_vien.some((employee) =>
+    Object.values(employee?.du_lieu?.[month]?.tuan || {}).some((weekBlock) =>
+      Object.values(weekBlock || {}).some((metrics) => numberValue(metrics?.muc_tieu) > 0)
+    )
+  );
+  const muc_tieu_day_du = co_muc_tieu;
+  return { co_xe, co_nv, co_muc_tieu, muc_tieu_day_du, all: co_xe && co_nv };
 }
 
 // === Derive helpers ===
@@ -421,6 +713,80 @@ export function getEmployeeLeadTotal(employee, month, channels = DEFAULT_LEAD_CH
 export function getEmployeeActivityTotal(employee, month, field) {
   const block = employee?.lead_theo_thang?.[month] || {};
   return getLeadTuanTotal(block[field]);
+}
+
+function getTaskMetaMap(allData) {
+  const taskLibrary = Array.isArray(allData?.config?.nhiem_vu_lib) ? allData.config.nhiem_vu_lib : [];
+  const leadChannels = getLeadChannels(allData);
+  return Object.fromEntries(
+    [...taskLibrary, ...leadChannels].filter(Boolean).map((task) => [task.id, task])
+  );
+}
+
+function getTaskType(taskMap, taskId) {
+  return taskMap[taskId]?.loai === 'hoat_dong' ? 'hoat_dong' : 'lead';
+}
+
+export function getEmployeeWeeklyTargetTotal(allData, employee, months, options = {}) {
+  if (!employee || !months?.length) return 0;
+  const { loai = 'all' } = options;
+  const taskMap = getTaskMetaMap(allData);
+  return months.reduce((monthSum, month) => {
+    const monthBlock = employee?.du_lieu?.[month]?.tuan || {};
+    return monthSum + Object.values(monthBlock).reduce((weekSum, weekBlock) => {
+      return weekSum + Object.entries(weekBlock || {}).reduce((taskSum, [taskId, metrics]) => {
+        const taskType = getTaskType(taskMap, taskId);
+        if (loai !== 'all' && taskType !== loai) return taskSum;
+        return taskSum + numberValue(metrics?.muc_tieu);
+      }, 0);
+    }, 0);
+  }, 0);
+}
+
+export function getEmployeeTargetTotal(allData, employee, months, kpiField) {
+  if (!employee || !months?.length) return 0;
+  if (kpiField === 'lead_phat_sinh') {
+    const weeklyLeadTarget = getEmployeeWeeklyTargetTotal(allData, employee, months, { loai: 'lead' });
+    if (weeklyLeadTarget > 0) return weeklyLeadTarget;
+  }
+  return months.reduce((sum, month) => {
+    const nvMt = allData?.config?.muc_tieu_thang?.[month]?.muc_tieu_nv?.[employee.id];
+    return sum + numberValue(nvMt?.[kpiField]);
+  }, 0);
+}
+
+export function getProgressMetrics(allData, employee, months) {
+  if (!employee || !months?.length) return { actual: 0, target: 0, pct: null };
+  const leadChannels = getLeadMetricChannels(allData);
+  const lead = months.reduce((sum, month) => sum + getEmployeeLeadTotal(employee, month, leadChannels), 0);
+  const weeklyLeadTarget = getEmployeeWeeklyTargetTotal(allData, employee, months, { loai: 'lead' });
+  if (weeklyLeadTarget > 0) {
+    return {
+      actual: lead,
+      target: weeklyLeadTarget,
+      pct: calcPercent(lead, weeklyLeadTarget),
+    };
+  }
+  return {
+    actual: 0,
+    target: 0,
+    pct: null,
+  };
+}
+
+export function getMucTieuTong(allData, kpiField, months) {
+  if (!months?.length) return 0;
+  if (kpiField === 'lead_phat_sinh') {
+    const weeklyLeadTarget = (allData?.nhanVien?.nhan_vien || []).reduce((sum, employee) => {
+      if (employee?.trang_thai === 'nghi_viec') return sum;
+      return sum + getEmployeeWeeklyTargetTotal(allData, employee, months, { loai: 'lead' });
+    }, 0);
+    if (weeklyLeadTarget > 0) return weeklyLeadTarget;
+  }
+  return months.reduce((sum, month) => {
+    const target = allData?.config?.muc_tieu_thang?.[month];
+    return sum + numberValue(target?.[kpiField]);
+  }, 0);
 }
 
 export function mapEmployeeKpi(employee, month) {
@@ -554,10 +920,7 @@ export function getKpiSegments(allData, kpiField, months) {
         return sum + getEmployeeLeadTotal(nv, m, leadChannels);
       }, 0);
     }
-    const personalTarget = months.reduce((sum, m) => {
-      const nvMt = allData.config?.muc_tieu_thang?.[m]?.muc_tieu_nv?.[nv.id];
-      return sum + (nvMt ? numberValue(nvMt[kpiField]) : 0);
-    }, 0);
+    const personalTarget = getEmployeeTargetTotal(allData, nv, months, kpiField);
     const pct = personalTarget > 0 ? calcPercent(value, personalTarget) : null;
     let color;
     if (pct === null) color = 'var(--primary-light)';
@@ -602,11 +965,11 @@ export function getRanking(allData, months) {
     const lead = months.reduce((sum, m) => {
       return sum + getEmployeeLeadTotal(nv, m, leadChannels);
     }, 0);
-    const personalTarget = months.reduce((sum, m) => {
-      const nvMt = allData.config?.muc_tieu_thang?.[m]?.muc_tieu_nv?.[nv.id];
-      return sum + (nvMt ? numberValue(nvMt.xe_ky_moi) : 0);
-    }, 0);
-    const pct_muc_tieu = personalTarget > 0 ? calcPercent(xe_ky, personalTarget) : null;
+    const progress = getProgressMetrics(allData, nv, months);
+    const fallbackTarget = getEmployeeTargetTotal(allData, nv, months, 'xe_ky_moi');
+    const pct_muc_tieu = progress.pct !== null
+      ? progress.pct
+      : (fallbackTarget > 0 ? calcPercent(xe_ky, fallbackTarget) : null);
     return { nv_id: nv.id, nv_ten: nv.ho_ten, xe_ky, xe_giao, lead, pct_muc_tieu };
   }).sort((a, b) =>
     (b.xe_ky - a.xe_ky)
@@ -630,11 +993,11 @@ export function getNvStats(allData, nvId, months) {
   const lead = months.reduce((sum, m) => {
     return sum + getEmployeeLeadTotal(nv, m, leadChannels);
   }, 0);
-  const personalTarget = months.reduce((sum, m) => {
-    const nvMt = allData.config?.muc_tieu_thang?.[m]?.muc_tieu_nv?.[nvId];
-    return sum + (nvMt ? numberValue(nvMt.xe_ky_moi) : 0);
-  }, 0);
-  const pct_muc_tieu = personalTarget > 0 ? calcPercent(xe_ky, personalTarget) : null;
+  const progress = getProgressMetrics(allData, nv, months);
+  const fallbackTarget = getEmployeeTargetTotal(allData, nv, months, 'xe_ky_moi');
+  const pct_muc_tieu = progress.pct !== null
+    ? progress.pct
+    : (fallbackTarget > 0 ? calcPercent(xe_ky, fallbackTarget) : null);
   return { xe_ky, xe_giao, lead, pct_muc_tieu };
 }
 
@@ -662,11 +1025,9 @@ export function getGroupSummaries(allData, months) {
     const gio_live = members.reduce((sum, member) => sum + months.reduce((monthSum, month) => monthSum + getEmployeeActivityTotal(member, month, 'gio_live'), 0), 0);
     const luot_lai_thu = members.reduce((sum, member) => sum + months.reduce((monthSum, month) => monthSum + getEmployeeActivityTotal(member, month, 'luot_lai_thu'), 0), 0);
     const so_tien_qc = members.reduce((sum, member) => sum + months.reduce((monthSum, month) => monthSum + getEmployeeActivityTotal(member, month, 'so_tien_qc'), 0), 0);
-    const target_xe_ky = members.reduce((sum, member) => sum + months.reduce((monthSum, month) => {
-      const nvMt = allData?.config?.muc_tieu_thang?.[month]?.muc_tieu_nv?.[member.id];
-      return monthSum + Number(nvMt?.xe_ky_moi || 0);
-    }, 0), 0);
-    const pct_xe_ky = target_xe_ky > 0 ? calcPercent(xe_ky, target_xe_ky) : null;
+    const target_xe_ky = members.reduce((sum, member) => sum + getEmployeeTargetTotal(allData, member, months, 'xe_ky_moi'), 0);
+    const target_lead = members.reduce((sum, member) => sum + getEmployeeWeeklyTargetTotal(allData, member, months, { loai: 'lead' }), 0);
+    const pct_xe_ky = target_lead > 0 ? calcPercent(lead, target_lead) : (target_xe_ky > 0 ? calcPercent(xe_ky, target_xe_ky) : null);
     const qc_per_lead = lead > 0 ? Math.round(so_tien_qc / lead) : 0;
     const members_sorted = members
       .map((member) => ({ ...member, ...getNvStats(allData, member.id, months) }))
@@ -686,13 +1047,14 @@ export function getGroupSummaries(allData, months) {
       luot_lai_thu,
       so_tien_qc,
       target_xe_ky,
+      target_lead,
       pct_xe_ky,
       qc_per_lead,
     };
   });
 }
 
-// getWeekOfMonth: tuần trong tháng theo quy ước ngày 1-7=tuần1, 8-14=tuần2, 15-21=tuần3, 22+=tuần4
+// getWeekOfMonth: tuần trong tháng theo quy ước 5 tuần, ngày 29+ = tuần 5.
 export function getWeekOfMonth(dateStr) {
   if (!dateStr) return 0;
   const day = new Date(dateStr).getDate();
@@ -700,7 +1062,8 @@ export function getWeekOfMonth(dateStr) {
   if (day <= 7) return 1;
   if (day <= 14) return 2;
   if (day <= 21) return 3;
-  return 4;
+  if (day <= 28) return 4;
+  return 5;
 }
 
 export function getPreviousMonthKey(monthStr) {

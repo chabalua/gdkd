@@ -5,117 +5,136 @@
     "dia_chi": "",
     "gdkd": "Hoàng Trọng Hiếu"
   },
-  "cong_ty": "",
-  "gdkd": "Hoàng Trọng Hiếu",
-  "muc_tieu_thang": {
-    "2026-04": {
-      "xe_ky_moi": 28,
-      "hd_xuat_thang": 24,
-      "lead_phat_sinh": 1296,
-      "muc_tieu_nv": {
-        "nv001": {
-          "xe_ky_moi": 3
-        },
-        "nv002": {
-          "xe_ky_moi": 3
-        },
-        "nv003": {
-          "xe_ky_moi": 3
-        },
-        "nv004": {
-          "xe_ky_moi": 3
-        },
-        "nv005": {
-          "xe_ky_moi": 1
-        },
-        "nv006": {
-          "xe_ky_moi": 1
-        },
-        "nv007": {
-          "xe_ky_moi": 4
-        },
-        "nv008": {
-          "xe_ky_moi": 1
-        },
-        "nv009": {
-          "xe_ky_moi": 1
-        },
-        "nv010": {
-          "xe_ky_moi": 4
-        },
-        "nv011": {
-          "xe_ky_moi": 3
-        },
-        "nv013": {
-          "xe_ky_moi": 1
-        }
-      }
+  "phong_ban": [
+    {
+      "id": "kd_1",
+      "ten": "Kinh doanh 1",
+      "loai": "ban_hang"
+    },
+    {
+      "id": "kd_2",
+      "ten": "Kinh doanh 2",
+      "loai": "ban_hang"
+    },
+    {
+      "id": "mkt",
+      "ten": "Marketing",
+      "loai": "ho_tro"
+    },
+    {
+      "id": "kt",
+      "ten": "Kế toán",
+      "loai": "ho_tro"
     }
-  },
-  "lead_channels": [
+  ],
+  "nhiem_vu_lib": [
     {
       "id": "fb_ca_nhan",
-      "label": "FB Cá nhân (QC)",
+      "ten": "FB Cá nhân (QC)",
+      "phong_ban_ids": [
+        "kd_1",
+        "kd_2"
+      ],
       "loai": "lead",
       "don_vi": "so"
     },
     {
       "id": "mkt_cty",
-      "label": "MKT Công ty phân bổ",
+      "ten": "MKT Công ty phân bổ",
+      "phong_ban_ids": [
+        "kd_1",
+        "kd_2"
+      ],
       "loai": "lead",
       "don_vi": "so"
     },
     {
       "id": "tiktok",
-      "label": "TikTok khai thác",
+      "ten": "TikTok khai thác",
+      "phong_ban_ids": [
+        "kd_1",
+        "kd_2"
+      ],
       "loai": "lead",
       "don_vi": "so"
     },
     {
       "id": "telesales",
-      "label": "Telesales",
+      "ten": "Telesales",
+      "phong_ban_ids": [
+        "kd_1",
+        "kd_2"
+      ],
       "loai": "lead",
       "don_vi": "so"
     },
     {
       "id": "sr_tiep_khach",
-      "label": "SR tiếp khách",
+      "ten": "SR tiếp khách",
+      "phong_ban_ids": [
+        "kd_1",
+        "kd_2"
+      ],
       "loai": "lead",
       "don_vi": "so"
     },
     {
       "id": "di_thi_truong",
-      "label": "Đi thị trường",
+      "ten": "Đi thị trường",
+      "phong_ban_ids": [
+        "kd_1",
+        "kd_2"
+      ],
       "loai": "lead",
       "don_vi": "so"
     },
     {
       "id": "luot_lai_thu",
-      "label": "Lượt lái thử",
+      "ten": "Lượt lái thử",
+      "phong_ban_ids": [
+        "kd_1",
+        "kd_2"
+      ],
       "loai": "hoat_dong",
       "don_vi": "luot"
     },
     {
       "id": "sr",
-      "label": "Giới thiệu",
+      "ten": "Giới thiệu",
+      "phong_ban_ids": [
+        "kd_1",
+        "kd_2"
+      ],
       "loai": "lead",
       "don_vi": "so"
     },
     {
       "id": "so_tien_chay_quang_cao",
-      "label": "Số tiền chạy quảng cáo",
+      "ten": "Số tiền chạy quảng cáo",
+      "phong_ban_ids": [
+        "kd_1",
+        "kd_2"
+      ],
       "loai": "hoat_dong",
       "don_vi": "tien"
-    }
-  ],
-  "nhom_kinh_doanh": [
-    {
-      "id": "nhom_1",
-      "ten": "Nhóm 1"
     },
     {
-      "id": "nhom_2",
-      "ten": "Nhóm 2"
+      "id": "gio_live",
+      "ten": "Giờ livestream",
+      "phong_ban_ids": [
+        "mkt"
+      ],
+      "loai": "hoat_dong",
+      "don_vi": "gio"
+    },
+    {
+      "id": "so_video",
+      "ten": "Số video",
+      "phong_ban_ids": [
+        "mkt"
+      ],
+      "loai": "hoat_dong",
+      "don_vi": "so"
     }
   ]
 }

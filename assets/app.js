@@ -13,10 +13,10 @@
 //   app.js     ← file này
 
 import {
-  readAllData, writeData, writeOverride,
+  readAllData, writeData, savePendingWrite, clearPendingWrite,
 } from './api.js';
 import { showToast, escapeHtml, getCurrentRange, saveRange } from './ui.js';
-import { normalizeData, getPreviousMonthKey, buildMonthlySnapshot } from './models.js';
+import { normalizeData, serializeFilePayload, getPreviousMonthKey, buildMonthlySnapshot } from './models.js';
 import { checkReminders } from './notify.js';
 import { bindCommonEvents } from './events.js';
 
@@ -28,6 +28,7 @@ import renderNhanVienPage from './views/nhan-vien.js';
 import renderNhanVienDetailPage from './views/nhan-vien-detail.js';
 import renderKhachHangPage from './views/khach-hang.js';
 import renderCskhPage from './views/cskh.js';
+import renderSettingsPage from './views/settings.js';
 
 // === iOS standalone PWA: giữ navigation trong fullscreen ===
 // Khi add-to-home-screen, click <a href> sang trang khác sẽ mở Safari và mất
@@ -50,21 +51,36 @@ if (window.navigator.standalone) {
 export const appState = { data: null };
 let reminderTimer = null;
 
-// === Persist file: writeData() throws khi GitHub fail; ở đây ta bắt và
-// fallback localStorage nhưng cảnh báo TOAST WARNING rõ ràng — không silent. ===
+function isExpectedDeferredSyncError(error) {
+  const message = String(error?.message || '');
+  return message.includes('Chưa cấu hình GitHub');
+}
+
+// === Persist file: writeData() throws khi GitHub fail; lưu draft cục bộ có chủ đích
+// để user tiếp tục làm việc rồi đồng bộ GitHub sau. ===
 export async function persistFile(filename, payload, successMessage, toast = true) {
   const showMsg = Boolean(successMessage);
   try {
-    await writeData(filename, payload);
+    const serializedPayload = serializeFilePayload(filename, payload);
+    await writeData(filename, serializedPayload);
+    clearPendingWrite(filename);
     if (showMsg) showToast(successMessage, 'success');
     return { storage: 'github' };
   } catch (error) {
-    console.error('writeData failed', error);
-    writeOverride(filename, payload);
-    if (showMsg) {
-      showToast(`${successMessage} ⚠ Chưa lưu lên GitHub: ${error.message}. Dữ liệu giữ tạm trong trình duyệt.`, 'warning');
+    if (!isExpectedDeferredSyncError(error)) {
+      console.error('writeData failed', error);
     }
-    return { storage: 'local', error };
+    const serializedPayload = serializeFilePayload(filename, payload);
+    savePendingWrite(filename, serializedPayload, error.message);
+    if (toast) {
+      if (showMsg) {
+        showToast(`${successMessage} Đã lưu nháp trên máy, sẽ đồng bộ GitHub sau.`, 'warning');
+      } else if (!sessionStorage.getItem('gdkd_deferred_sync_notice')) {
+        showToast('Đã lưu nháp trên máy. Khi xong việc, vào Thiết lập để đồng bộ GitHub.', 'warning');
+        sessionStorage.setItem('gdkd_deferred_sync_notice', '1');
+      }
+    }
+    return { storage: 'draft', error };
   }
 }
 
@@ -166,6 +182,7 @@ function getProtectedRenderer(page) {
     case 'nhanvien-detail': return renderNhanVienDetailPage;
     case 'khachhang': return renderKhachHangPage;
     case 'cskh': return renderCskhPage;
+    case 'settings': return renderSettingsPage;
     default: return renderDashboard;
   }
 }

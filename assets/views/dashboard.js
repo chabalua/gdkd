@@ -5,26 +5,12 @@ import {
   renderRangePicker, getCurrentRange, getRangeLabel,
   getPercentClass, calcPercent,
 } from '../ui.js';
+import { KPI_CORE_FIELDS as KPI_FIELDS, renderTierLegend, renderKpiCard } from '../components/kpi-core.js';
 import {
   isSetupComplete, getKpiSegments, getKhTon, getNvLabel, KH_STATUS_META,
-  getEmployeeActivityTotal, getLeadChannels, getGroupSummaries, getRanking,
+  getEmployeeActivityTotal, getLeadChannels, getGroupSummaries, getRanking, getMucTieuTong,
   getPerformanceTier, PERFORMANCE_TIER_META, getMonthPace,
 } from '../models.js';
-
-const KPI_FIELDS = [
-  { field: 'xe_ky_moi',      icon: '🚗', label: 'Xe Ký Mới',      unit: 'xe',     short: 'xe' },
-  { field: 'hd_xuat_thang',  icon: '📄', label: 'HĐ Xuất Tháng',  unit: 'hợp đồng', short: 'HĐ' },
-  { field: 'hd_ton',         icon: '📦', label: 'HĐ Tồn',          unit: 'hồ sơ',   short: 'HS' },
-  { field: 'lead_phat_sinh', icon: '👥', label: 'Lead Phát Sinh',  unit: 'lead',    short: 'lead' },
-];
-
-function getMucTieuTong(data, kpiField, months) {
-  return months.reduce((sum, m) => {
-    const mt = data.config.muc_tieu_thang?.[m];
-    if (!mt) return sum;
-    return sum + Number(mt[kpiField] || 0);
-  }, 0);
-}
 
 // === Donut SVG (cho hero scoreboard) ===
 function renderDonut(percent, { size = 140, stroke = 14, color = 'var(--accent)' } = {}) {
@@ -40,47 +26,6 @@ function renderDonut(percent, { size = 140, stroke = 14, color = 'var(--accent)'
     `<text x="${cx}" y="${cx - 2}" text-anchor="middle" dominant-baseline="middle" class="donut-pct">${safe}%</text>`,
     `<text x="${cx}" y="${cx + 18}" text-anchor="middle" dominant-baseline="middle" class="donut-label">đã đạt</text>`,
     '</svg>',
-  ].join('');
-}
-
-// === NV chip stack — color-coded segments theo performance tier ===
-function renderNvChipStack(segments, total) {
-  if (!segments.length || total === 0) {
-    return '<div class="nv-chip-stack is-empty">Chưa có dữ liệu nhân viên trong kỳ này.</div>';
-  }
-  const top = segments.slice(0, 6);
-  const rest = segments.slice(6);
-  const restValue = rest.reduce((sum, s) => sum + s.value, 0);
-  const chips = top.filter((s) => s.value > 0).map((s) => {
-    const tier = getPerformanceTier(s.pct_personal);
-    const meta = PERFORMANCE_TIER_META[tier];
-    const widthPct = Math.max(2, Math.round((s.value / total) * 100));
-    const initials = s.nv_ten.trim().split(/\s+/).slice(-1)[0].slice(0, 1).toUpperCase();
-    return [
-      `<span class="nv-chip is-tier-${tier}" style="flex:${widthPct}" title="${escapeHtml(s.nv_ten)}: ${s.value} · ${s.pct_personal !== null ? s.pct_personal + '%' : 'chưa có MT'}">`,
-      `<span class="nv-chip-initial">${escapeHtml(initials)}</span>`,
-      `<span class="nv-chip-value">${s.value}</span>`,
-      `<span class="nv-chip-emoji" aria-hidden="true">${meta.emoji}</span>`,
-      '</span>',
-    ].join('');
-  });
-  if (restValue > 0) {
-    chips.push(`<span class="nv-chip is-tier-rest" style="flex:${Math.max(2, Math.round((restValue / total) * 100))}" title="${rest.length} NV khác: ${restValue}">+${rest.length}</span>`);
-  }
-  return `<div class="nv-chip-stack">${chips.join('')}</div>`;
-}
-
-// === Legend cho color tiers (1 dòng nhỏ) ===
-function renderTierLegend() {
-  return [
-    '<div class="tier-legend">',
-    Object.entries(PERFORMANCE_TIER_META).map(([key, meta]) => [
-      `<span class="tier-legend-item is-tier-${key}">`,
-      `<span class="tier-dot" style="background:${meta.dot}"></span>`,
-      `<span>${meta.emoji} ${escapeHtml(meta.label)}</span>`,
-      '</span>',
-    ].join('')).join(''),
-    '</div>',
   ].join('');
 }
 
@@ -149,126 +94,6 @@ function renderHeroScoreboard(data, months) {
   ].join('');
 }
 
-// === KPI card v3 — số nhỏ + chip stack + height đồng bộ ===
-function renderKpiCard(fieldMeta, data, months) {
-  const { field, icon, label, unit } = fieldMeta;
-  const segments = getKpiSegments(data, field, months);
-  const total = segments.reduce((sum, s) => sum + s.value, 0);
-  const mucTieu = getMucTieuTong(data, field, months);
-  const pct = mucTieu > 0 ? calcPercent(total, mucTieu) : null;
-  const pctClass = pct !== null ? getPercentClass(pct) : '';
-  const topNv = segments.find((s) => s.value > 0);
-  const worstNv = segments
-    .filter((s) => s.pct_personal !== null && s.pct_personal < 50)
-    .sort((a, b) => a.pct_personal - b.pct_personal || a.nv_ten.localeCompare(b.nv_ten, 'vi'))[0];
-
-  // tốc độ
-  const pace = getMonthPace(months, total, mucTieu);
-  let paceText = '';
-  if (pace && pace.containsCurrent && mucTieu > 0 && field !== 'hd_ton') {
-    if (total >= mucTieu) paceText = `🎉 đã vượt`;
-    else if (pace.dailyNeeded > 0) paceText = `cần ${pace.dailyNeeded.toFixed(2)}/ngày · còn ${pace.daysLeft}d`;
-  } else if (pace && field !== 'hd_ton') {
-    paceText = `tb ${pace.dailyDone.toFixed(2)}/ngày`;
-  }
-
-  // Với hd_ton, "top" nghĩa là nhiều hồ sơ tồn nhất (xấu), không phải hiệu quả nhất.
-  const isHdTon = field === 'hd_ton';
-  const topLabel = isHdTon ? 'Tồn nhiều nhất' : 'Top';
-  const compactNote = [
-    paceText,
-    topNv ? `${topLabel} ${topNv.nv_ten}: ${topNv.value}` : '',
-    !isHdTon && worstNv && worstNv !== topNv ? `Cần đẩy ${worstNv.nv_ten}: ${worstNv.pct_personal}%` : '',
-  ].filter(Boolean).join(' · ') || 'Nhấn để xem chi tiết theo nhân viên';
-
-  const expandContent = field === 'hd_ton'
-    ? renderKhTonRows(getKhTon(data, months), data)
-    : renderNvExpandRows(segments);
-
-  return [
-    `<article class="kpi-card kpi-card-v3 kpi-core-item" data-kpi-card="${escapeHtml(field)}">`,
-    `<div class="kpi-card-header kpi-core-header" data-kpi-toggle="${escapeHtml(field)}" role="button" tabindex="0" aria-expanded="false">`,
-    '<div class="kpi-core-main">',
-    '<div class="kpi-row-head">',
-    `<span class="kpi-icon" aria-hidden="true">${icon}</span>`,
-    `<span class="kpi-label">${escapeHtml(label)}</span>`,
-    '</div>',
-    `<div class="kpi-core-note">${escapeHtml(compactNote)}</div>`,
-    '</div>',
-    '<div class="kpi-core-metrics">',
-    pct !== null ? `<span class="badge ${pctClass} kpi-pct-badge">${pct}%</span>` : '<span class="kpi-pct-badge-spacer"></span>',
-    '<div class="kpi-row-number">',
-    `<span class="kpi-number-v3">${total}</span>`,
-    `<span class="kpi-divider">/</span>`,
-    `<span class="kpi-target-v3">${mucTieu || '—'}</span>`,
-    `<span class="kpi-unit-v3">${escapeHtml(unit)}</span>`,
-    '</div>',
-    '<span class="kpi-chevron" aria-hidden="true">▾</span>',
-    '</div>',
-    '</div>',
-
-    `<div class="kpi-expanded is-hidden" data-kpi-expand="${escapeHtml(field)}">`,
-    '<div class="kpi-core-expanded-head">',
-    '<div class="kpi-core-meta-row">',
-    pct !== null ? `<span class="badge ${pctClass}">Đạt ${pct}% mục tiêu</span>` : '<span class="badge">Chưa có mục tiêu</span>',
-    paceText ? `<span class="kpi-core-meta-note">${paceText}</span>` : '',
-    '</div>',
-    total > 0 ? `<div class="kpi-row-stack">${renderNvChipStack(segments, total)}</div>` : '',
-    topNv || (!isHdTon && worstNv && worstNv !== topNv) ? [
-      '<div class="kpi-row-hints">',
-      topNv ? `<span class="kpi-hint kpi-hint-top">${isHdTon ? '⚠️' : '🥇'} ${escapeHtml(topNv.nv_ten)} · ${topNv.value}</span>` : '',
-      !isHdTon && worstNv && worstNv !== topNv ? `<span class="kpi-hint kpi-hint-warn">🆘 ${escapeHtml(worstNv.nv_ten)} · ${worstNv.pct_personal}%</span>` : '',
-      '</div>',
-    ].join('') : '',
-    '</div>',
-    expandContent,
-    '</div>',
-    '</article>',
-  ].join('');
-}
-
-function renderNvExpandRows(segments) {
-  if (!segments.length) return '<p class="list-empty-note">Chưa có dữ liệu nhân viên</p>';
-  const maxVal = segments[0]?.value || 1;
-  return segments.map((s) => {
-    const w = maxVal > 0 ? Math.round((s.value / maxVal) * 100) : 0;
-    const tier = getPerformanceTier(s.pct_personal);
-    const meta = PERFORMANCE_TIER_META[tier];
-    const pctText = s.pct_personal !== null ? `${s.pct_personal}%` : '—';
-    return [
-      `<div class="rank-row is-tier-${tier}">`,
-      `<span class="rank-medal" aria-hidden="true">${meta.emoji}</span>`,
-      `<a href="nhan-vien-detail.html?id=${escapeHtml(s.nv_id)}" class="nv-link rank-link">${escapeHtml(s.nv_ten)}</a>`,
-      '<div class="rank-bar-track">',
-      `<div class="rank-bar-fill" style="width:${w}%;background:${meta.dot}"></div>`,
-      '</div>',
-      `<span class="rank-meta">${s.value} · ${pctText}</span>`,
-      '</div>',
-    ].join('');
-  }).join('');
-}
-
-function renderKhTonRows(khTonList, data) {
-  if (!khTonList.length) return '<p class="list-empty-note">Không có HĐ tồn</p>';
-  return [
-    '<div class="simple-table-wrap">',
-    '<table class="simple-table compact">',
-    '<thead><tr>',
-    ['Khách hàng', 'NV', 'Tồn (ngày)', 'Vướng mắc'].map((h) => `<th>${h}</th>`).join(''),
-    '</tr></thead><tbody>',
-    khTonList.slice(0, 10).map((kh) => [
-      '<tr>',
-      `<td>${escapeHtml(kh.ten)}</td>`,
-      `<td>${escapeHtml(getNvLabel(data, kh.nhan_vien_id) || '—')}</td>`,
-      `<td class="is-number${kh.days_ton > 30 ? ' text-danger' : ''}">${kh.days_ton}</td>`,
-      `<td class="cell-truncate">${escapeHtml(kh.ghi_chu_ctkm || '—')}</td>`,
-      '</tr>',
-    ].join('')).join(''),
-    '</tbody></table>',
-    '</div>',
-  ].join('');
-}
-
 // === Top / Watch list — thay thế group dashboard cũ ===
 function renderTopWatchSection(data, months) {
   const ranking = getRanking(data, months);
@@ -319,7 +144,7 @@ function renderTopWatchSection(data, months) {
     watch.length
       ? `<div class="watch-list">${watch.map((r) => renderRow(r)).join('')}</div>`
       : noTarget.length
-        ? `<p class="list-empty-note">Chưa setup mục tiêu cá nhân cho ${noTarget.length} NV — <a href="kpi.html">Setup</a></p>`
+        ? `<p class="list-empty-note">Chưa có dữ liệu tuần để đánh giá ${noTarget.length} NV trong kỳ này.</p>`
         : '<p class="list-empty-note">🎉 Tất cả NV đang đạt ≥80% mục tiêu!</p>',
     '</article>',
 
@@ -511,11 +336,20 @@ export default function renderDashboard(data) {
     '<ul>',
     !setup.co_xe ? '<li>Chưa có xe — <a href="xe.html">Thêm xe</a></li>' : '',
     !setup.co_nv ? '<li>Chưa có NV đang làm — <a href="nhan-vien.html">Thêm NV</a></li>' : '',
-    !setup.co_muc_tieu ? '<li>Chưa có mục tiêu tháng — <a href="kpi.html">Setup mục tiêu</a></li>' : '',
     '</ul>',
     '</div>',
     '</div>',
   ].join('');
+
+  const weeklyTargetBanner = !setup.co_muc_tieu ? [
+    '<div class="setup-warning-card" style="background:var(--warning-light)">',
+    '<span>🗓️</span>',
+    '<div>',
+    '<strong>Chưa có mục tiêu nhiệm vụ theo tuần trong kỳ đang xem</strong>',
+    '<p class="muted" style="margin:4px 0 0">Theo v3, mục tiêu được nhập ở chi tiết nhân viên theo tuần. KPI tổng vẫn chạy, nhưng các badge % mục tiêu sẽ để trống cho tới khi có dữ liệu tuần.</p>',
+    '</div>',
+    '</div>',
+  ].join('') : '';
 
   // Cảnh báo KH orphan: thiếu nhan_vien_id hoặc xe_id
   const orphanKh = (data.khachHang?.khach_hang || []).filter((kh) => !kh.nhan_vien_id || !kh.xe_id);
@@ -529,18 +363,11 @@ export default function renderDashboard(data) {
     '</div>',
   ].join('') : '';
 
-  const setupExtraBanner = setup.all && !setup.muc_tieu_day_du ? [
-    '<div class="setup-warning-card" style="background:var(--warning-light)">',
-    '<span>📊</span>',
-    '<div>',
-    '<strong>Mục tiêu công ty chưa đầy đủ</strong>',
-    '<p class="muted" style="margin:4px 0 0">Có ít nhất 1 trong 3 KPI cốt lõi (xe ký, HĐ xuất, lead) chưa có mục tiêu — biểu đồ % sẽ thiếu. <a href="kpi.html">Bổ sung tại KPI</a>.</p>',
-    '</div>',
-    '</div>',
-  ].join('') : '';
+  const setupExtraBanner = '';
 
   const content = [
     setupBanner,
+    weeklyTargetBanner,
     orphanBanner,
     setupExtraBanner,
     '<div class="dashboard-header">',

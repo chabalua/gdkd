@@ -49,7 +49,7 @@ export function createTopBar(activePage, data) {
     `<h1 class="page-title">${escapeHtml(meta.title)} · ${escapeHtml(rangeLabel)}</h1>`,
     '</div>',
     '<div class="topbar-actions">',
-    '<button type="button" class="icon-button" data-action="open-settings" aria-label="Cấu hình GitHub">⚙️</button>',
+    `<a class="icon-button${activePage === 'settings' ? ' is-active' : ''}" href="settings.html" aria-label="Mở trang thiết lập">⚙️</a>`,
     '<button type="button" class="icon-button" data-action="show-notifications" aria-label="Thông báo">',
     '<span aria-hidden="true">🔔</span>',
     notificationCount ? `<span class="icon-badge">${notificationCount}</span>` : '',
