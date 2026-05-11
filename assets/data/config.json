@@ -135,6 +135,18 @@
       ],
       "loai": "hoat_dong",
       "don_vi": "so"
+    },
+    {
+      "id": "kh_du_ki",
+      "ten": "KH dự kí",
+      "phong_ban_ids": [
+        "kd_1",
+        "kd_2",
+        "mkt",
+        "kt"
+      ],
+      "loai": "hoat_dong",
+      "don_vi": "so"
     }
   ]
 }
