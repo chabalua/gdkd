@@ -5,7 +5,7 @@ import {
   escapeHtml, trimmedValue, numberValue, makeId, showToast,
   createField, createSelectField,
 } from '../ui.js';
-import { KH_STATUS_META, CSKH_STATUS_META, getLeadChannels } from '../models.js';
+import { KH_STATUS_META, CSKH_STATUS_META, getLeadChannels, getXeColorOptions } from '../models.js';
 import { appState, persistFile, rerenderApp } from '../app.js';
 
 // === Helpers ===
@@ -30,6 +30,22 @@ function xeOptions(allData) {
       return { value: x.id, label };
     }),
   ];
+}
+
+function renderXeColorField(allData, xeId, selectedColor = '') {
+  const selectedXe = (allData?.xe?.xe || []).find((item) => item.id === xeId);
+  const colors = getXeColorOptions(selectedXe);
+  const dataListId = 'customer-xe-color-options';
+  return [
+    '<label class="field">',
+    '<span class="field-label">Màu xe</span>',
+    `<input class="input" type="text" name="mau_xe" list="${dataListId}" value="${escapeHtml(selectedColor || '')}" placeholder="${escapeHtml(colors.length ? 'Chọn hoặc gõ màu xe' : 'Ví dụ: Trắng / Đen / Xám')}">`,
+    colors.length
+      ? `<datalist id="${dataListId}">${colors.map((color) => `<option value="${escapeHtml(color)}"></option>`).join('')}</datalist>`
+      : '',
+    `<span class="muted">${escapeHtml(colors.length ? 'Màu được gợi ý từ catalog của dòng xe đã chọn.' : 'Catalog chưa khai báo màu cho dòng xe này, bạn có thể tự nhập tạm.')}</span>`,
+    '</label>',
+  ].join('');
 }
 
 function renderTienDo(tienDo) {
@@ -81,6 +97,7 @@ export function openCustomerModal(customerId, prefillOptions) {
     ten: '', sdt: '', dia_chi: '',
     nhan_vien_id: prefillNvId || '',
     xe_id: '',
+    mau_xe: '',
     ghi_chu_ctkm: '',
     trang_thai: prefillStatus || 'du_ky',
     ngay_du_kien_ky: '', ngay_ky: '',
@@ -113,6 +130,7 @@ export function openCustomerModal(customerId, prefillOptions) {
     createField('Địa chỉ', 'dia_chi', 'text', draft.dia_chi || ''),
     createSelectField('Nhân viên phụ trách (*)', 'nhan_vien_id', nvOpts, draft.nhan_vien_id, 'required'),
     createSelectField('Xe (*)', 'xe_id', xeOpts, draft.xe_id, 'required'),
+    `<div id="customer-xe-color-field">${renderXeColorField(allData, draft.xe_id, draft.mau_xe || '')}</div>`,
     createSelectField('Kênh lead (nguồn KH)', 'kenh_lead', [
       { value: '', label: '— Chưa rõ kênh —' },
       ...leadChannelOptions,
@@ -222,6 +240,7 @@ export function openCustomerModal(customerId, prefillOptions) {
 
   // Hiện/ẩn field khi đổi trạng thái
   const statusSelect = root.querySelector('[name="trang_thai"]');
+  const xeSelect = root.querySelector('[name="xe_id"]');
   function toggleConditionalFields() {
     const val = statusSelect.value;
     const isDuKy = val === 'du_ky';
@@ -231,6 +250,10 @@ export function openCustomerModal(customerId, prefillOptions) {
     root.querySelector('#cskh-section').classList.toggle('is-hidden', !isGiao);
   }
   statusSelect.addEventListener('change', toggleConditionalFields);
+  xeSelect.addEventListener('change', () => {
+    const currentColor = root.querySelector('[name="mau_xe"]')?.value || '';
+    root.querySelector('#customer-xe-color-field').innerHTML = renderXeColorField(allData, xeSelect.value, currentColor);
+  });
 
   root.querySelector('[data-customer-form]').addEventListener('submit', async (event) => {
     event.preventDefault();
@@ -265,6 +288,7 @@ export function openCustomerModal(customerId, prefillOptions) {
       dia_chi: trimmedValue(fd, 'dia_chi'),
       nhan_vien_id: nvId,
       xe_id: xeId,
+      mau_xe: trimmedValue(fd, 'mau_xe'),
       ghi_chu_ctkm: trimmedValue(fd, 'ghi_chu_ctkm'),
       trang_thai: trangThai,
       ngay_du_kien_ky: trimmedValue(fd, 'ngay_du_kien_ky') || null,

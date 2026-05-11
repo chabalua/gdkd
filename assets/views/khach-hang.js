@@ -15,9 +15,9 @@ function renderKhRow(item, allData) {
     ? escapeHtml(getNvLabel(allData, item.nhan_vien_id))
     : missingFkBadge('NV');
   const xeLabel = item.xe_id
-    ? escapeHtml(getXeLabel(allData, item.xe_id))
+    ? escapeHtml(getXeLabel(allData, item.xe_id, item.mau_xe))
     : missingFkBadge('Xe');
-  const haystack = `${item.ten || ''} ${item.sdt || ''} ${item.so_hd || ''} ${getNvLabel(allData, item.nhan_vien_id)} ${getXeLabel(allData, item.xe_id)}`.toLowerCase();
+  const haystack = `${item.ten || ''} ${item.sdt || ''} ${item.so_hd || ''} ${item.mau_xe || ''} ${getNvLabel(allData, item.nhan_vien_id)} ${getXeLabel(allData, item.xe_id, item.mau_xe)}`.toLowerCase();
 
   return [
     `<tr data-customer-row data-id="${escapeHtml(item.id)}"`,
@@ -48,9 +48,9 @@ function renderKhCard(item, allData) {
     ? escapeHtml(getNvLabel(allData, item.nhan_vien_id))
     : 'Cần gán NV';
   const xeLabel = item.xe_id
-    ? escapeHtml(getXeLabel(allData, item.xe_id))
+    ? escapeHtml(getXeLabel(allData, item.xe_id, item.mau_xe))
     : 'Cần gán Xe';
-  const haystack = `${item.ten || ''} ${item.sdt || ''} ${item.so_hd || ''} ${getNvLabel(allData, item.nhan_vien_id)} ${getXeLabel(allData, item.xe_id)}`.toLowerCase();
+  const haystack = `${item.ten || ''} ${item.sdt || ''} ${item.so_hd || ''} ${item.mau_xe || ''} ${getNvLabel(allData, item.nhan_vien_id)} ${getXeLabel(allData, item.xe_id, item.mau_xe)}`.toLowerCase();
 
   return [
     `<article class="customer-mobile-card" data-customer-row data-id="${escapeHtml(item.id)}"`,

@@ -841,10 +841,28 @@ export function suggestMaXe({ hang, dong, bien_the, mau, nam }) {
   return parts.join('-');
 }
 
-export function formatXeFullName(xe) {
+export function getXeColorOptions(xe) {
+  if (!xe) return [];
+  if (Array.isArray(xe.mau_sac)) {
+    return [...new Set(xe.mau_sac.map((item) => String(item || '').trim()).filter(Boolean))];
+  }
+  return [...new Set(String(xe.mau || '')
+    .split(/[,;\n]/)
+    .map((item) => item.trim())
+    .filter(Boolean))];
+}
+
+export function formatXeColorSummary(xe) {
+  const colors = getXeColorOptions(xe);
+  if (colors.length) return colors.join(', ');
+  return String(xe?.mau || '').trim();
+}
+
+export function formatXeFullName(xe, selectedColor = '') {
   if (!xe) return '';
   const segments = [xe.hang, xe.dong, xe.bien_the].filter(Boolean).join(' ');
-  const tail = [xe.mau, xe.nam].filter(Boolean).join(' · ');
+  const colorLabel = String(selectedColor || '').trim() || formatXeColorSummary(xe);
+  const tail = [colorLabel, xe.nam].filter(Boolean).join(' · ');
   return tail ? `${segments} · ${tail}` : segments;
 }
 
@@ -854,10 +872,10 @@ export function countKhByXeId(allData, xeId) {
 }
 
 // Derive: trả về tên đầy đủ của xe từ xe_id
-export function getXeLabel(allData, xeId) {
+export function getXeLabel(allData, xeId, selectedColor = '') {
   if (!xeId) return '';
   const xe = (allData.xe?.xe || []).find((x) => x.id === xeId);
-  return xe ? formatXeFullName(xe) : xeId;
+  return xe ? formatXeFullName(xe, selectedColor) : xeId;
 }
 
 // Derive: trả về tên NV từ nhan_vien_id

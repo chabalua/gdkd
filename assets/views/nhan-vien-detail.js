@@ -1,7 +1,7 @@
 // assets/views/nhan-vien-detail.js
 import { renderShell, renderEmptyState } from './shell.js';
 import { escapeHtml, avatarHtml, renderRangePicker, getCurrentRange, getRangeLabel } from '../ui.js';
-import { getLeadChannels, getNvStats, getWeekOfMonth, KH_STATUS_META, LOAI_NHAN_SU_META, getEmployeeGroupLabel, getActiveMonth, isSingleMonthRange } from '../models.js';
+import { getLeadChannels, getNvStats, getWeekOfMonth, KH_STATUS_META, LOAI_NHAN_SU_META, getEmployeeGroupLabel, getActiveMonth, isSingleMonthRange, getXeLabel } from '../models.js';
 import { renderWeekGrid } from '../components/week-grid.js';
 
 // === Tab 4: KH c\u1ee7a t\u00f4i ===
@@ -36,7 +36,7 @@ function renderKhPanel(employee, allKh, allXe, channels) {
 
   const cards = myKh.length ? myKh.map((kh) => {
     const xe = xeMap[kh.xe_id];
-    const xeLabel = xe ? `${xe.hang || ''} ${xe.dong || ''}`.trim() : '\u2014';
+    const xeLabel = xe ? getXeLabel({ xe: { xe: allXe } }, kh.xe_id, kh.mau_xe) : '\u2014';
     const [statusLabel, statusClass] = KH_STATUS_META[kh.trang_thai] || ['\u2014', ''];
     const isCskh = needCskh(kh);
     const lastStep = kh.tien_do?.length ? kh.tien_do[kh.tien_do.length - 1] : null;

@@ -4,7 +4,7 @@
 
 import { renderShell, renderEmptyState, renderTableEmptyRow } from './shell.js';
 import { escapeHtml, formatCurrency } from '../ui.js';
-import { XE_STATUS_META, countKhByXeId, formatXeFullName } from '../models.js';
+import { XE_STATUS_META, countKhByXeId, formatXeColorSummary, formatXeFullName } from '../models.js';
 
 export default function renderXePage(data) {
   const list = data.xe.xe;
@@ -22,14 +22,15 @@ export default function renderXePage(data) {
     ? list.map((xe) => {
       const meta = XE_STATUS_META[xe.trang_thai] || ['Chưa rõ', 'is-warning'];
       const refCount = countKhByXeId(data, xe.id);
-      const haystack = `${xe.ma_xe || ''} ${xe.hang || ''} ${xe.dong || ''} ${xe.bien_the || ''} ${xe.mau || ''}`.toLowerCase();
+      const colorSummary = formatXeColorSummary(xe);
+      const haystack = `${xe.ma_xe || ''} ${xe.hang || ''} ${xe.dong || ''} ${xe.bien_the || ''} ${colorSummary}`.toLowerCase();
       return [
         `<tr data-xe-row data-search="${escapeHtml(haystack)}" data-brand="${escapeHtml(xe.hang || '')}" data-status="${escapeHtml(xe.trang_thai || '')}">`,
         `<td><strong>${escapeHtml(xe.ma_xe || '—')}</strong></td>`,
         `<td>${escapeHtml(xe.hang || '—')}</td>`,
         `<td>${escapeHtml(xe.dong || '—')}</td>`,
         `<td>${escapeHtml(xe.bien_the || '—')}</td>`,
-        `<td>${escapeHtml(xe.mau || '—')}</td>`,
+        `<td>${escapeHtml(colorSummary || '—')}</td>`,
         `<td class="is-number">${escapeHtml(xe.nam || '—')}</td>`,
         `<td class="is-number">${formatCurrency(xe.gia_niem_yet)}</td>`,
         `<td><span class="badge ${meta[1]}">${escapeHtml(meta[0])}</span></td>`,

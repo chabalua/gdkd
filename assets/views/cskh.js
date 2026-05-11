@@ -36,7 +36,7 @@ export default function renderCskhPage(data) {
       ? (CSKH_STATUS_META[lastEntry.trang_thai_xu_ly] || ['Chưa rõ', 'is-warning'])
       : ['Chưa có phản hồi', 'is-danger'];
     const nvName = escapeHtml(getNvLabel(data, kh.nhan_vien_id));
-    const xeName = escapeHtml(getXeLabel(data, kh.xe_id));
+    const xeName = escapeHtml(getXeLabel(data, kh.xe_id, kh.mau_xe));
     const haystack = `${kh.ten || ''} ${nvName} ${xeName}`.toLowerCase();
 
     return [

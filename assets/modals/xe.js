@@ -10,6 +10,13 @@ import {
 import { XE_STATUS_META, suggestMaXe } from '../models.js';
 import { appState, persistFile, rerenderApp } from '../app.js';
 
+function normalizeColorInput(value) {
+  return [...new Set(String(value || '')
+    .split(/[,;\n]/)
+    .map((item) => item.trim())
+    .filter(Boolean))].join(', ');
+}
+
 export function openXeModal(xeId) {
   const existing = appState.data.xe.xe.find((item) => item.id === xeId);
   const draft = existing ? JSON.parse(JSON.stringify(existing)) : {
@@ -46,7 +53,7 @@ export function openXeModal(xeId) {
     createField('Hãng', 'hang', 'text', draft.hang, 'required placeholder="Omoda"'),
     createField('Dòng xe', 'dong', 'text', draft.dong, 'required placeholder="C5"'),
     createField('Biến thể', 'bien_the', 'text', draft.bien_the, 'placeholder="Premium / Tiêu chuẩn"'),
-    createField('Màu', 'mau', 'text', draft.mau, 'placeholder="Trắng"'),
+    createField('Màu sắc khả dụng', 'mau', 'text', draft.mau, 'placeholder="Trắng, Đen, Xanh ngọc"'),
     createField('Năm sản xuất', 'nam', 'number', draft.nam || new Date().getFullYear(), 'min="2000" max="2099"'),
     createField('Giá niêm yết (VND)', 'gia_niem_yet', 'number', draft.gia_niem_yet || 0, 'min="0" step="1"'),
     createSelectField('Trạng thái', 'trang_thai', statusOptions, draft.trang_thai || 'dang_ban'),
@@ -69,7 +76,7 @@ export function openXeModal(xeId) {
       hang: fd.get('hang'),
       dong: fd.get('dong'),
       bien_the: fd.get('bien_the'),
-      mau: fd.get('mau'),
+      mau: String(fd.get('mau') || '').split(/[,;\n]/)[0]?.trim() || '',
       nam: fd.get('nam'),
     });
     form.querySelector('input[name="ma_xe"]').value = suggested;
@@ -95,7 +102,7 @@ export function openXeModal(xeId) {
       hang: trimmedValue(formData, 'hang'),
       dong: trimmedValue(formData, 'dong'),
       bien_the: trimmedValue(formData, 'bien_the'),
-      mau: trimmedValue(formData, 'mau'),
+      mau: normalizeColorInput(trimmedValue(formData, 'mau')),
       nam: numberValue(formData.get('nam')),
       gia_niem_yet: numberValue(formData.get('gia_niem_yet')),
       trang_thai: trimmedValue(formData, 'trang_thai') || 'dang_ban',
