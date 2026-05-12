@@ -365,6 +365,14 @@ export function bindCommonEvents(data) {
     return commitWeekTaskWrite(job);
   };
 
+  document.querySelectorAll('[data-action="save-week-draft"]').forEach((button) => {
+    button.addEventListener('click', async () => {
+      await flushPendingWeekWrite();
+      await persistFile('nhan-vien.json', appState.data.nhanVien, null);
+      showToast('Đã lưu tạm trên máy. Nút đẩy GitHub chỉ dùng khi muốn đồng bộ lên cloud.', 'success');
+    });
+  });
+
   // Khi user click link điều hướng (sidebar/topbar/back) hoặc đóng tab,
   // flush dữ liệu đang chờ trước. beforeunload chạy sync với pending writes
   // được lưu vào localStorage qua persistFile → savePendingWrite fallback.

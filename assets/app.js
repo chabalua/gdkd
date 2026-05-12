@@ -265,15 +265,10 @@ function ensureAutoRefreshHooks() {
   }
 }
 
-// Cảnh báo khi đóng tab với pending writes chưa push lên GitHub. Data vẫn
-// an toàn trong localStorage, nhưng nhắc user biết là chưa lên cloud.
+// Không cảnh báo chỉ vì còn pending writes: dữ liệu local đã được lưu tạm.
+// Việc đẩy GitHub là thao tác chủ động qua chip/nút Đồng bộ.
 function ensureUnloadGuard() {
-  window.addEventListener('beforeunload', (event) => {
-    if (!getPendingWriteCount()) return;
-    event.preventDefault();
-    event.returnValue = '';
-    return '';
-  });
+  // Intentionally no-op.
 }
 
 function isMonthKey(value) {
