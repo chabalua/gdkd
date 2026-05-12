@@ -17,7 +17,7 @@ import { renderNotificationsPanel } from './modals/notifications.js';
 
 import { filterXeRows } from './views/xe.js';
 
-import { appState, persistFile, rerenderApp } from './app.js';
+import { appState, persistFile, rerenderApp, triggerManualRefresh } from './app.js';
 
 // === In-page filters ===
 function filterEmployeeCards() {
@@ -99,6 +99,10 @@ export function bindCommonEvents(data) {
       }
       rerenderApp();
     });
+  });
+
+  document.querySelectorAll('[data-action="refresh-from-github"]').forEach((button) => {
+    button.addEventListener('click', () => triggerManualRefresh());
   });
 
   document.querySelectorAll('[data-action="show-notifications"]').forEach((button) => {

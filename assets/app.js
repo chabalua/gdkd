@@ -65,6 +65,7 @@ export async function persistFile(filename, payload, successMessage, toast = tru
     const serializedPayload = serializeFilePayload(filename, payload);
     await writeData(filename, serializedPayload);
     clearPendingWrite(filename);
+    if (appState.data) lastDataSignature = computeDataSignature(appState.data);
     if (showMsg) showToast(successMessage, 'success');
     return { storage: 'github' };
   } catch (error) {
@@ -91,6 +92,71 @@ export function rerenderApp() {
   const renderer = getProtectedRenderer(document.body.dataset.page);
   root.innerHTML = renderer(appState.data);
   bindCommonEvents(appState.data);
+}
+
+// === Auto-refresh khi quay lại tab / polling nhẹ ===
+// App 1 user nhưng dùng cả PC và điện thoại. Khi mở thiết bị B sau khi vừa
+// sửa trên A, B phải thấy data mới mà không cần F5.
+// Skip khi: đang mở modal, có pending writes, tab không visible, hoặc đang refresh khác.
+let refreshInFlight = false;
+let pollTimer = null;
+let lastDataSignature = '';
+
+function computeDataSignature(rawData) {
+  return [
+    JSON.stringify(rawData?.config || {}).length,
+    JSON.stringify(rawData?.xe || {}).length,
+    JSON.stringify(rawData?.nhanVien || {}).length,
+    JSON.stringify(rawData?.khachHang || {}).length,
+    JSON.stringify(rawData?.congViec || {}).length,
+    JSON.stringify(rawData?.lichSu || {}).length,
+  ].join('|');
+}
+
+async function refreshFromGithub(reason) {
+  if (refreshInFlight) return;
+  if (document.visibilityState !== 'visible') return;
+  if (document.body.classList.contains('modal-open')) return;
+  if (getPendingWriteCount() > 0) return;
+  const repoConfig = getRepoConfig();
+  if (!repoConfig.owner || !repoConfig.repo || !getToken()) return;
+
+  refreshInFlight = true;
+  try {
+    const raw = await readAllData();
+    const signature = computeDataSignature(raw);
+    if (signature === lastDataSignature) return;
+    if (document.body.classList.contains('modal-open')) return;
+    appState.data = normalizeData(raw);
+    lastDataSignature = signature;
+    ensureValidStoredRange(appState.data);
+    rerenderApp();
+    if (reason === 'manual') {
+      showToast('Đã làm mới dữ liệu từ GitHub.', 'success');
+    } else {
+      showToast('Đã đồng bộ dữ liệu mới từ GitHub.', 'success');
+    }
+  } catch (error) {
+    console.warn('refreshFromGithub failed', error);
+    if (reason === 'manual') {
+      showToast('Không làm mới được dữ liệu. Kiểm tra mạng hoặc token.', 'error');
+    }
+  } finally {
+    refreshInFlight = false;
+  }
+}
+
+export function triggerManualRefresh() {
+  return refreshFromGithub('manual');
+}
+
+function ensureAutoRefreshHooks() {
+  if (pollTimer) window.clearInterval(pollTimer);
+  pollTimer = window.setInterval(() => refreshFromGithub('poll'), 60 * 1000);
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') refreshFromGithub('visibility');
+  });
+  window.addEventListener('focus', () => refreshFromGithub('focus'));
 }
 
 function isMonthKey(value) {
@@ -218,12 +284,14 @@ async function initProtectedPage() {
   try {
     const raw = await readAllData();
     appState.data = normalizeData(raw);
+    lastDataSignature = computeDataSignature(raw);
     ensureValidStoredRange(appState.data);
     await syncPendingWritesOnStartup();
     await ensureMonthlySnapshot();
     rerenderApp();
     checkReminders(appState.data);
     ensureReminderLoop();
+    ensureAutoRefreshHooks();
   } catch (error) {
     console.error(error);
     root.innerHTML = `<section class="empty-card">Không tải được dữ liệu. ${escapeHtml(error.message)}</section>`;

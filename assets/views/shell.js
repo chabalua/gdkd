@@ -55,6 +55,7 @@ export function createTopBar(activePage, data) {
     `<h1 class="page-title">${escapeHtml(meta.title)} · ${escapeHtml(rangeLabel)}</h1>`,
     '</div>',
     '<div class="topbar-actions">',
+    `<button type="button" class="btn btn-soft" data-action="refresh-from-github" title="Tải dữ liệu mới nhất từ GitHub">🔄 Làm mới</button>`,
     `<button type="button" class="btn btn-soft" data-action="${githubButtonAction}" title="Mở cấu hình hoặc đồng bộ dữ liệu GitHub">${escapeHtml(githubButtonLabel)}</button>`,
     `<a class="icon-button${activePage === 'settings' ? ' is-active' : ''}" href="settings.html" aria-label="Mở trang thiết lập">⚙️</a>`,
     '<button type="button" class="icon-button" data-action="show-notifications" aria-label="Thông báo">',
