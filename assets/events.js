@@ -3,7 +3,8 @@
 // Tách khỏi app.js để mỗi file < 350 dòng. Không có state riêng — đọc state
 // qua import từ app.js (ESM live binding).
 
-import { clearToken, pushPendingWrites } from './api.js';
+import { clearToken, pushPendingWrites, savePendingWrite } from './api.js';
+import { serializeFilePayload } from './models.js';
 import { showToast, confirmAction, showModal, getModalRoot, closeModal, saveRange, parseRangeValue, calcPercent, getPercentClass } from './ui.js';
 import { TODO_MESSAGE, countKhByXeId } from './models.js';
 
@@ -283,8 +284,71 @@ export function bindCommonEvents(data) {
   });
 
   // === Week grid inline autosave (NV detail v3) ===
+  // - input event → debounce 600ms (gõ liên tục thì autosave 1 lần).
+  // - change/blur event → flush ngay (user rời ô input).
+  // - beforeunload / click link điều hướng → flush ngay trước khi rời trang.
   let weekGridDebounceTimer = null;
-  const syncWeekTaskInput = (input) => {
+  let pendingFlush = null;
+
+  const commitWeekTaskWrite = (input) => {
+    const taskId = input.getAttribute('data-task-id');
+    const nvId = input.getAttribute('data-nv-id');
+    const month = input.getAttribute('data-month') || appState.data.config.thang_hien_tai;
+    const rowActualInputs = getVisibleElements(`[data-week-task-input][data-task-id="${taskId}"]`);
+    const rowTargetInputs = getVisibleElements(`[data-week-task-target][data-task-id="${taskId}"]`);
+    const nvIdx = appState.data.nhanVien.nhan_vien.findIndex((item) => item.id === nvId);
+    if (nvIdx < 0) return null;
+    const employee = appState.data.nhanVien.nhan_vien[nvIdx];
+    if (!employee.du_lieu) employee.du_lieu = {};
+    if (!employee.du_lieu[month]) employee.du_lieu[month] = { tuan: { 1: {}, 2: {}, 3: {}, 4: {}, 5: {} } };
+    if (!employee.du_lieu[month].tuan) employee.du_lieu[month].tuan = { 1: {}, 2: {}, 3: {}, 4: {}, 5: {} };
+    const allTaskWeeks = new Set([
+      ...rowActualInputs.map((element) => element.getAttribute('data-tuan')),
+      ...rowTargetInputs.map((element) => element.getAttribute('data-tuan')),
+    ]);
+    allTaskWeeks.forEach((inputWeek) => {
+      const actualInput = rowActualInputs.find((element) => element.getAttribute('data-tuan') === inputWeek);
+      const targetInput = rowTargetInputs.find((element) => element.getAttribute('data-tuan') === inputWeek);
+      const actual = Math.max(0, Number(actualInput?.value || 0));
+      const target = Math.max(0, Number(targetInput?.value || 0));
+      if (!employee.du_lieu[month].tuan[inputWeek]) employee.du_lieu[month].tuan[inputWeek] = {};
+      employee.du_lieu[month].tuan[inputWeek][taskId] = { muc_tieu: target, thuc_te: actual };
+    });
+    // Bước 1 (sync): lưu draft vào localStorage NGAY để dù user navigate đi
+    // giữa lúc fetch GitHub đang chạy, dữ liệu vẫn không mất.
+    const serialized = serializeFilePayload('nhan-vien.json', appState.data.nhanVien);
+    savePendingWrite('nhan-vien.json', serialized, 'pending-week-grid');
+    // Bước 2 (async): push GitHub. persistFile sẽ clearPendingWrite khi xong.
+    return persistFile('nhan-vien.json', appState.data.nhanVien, null).catch(() => {
+      // persistFile đã giữ draft + báo toast nếu fail.
+    });
+  };
+
+  const flushPendingWeekWrite = () => {
+    if (!pendingFlush) return null;
+    clearTimeout(weekGridDebounceTimer);
+    const job = pendingFlush;
+    pendingFlush = null;
+    return commitWeekTaskWrite(job);
+  };
+
+  // Khi user click link điều hướng (sidebar/topbar/back) hoặc đóng tab,
+  // flush dữ liệu đang chờ trước. beforeunload chạy sync với pending writes
+  // được lưu vào localStorage qua persistFile → savePendingWrite fallback.
+  document.addEventListener('click', (event) => {
+    const link = event.target.closest('a[href]');
+    if (!link) return;
+    if (link.target && link.target !== '_self') return;
+    flushPendingWeekWrite();
+  }, true);
+  window.addEventListener('beforeunload', () => {
+    flushPendingWeekWrite();
+  });
+  window.addEventListener('pagehide', () => {
+    flushPendingWeekWrite();
+  });
+
+  const syncWeekTaskInput = (input, options = {}) => {
       const taskId = input.getAttribute('data-task-id');
       const week = input.getAttribute('data-tuan');
       const rowActualInputs = getVisibleElements(`[data-week-task-input][data-task-id="${taskId}"]`);
@@ -347,38 +411,20 @@ export function bindCommonEvents(data) {
         cell.textContent = allLeadTotal > 0 ? `${Math.round((allDuKy / allLeadTotal) * 100)}%` : '—';
       });
 
+      pendingFlush = input;
       clearTimeout(weekGridDebounceTimer);
-      weekGridDebounceTimer = setTimeout(async () => {
-        const nvId = input.getAttribute('data-nv-id');
-        const month = input.getAttribute('data-month') || appState.data.config.thang_hien_tai;
-        const nvIdx = appState.data.nhanVien.nhan_vien.findIndex((item) => item.id === nvId);
-        if (nvIdx < 0) return;
-        const employee = appState.data.nhanVien.nhan_vien[nvIdx];
-        if (!employee.du_lieu) employee.du_lieu = {};
-        if (!employee.du_lieu[month]) employee.du_lieu[month] = { tuan: { 1: {}, 2: {}, 3: {}, 4: {}, 5: {} } };
-        if (!employee.du_lieu[month].tuan) employee.du_lieu[month].tuan = { 1: {}, 2: {}, 3: {}, 4: {}, 5: {} };
-        const allTaskWeeks = new Set([
-          ...rowActualInputs.map((element) => element.getAttribute('data-tuan')),
-          ...rowTargetInputs.map((element) => element.getAttribute('data-tuan')),
-        ]);
-        allTaskWeeks.forEach((inputWeek) => {
-          const actualInput = rowActualInputs.find((element) => element.getAttribute('data-tuan') === inputWeek);
-          const targetInput = rowTargetInputs.find((element) => element.getAttribute('data-tuan') === inputWeek);
-          const actual = Math.max(0, Number(actualInput?.value || 0));
-          const target = Math.max(0, Number(targetInput?.value || 0));
-          if (!employee.du_lieu[month].tuan[inputWeek]) employee.du_lieu[month].tuan[inputWeek] = {};
-          employee.du_lieu[month].tuan[inputWeek][taskId] = { muc_tieu: target, thuc_te: actual };
-        });
-        try {
-          await persistFile('nhan-vien.json', appState.data.nhanVien, null);
-        } catch (error) {
-          // Keep inline edits in memory; persistFile already surfaced the sync error via toast.
-        }
-      }, 600);
+      if (options.immediate) {
+        flushPendingWeekWrite();
+      } else {
+        weekGridDebounceTimer = setTimeout(() => {
+          flushPendingWeekWrite();
+        }, 600);
+      }
     };
   document.querySelectorAll('[data-week-task-input],[data-week-task-target]').forEach((input) => {
     input.addEventListener('input', () => syncWeekTaskInput(input));
-    input.addEventListener('change', () => syncWeekTaskInput(input));
+    input.addEventListener('change', () => syncWeekTaskInput(input, { immediate: true }));
+    input.addEventListener('blur', () => syncWeekTaskInput(input, { immediate: true }));
   });
 
   // === Kenh lead filter pills in NV detail KH tab ===

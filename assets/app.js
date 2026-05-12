@@ -113,11 +113,23 @@ function computeDataSignature(rawData) {
   ].join('|');
 }
 
+function isUserEditingInline() {
+  // Không refresh khi user đang focus 1 input/textarea/select inline (tab Nhập tuần),
+  // tránh đè giá trị đang gõ. Refresh thủ công vẫn cho qua.
+  const active = document.activeElement;
+  if (!active) return false;
+  const tag = active.tagName;
+  if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return true;
+  if (active.isContentEditable) return true;
+  return false;
+}
+
 async function refreshFromGithub(reason) {
   if (refreshInFlight) return;
   if (document.visibilityState !== 'visible') return;
   if (document.body.classList.contains('modal-open')) return;
   if (getPendingWriteCount() > 0) return;
+  if (reason !== 'manual' && isUserEditingInline()) return;
   const repoConfig = getRepoConfig();
   if (!repoConfig.owner || !repoConfig.repo || !getToken()) return;
 
