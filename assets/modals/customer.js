@@ -271,6 +271,16 @@ export function openCustomerModal(customerId, prefillOptions) {
       showToast('Vui lòng chọn xe.', 'warning');
       return;
     }
+    const assignedEmployee = appState.data.nhanVien.nhan_vien.find((item) => item.id === nvId);
+    if (!assignedEmployee || assignedEmployee.trang_thai === 'nghi_viec') {
+      showToast('Nhân viên phụ trách không còn hợp lệ. Hãy chọn lại.', 'warning');
+      return;
+    }
+    const selectedXe = appState.data.xe.xe.find((item) => item.id === xeId);
+    if (!selectedXe) {
+      showToast('Dòng xe không còn tồn tại trong catalog. Hãy chọn lại.', 'warning');
+      return;
+    }
 
     const trangThai = trimmedValue(fd, 'trang_thai');
     const ngayGiaoThucTe = trimmedValue(fd, 'ngay_giao_thuc_te');
@@ -337,6 +347,10 @@ export function openCustomerModal(customerId, prefillOptions) {
 
     if (existing) {
       const index = appState.data.khachHang.khach_hang.findIndex((item) => item.id === existing.id);
+      if (index < 0) {
+        showToast('Không tìm thấy khách hàng để cập nhật. Hãy tải lại trang.', 'error');
+        return;
+      }
       appState.data.khachHang.khach_hang[index] = payload;
     } else {
       appState.data.khachHang.khach_hang.unshift(payload);

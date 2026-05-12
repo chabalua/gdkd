@@ -259,6 +259,24 @@ function serializeConfigV3(config) {
   };
 }
 
+function cloneWeekTaskMetrics(metrics) {
+  return {
+    muc_tieu: numberValue(metrics?.muc_tieu),
+    thuc_te: numberValue(metrics?.thuc_te),
+  };
+}
+
+function cloneEmployeeMonthData(monthData) {
+  const weeks = { 1: {}, 2: {}, 3: {}, 4: {}, 5: {} };
+  Object.entries(monthData?.tuan || {}).forEach(([week, weekBlock]) => {
+    if (!weeks[week]) weeks[week] = {};
+    Object.entries(weekBlock || {}).forEach(([taskId, metrics]) => {
+      weeks[week][taskId] = cloneWeekTaskMetrics(metrics);
+    });
+  });
+  return { tuan: weeks };
+}
+
 function serializeNhanVienV3(payload) {
   const list = Array.isArray(payload?.nhan_vien) ? payload.nhan_vien : [];
   return {
@@ -271,13 +289,17 @@ function serializeNhanVienV3(payload) {
       ]);
 
       months.forEach((month) => {
-        du_lieu[month] = { tuan: { 1: {}, 2: {}, 3: {}, 4: {}, 5: {} } };
+        du_lieu[month] = cloneEmployeeMonthData(employee?.du_lieu?.[month]);
         Object.entries(employee?.lead_theo_thang?.[month] || {}).forEach(([taskId, metrics]) => {
           for (let week = 1; week <= 5; week += 1) {
             const actual = numberValue(metrics?.tuan?.[week]);
             const target = week === 1 ? numberValue(metrics?.muc_tieu) : 0;
-            if (!actual && !target) continue;
-            du_lieu[month].tuan[week][taskId] = { muc_tieu: target, thuc_te: actual };
+            const existingMetrics = du_lieu[month].tuan[week][taskId];
+            if (!actual && !target && !existingMetrics) continue;
+            du_lieu[month].tuan[week][taskId] = {
+              muc_tieu: target || numberValue(existingMetrics?.muc_tieu),
+              thuc_te: actual || numberValue(existingMetrics?.thuc_te),
+            };
           }
         });
 
@@ -307,6 +329,7 @@ function serializeNhanVienV3(payload) {
 function serializeCongViecV3(payload) {
   return {
     su_kien_lai_thu: {
+      muc_tieu: numberValue(payload?.su_kien_lai_thu?.muc_tieu),
       danh_sach: Array.isArray(payload?.su_kien_lai_thu?.danh_sach) ? payload.su_kien_lai_thu.danh_sach : [],
     },
     zalo_oa: {
@@ -327,6 +350,7 @@ function serializeKhachHangV3(payload) {
       dia_chi: customer.dia_chi || '',
       nhan_vien_id: customer.nhan_vien_id || '',
       xe_id: customer.xe_id || '',
+      mau_xe: customer.mau_xe || '',
       ghi_chu_ctkm: customer.ghi_chu_ctkm || '',
       trang_thai: customer.trang_thai || 'du_ky',
       ngay_du_kien_ky: customer.ngay_du_kien_ky || null,
@@ -428,6 +452,9 @@ export function normalizeData(rawData) {
 // === Init helper: bảo đảm employee.lead_theo_thang/noi_dung/kpi_tuan có shape đúng cho 1 tháng ===
 export function ensureEmployeeMonth(employee, month, leadChannels) {
   const channels = leadChannels || DEFAULT_LEAD_CHANNELS;
+  if (!employee.du_lieu) employee.du_lieu = {};
+  if (!employee.du_lieu[month]) employee.du_lieu[month] = { tuan: { 1: {}, 2: {}, 3: {}, 4: {}, 5: {} } };
+  else if (!employee.du_lieu[month].tuan) employee.du_lieu[month].tuan = { 1: {}, 2: {}, 3: {}, 4: {}, 5: {} };
   if (!employee.lead_theo_thang) employee.lead_theo_thang = {};
   if (!employee.lead_theo_thang[month]) employee.lead_theo_thang[month] = {};
   const lead = employee.lead_theo_thang[month];

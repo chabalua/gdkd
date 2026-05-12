@@ -82,9 +82,11 @@ function createEmployeeDraft(existing) {
     loai_nhan_su: 'chinh_thuc',
     ngay_vao: '',
     trang_thai: 'dang_lam',
+    nhiem_vu_ids: [],
     lead_theo_thang: {},
     noi_dung: {},
     kpi_tuan: {},
+    du_lieu: {},
     du_ky_tuan_nay: [],
   };
   if (!employee.trang_thai) employee.trang_thai = 'dang_lam';
@@ -150,6 +152,10 @@ export function openEmployeeModal(employeeId) {
 
     if (existing) {
       const index = appState.data.nhanVien.nhan_vien.findIndex((item) => item.id === existing.id);
+      if (index < 0) {
+        showToast('Không tìm thấy nhân viên để cập nhật. Hãy tải lại trang.', 'error');
+        return;
+      }
       appState.data.nhanVien.nhan_vien[index] = employee;
     } else {
       appState.data.nhanVien.nhan_vien.push(employee);

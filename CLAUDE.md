@@ -7,7 +7,7 @@
 
 ## Tóm tắt 30 giây
 
-App quản lý nội bộ cho **GĐKD showroom ô tô tại Đắk Lắk**, 1 user, vanilla HTML/CSS/JS (ES Modules). Lưu data qua GitHub Contents API (JSON files trong `assets/data/`), deploy GitHub Pages.
+App quản lý nội bộ cho **GĐKD showroom ô tô tại Đắk Lắk**, 1 user, vanilla HTML/CSS/JS (ES Modules). Runtime hiện tại là **local-first**: mọi CRUD lưu nháp vào `localStorage` trước, sau đó người dùng chủ động đẩy lên GitHub Contents API; dữ liệu thật vẫn nằm ở `assets/data/`, deploy GitHub Pages.
 
 **Triết lý cốt lõi (v2)**: NV-centric. Mọi thứ bắt đầu từ Nhân Viên. KH là transaction thuộc về NV, tham chiếu xe trong catalog. KPI là **derived** từ KH/NV — không gõ tay.
 
@@ -91,8 +91,8 @@ App quản lý nội bộ cho **GĐKD showroom ô tô tại Đắk Lắk**, 1 us
 - [x] **Bước 5**: Dashboard mới (stacked bar + time range + click expand)
 - [x] **Bước 6**: KPI page (derive + setup mục tiêu)
 - [x] **Bước 7**: NV detail đã chuyển sang 2 tab (`Nhập tuần` + `KH của tôi`), có week-grid MT/TT, autosave draft và filter KH theo nhân viên
-- [~] **Bước 8**: CSKH filter view đã chạy, reminders đã có; snapshot/polling/sync tự động vẫn chưa hoàn tất
-- [~] **Bước 9**: Responsive đã được test lại trên local origin sạch, đã push GitHub; vẫn còn một số hạng mục polish ngoài roadmap gốc
+- [x] **Bước 8**: CSKH filter view đã chạy, reminders đã có; local draft + manual sync đã ổn, nhiều tab mở song song đã refresh local qua `storage` + `BroadcastChannel`
+- [~] **Bước 9**: Responsive đã được test lại trên local origin sạch; smoke test CRUD chính đã qua, vẫn còn các hạng mục polish và kiểm thử GitHub sync thật theo môi trường user
 
 ---
 
@@ -112,6 +112,7 @@ App quản lý nội bộ cho **GĐKD showroom ô tô tại Đắk Lắk**, 1 us
 | **Stacked bar theo NV** | 1 thanh thấy tổng + đóng góp từng NV cùng lúc |
 | **Click KPI card → expand** | Drill-down thấy ranking NV cho KPI đó |
 | **Token + repo config gộp ở login** | Người dùng nhập 1 lần, không phải tìm modal Settings |
+| **Local-first + manual sync** | CRUD không chặn UI bởi network; user chủ động đẩy pending writes lên GitHub |
 | **`Notification` API thay vì Web Push** | Push thật cần server |
 | **Lưu token `localStorage`** | App 1 user, máy cá nhân |
 | **GitHub Contents API thay vì Issues/Gists** | Có versioning tự nhiên, dễ debug |

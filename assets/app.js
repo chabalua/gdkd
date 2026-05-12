@@ -58,6 +58,10 @@ let reminderTimer = null;
 
 let pushInFlight = false;
 const syncStatusSubscribers = new Set();
+const LOCAL_SYNC_CHANNEL_NAME = 'gdkd-local-sync';
+const localSyncChannel = typeof window.BroadcastChannel === 'function'
+  ? new window.BroadcastChannel(LOCAL_SYNC_CHANNEL_NAME)
+  : null;
 
 export function subscribeSyncStatus(callback) {
   syncStatusSubscribers.add(callback);
@@ -77,6 +81,19 @@ function emitSyncStatus() {
   syncStatusSubscribers.forEach((callback) => {
     try { callback(status); } catch (error) { console.warn(error); }
   });
+}
+
+function broadcastLocalSync(payload) {
+  if (!localSyncChannel) return;
+  try {
+    localSyncChannel.postMessage({
+      type: 'local-persist',
+      ...payload,
+      at: Date.now(),
+    });
+  } catch (error) {
+    console.warn('broadcastLocalSync failed', error);
+  }
 }
 
 // flushSyncNow: bấm chip khi đang có pending → push tất cả lên GitHub.
@@ -108,8 +125,15 @@ export async function flushSyncNow() {
 
 // persistFile: chỉ ghi localStorage. Không touch network. Trả ngay → UI mượt.
 export async function persistFile(filename, payload, successMessage /* unused */, toast /* unused */) {
-  const serializedPayload = serializeFilePayload(filename, payload);
-  savePendingWrite(filename, serializedPayload, '');
+  try {
+    const serializedPayload = serializeFilePayload(filename, payload);
+    savePendingWrite(filename, serializedPayload, '');
+    broadcastLocalSync({ filename });
+  } catch (error) {
+    console.warn(`persistFile serialize failed for ${filename}`, error);
+    showToast(`Không chuẩn bị được dữ liệu lưu cho ${filename}.`, 'error');
+    throw error;
+  }
   emitSyncStatus();
   if (appState.data) lastDataSignature = computeDataSignature(appState.data);
   return { storage: 'draft' };
@@ -186,6 +210,31 @@ async function refreshFromGithub(reason) {
   }
 }
 
+async function refreshFromLocalStorage(reason) {
+  if (refreshInFlight) return;
+  if (document.body.classList.contains('modal-open')) return;
+  if (isUserEditingInline()) return;
+
+  refreshInFlight = true;
+  try {
+    const raw = await readAllData();
+    const signature = computeDataSignature(raw);
+    if (signature === lastDataSignature) return;
+    if (document.body.classList.contains('modal-open')) return;
+    appState.data = normalizeData(raw);
+    lastDataSignature = signature;
+    ensureValidStoredRange(appState.data);
+    rerenderApp();
+    if (reason === 'storage') {
+      emitSyncStatus();
+    }
+  } catch (error) {
+    console.warn('refreshFromLocalStorage failed', error);
+  } finally {
+    refreshInFlight = false;
+  }
+}
+
 export function triggerManualRefresh() {
   return refreshFromGithub('manual');
 }
@@ -203,6 +252,17 @@ function ensureAutoRefreshHooks() {
     if (getPendingWriteCount()) return;
     refreshFromGithub('focus');
   });
+  window.addEventListener('storage', (event) => {
+    if (!event.key) return;
+    if (event.key !== 'gdkd_pending_writes') return;
+    refreshFromLocalStorage('storage');
+  });
+  if (localSyncChannel) {
+    localSyncChannel.addEventListener('message', (event) => {
+      if (event?.data?.type !== 'local-persist') return;
+      refreshFromLocalStorage('broadcast');
+    });
+  }
 }
 
 // Cảnh báo khi đóng tab với pending writes chưa push lên GitHub. Data vẫn

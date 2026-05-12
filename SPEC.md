@@ -133,8 +133,9 @@ Khi thêm KH: ô **NV** và ô **Xe** là `<select>` lấy từ master data, **k
 ## 🔐 AUTH
 
 - Login: nhập GitHub PAT + (gộp luôn) repo owner / repo name / branch.
-- `verifyToken` phải kiểm cả `/user` **và** thử `GET /repos/{owner}/{repo}` để xác nhận token có quyền `repo`. Nếu thiếu: hiện thông báo cụ thể.
+- `verifyToken` hiện kiểm token qua `/user`; quyền ghi repo được xác nhận ở bước đọc/ghi GitHub API và phải báo lỗi rõ ràng nếu thiếu.
 - Token lưu `localStorage.gdkd_token`. Repo config lưu `gdkd_repo_owner|name|branch`.
+- CRUD runtime là **local-first**: mọi thay đổi được ghi vào `gdkd_pending_writes` trước, overlay lên dữ liệu đọc ra, và chỉ đẩy lên GitHub khi user bấm đồng bộ.
 - Mọi trang trừ login kiểm token đầu vào → redirect login nếu thiếu.
 
 ---
@@ -570,12 +571,12 @@ CSS: track height **18-22px** trên mobile, 22-28px desktop. Segment có border-
 export async function readData(filename)
 export async function writeData(filename, data)   // throws on GitHub error — KHÔNG silent fallback
 export async function readAllData()
-export async function verifyToken(token, owner, repo)  // kiểm /user + /repos/{o}/{r}
+export async function verifyToken(token)
 export function getToken() / setToken / clearToken
-export function getRepoConfig() / setRepoConfig
+export function getRepoConfig() / saveRepoConfig
 ```
 
-**Khác v1**: `writeData` ném lỗi rõ ràng khi GitHub fail. Modal sẽ hiển thị "Save lên GitHub thất bại — thử lại?". Không bao giờ ghi localStorage thay thế GitHub một cách lặng lẽ.
+**Runtime hiện tại**: `writeData` vẫn ném lỗi rõ ràng khi GitHub fail, nhưng UI không gọi trực tiếp trong CRUD. `persistFile()` serialize payload rồi lưu vào `gdkd_pending_writes`; `pushPendingWrites()` mới là bước đẩy hàng loạt lên GitHub khi user chủ động đồng bộ. `readAllData()` luôn overlay pending writes local lên dữ liệu vừa đọc.
 
 ### `models.js` (barrel) + `models/*.js`
 - `models.js` chỉ là `export * from './models/*.js'` — public API không đổi, 21 file import hiện tại không cần sửa.
