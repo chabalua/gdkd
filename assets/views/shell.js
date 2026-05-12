@@ -46,7 +46,7 @@ export function createTopBar(activePage, data) {
   const pendingCount = getPendingWriteCount();
   const repoConfig = getRepoConfig();
   const hasGithubConfig = Boolean(repoConfig.owner && repoConfig.repo && getToken());
-  const githubButtonLabel = pendingCount ? `Đồng bộ ${pendingCount}` : (hasGithubConfig ? 'GitHub' : 'Cấu hình GitHub');
+  const githubButtonLabel = pendingCount ? `Đồng bộ GitHub (${pendingCount})` : (hasGithubConfig ? 'Đồng bộ GitHub' : 'Cấu hình GitHub');
   const githubButtonAction = pendingCount ? 'sync-pending-writes' : 'open-settings';
   return [
     '<header class="topbar">',
@@ -55,7 +55,7 @@ export function createTopBar(activePage, data) {
     `<h1 class="page-title">${escapeHtml(meta.title)} · ${escapeHtml(rangeLabel)}</h1>`,
     '</div>',
     '<div class="topbar-actions">',
-    `<button type="button" class="btn btn-soft" data-action="${githubButtonAction}">${escapeHtml(githubButtonLabel)}</button>`,
+    `<button type="button" class="btn btn-soft" data-action="${githubButtonAction}" title="Mở cấu hình hoặc đồng bộ dữ liệu GitHub">${escapeHtml(githubButtonLabel)}</button>`,
     `<a class="icon-button${activePage === 'settings' ? ' is-active' : ''}" href="settings.html" aria-label="Mở trang thiết lập">⚙️</a>`,
     '<button type="button" class="icon-button" data-action="show-notifications" aria-label="Thông báo">',
     '<span aria-hidden="true">🔔</span>',

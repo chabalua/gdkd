@@ -1,7 +1,11 @@
-# 📋 SPEC v2 — App Quản Lý GĐKD Showroom Ô Tô
+# 📋 SPEC v3 — App Quản Lý GĐKD Showroom Ô Tô
 
-> **Phiên bản 2** — viết lại theo kiến trúc 3 lớp NV-centric.
-> Thay thế hoàn toàn SPEC v1 (kiến trúc cũ trộn lẫn data, KPI gõ tay).
+> **Phiên bản 3** — schema gọn lại quanh `du_lieu[month].tuan[week][task_id]`.
+> Triết lý 3 lớp NV-centric của v2 giữ nguyên; thay đổi là cách lưu input theo tuần
+> và sự xuất hiện của 3 master mới: `phong_ban`, `nhiem_vu_lib`, `nhiem_vu_ids`.
+> Runtime vẫn giữ compat layer đọc dữ liệu cũ v2 (`lead_theo_thang`, `noi_dung`,
+> `muc_tieu_tuan`, `muc_tieu_thang`) và normalize về cùng shape, nên view code
+> hiện tại không phải viết lại — xem mục **Compat layer** ở cuối.
 > **Stack**: Vanilla HTML + CSS + JavaScript thuần | GitHub Contents API | GitHub Pages
 > **User**: 1 người duy nhất (GĐKD showroom Đắk Lắk)
 
@@ -30,10 +34,10 @@ LỚP 3 — DERIVED          (tự tính, KHÔNG lưu file)
 ### 3. KPI thực tế chỉ derive — không bao giờ gõ tay
 - `xe_ky_moi.thuc_te` = `count(KH có ngay_ky thuộc kỳ)` ← tính, không nhập
 - `hd_xuat_thang.thuc_te` = `count(KH có ngay_giao_thuc_te thuộc kỳ)` ← tính
-- `hd_ton_thang_cu` = `count(KH ngay_ky < kỳ && !ngay_giao_thuc_te)` ← tính
-- `lead_phat_sinh.thuc_te` = `sum(NV.lead_theo_thang[m])` ← tính
+- `hd_ton_thang_cu` = `count(KH ngay_ky < kỳ && !ngay_giao_thuc_te && trạng thái chưa giao)` ← tính
+- `lead_phat_sinh.thuc_te` = `sum(NV.du_lieu[m].tuan[w][task].thuc_te)` theo các task `loai='lead'` ← tính
 
-GĐKD chỉ nhập **mục tiêu**, **lead theo kênh** và **nội dung/live** từng NV. Mọi con số tổng hợp tự suy ra.
+GĐKD chỉ nhập **mục tiêu/thực tế từng nhiệm vụ tuần** trong week-grid của NV (và các master data: xe, NV, nhiệm vụ). Mọi con số tổng hợp tự suy ra.
 
 ### 4. Setup gating
 App khoá bước nhập KH cho đến khi: có ít nhất 1 xe trong `xe.json`, có ít nhất 1 NV trong `nhan-vien.json`, có mục tiêu tháng trong `config.json`. Empty state hướng dẫn setup wizard.
@@ -81,10 +85,28 @@ Khi thêm KH: ô **NV** và ô **Xe** là `<select>` lấy từ master data, **k
     ├── style.css
     ├── app.js                ← Entry: bootstrap + DOMContentLoaded
     ├── api.js                ← GitHub API wrapper, readData/writeData
-    ├── models.js             ← Derive functions (getKpiThucTe, getNvStats…)
-    ├── ui.js                 ← Modal, toast, escapeHtml, format helpers
+    ├── events.js             ← Global event delegation (data-action)
     ├── notify.js             ← Reminder logic
+    ├── ui.js                 ← Modal, toast, escapeHtml, format helpers
+    ├── models.js             ← Barrel re-export 4 module dưới
+    ├── models/
+    │   ├── constants.js      ← NAV_ITEMS, *_META, DEFAULTS, PERFORMANCE_TIER_META
+    │   ├── helpers.js        ← lookup/format/date/lead-channel/group helpers
+    │   ├── normalize.js      ← normalizeData, serializeFilePayload, compat v2↔v3
+    │   └── derive.js         ← getKpiSegments, getRanking, getNvStats, ...
+    ├── components/
+    │   ├── kpi-core.js       ← Render KPI card (dùng chung dashboard + kpi)
+    │   └── week-grid.js      ← Bảng nhập tuần (desktop + mobile accordion)
+    ├── modals/
+    │   ├── customer.js       ← Form thêm/sửa KH
+    │   ├── employee.js       ← Form thêm/sửa NV
+    │   ├── xe.js             ← Form thêm/sửa xe
+    │   ├── cskh.js           ← Thêm entry CSKH
+    │   ├── admin.js          ← Quản lý phòng ban + nhiệm vụ
+    │   ├── repo-settings.js  ← Cấu hình GitHub repo
+    │   └── notifications.js  ← Danh sách reminder
     ├── views/
+    │   ├── shell.js          ← Sidebar + topbar + bottom-nav + common cards
     │   ├── dashboard.js
     │   ├── kpi.js
     │   ├── cong-viec.js
@@ -92,7 +114,8 @@ Khi thêm KH: ô **NV** và ô **Xe** là `<select>` lấy từ master data, **k
     │   ├── nhan-vien.js
     │   ├── nhan-vien-detail.js
     │   ├── khach-hang.js
-    │   └── cskh.js
+    │   ├── cskh.js
+    │   └── settings.js
     ├── img/
     └── data/
         ├── config.json
@@ -116,7 +139,7 @@ Khi thêm KH: ô **NV** và ô **Xe** là `<select>` lấy từ master data, **k
 
 ---
 
-## 🗂️ SCHEMA JSON v2
+## 🗂️ SCHEMA JSON v3
 
 ### `config.json`
 ```jsonc
@@ -127,19 +150,31 @@ Khi thêm KH: ô **NV** và ô **Xe** là `<select>` lấy từ master data, **k
     "dia_chi": "...",
     "gdkd": "Tên em trai"
   },
-  "muc_tieu_thang": {
-    "2026-05": {
-      "xe_ky_moi": 20,
-      "hd_xuat_thang": 18,
-      "lead_phat_sinh": 150,
-      "muc_tieu_nv": {              // map nv_id → mục tiêu cá nhân tháng
-        "nv001": { "xe_ky_moi": 4 },
-        "nv002": { "xe_ky_moi": 3 }
-      }
-    }
-  }
+
+  // Master: phòng ban (loai: "ban_hang" tính KPI, "ho_tro" không tính)
+  "phong_ban": [
+    { "id": "kd_1", "ten": "Kinh doanh 1", "loai": "ban_hang" },
+    { "id": "kd_2", "ten": "Kinh doanh 2", "loai": "ban_hang" },
+    { "id": "mkt",  "ten": "Marketing",    "loai": "ho_tro" },
+    { "id": "kt",   "ten": "Kế toán",      "loai": "ho_tro" }
+  ],
+
+  // Master: thư viện nhiệm vụ — week-grid của NV chỉ chọn từ list này.
+  // loai="lead" tính vào `lead_phat_sinh` của KPI tổng; loai="hoat_dong" chỉ là số đếm.
+  "nhiem_vu_lib": [
+    { "id": "fb_ca_nhan",  "ten": "FB Cá nhân (QC)", "phong_ban_ids": ["kd_1","kd_2"], "loai": "lead",      "don_vi": "so" },
+    { "id": "mkt_cty",     "ten": "MKT Công ty",     "phong_ban_ids": ["kd_1","kd_2"], "loai": "lead",      "don_vi": "so" },
+    { "id": "tiktok",      "ten": "TikTok khai thác","phong_ban_ids": ["kd_1","kd_2"], "loai": "lead",      "don_vi": "so" },
+    { "id": "telesales",   "ten": "Telesales",       "phong_ban_ids": ["kd_1","kd_2"], "loai": "lead",      "don_vi": "so" },
+    { "id": "luot_lai_thu","ten": "Lượt lái thử",    "phong_ban_ids": ["kd_1","kd_2"], "loai": "hoat_dong", "don_vi": "luot" },
+    { "id": "gio_live",    "ten": "Giờ livestream",  "phong_ban_ids": ["mkt"],         "loai": "hoat_dong", "don_vi": "gio" },
+    { "id": "so_video",    "ten": "Số video",        "phong_ban_ids": ["mkt"],         "loai": "hoat_dong", "don_vi": "so" }
+    /* ... các nhiệm vụ khác */
+  ]
 }
 ```
+
+**Không còn** `muc_tieu_thang` trong `config.json` v3 — mục tiêu được lưu phẳng ở `nhan_vien[*].du_lieu[m].tuan[w][task].muc_tieu`. Compat layer khi load sẽ tự tổng hợp lên `config.muc_tieu_thang` cho các view cũ.
 
 ### `xe.json` (master)
 ```jsonc
@@ -151,66 +186,64 @@ Khi thêm KH: ô **NV** và ô **Xe** là `<select>` lấy từ master data, **k
       "hang": "Omoda",
       "dong": "C5",
       "bien_the": "Premium",
-      "mau": "Trắng",
+      "mau": "Trắng, Đen, Xám",          // string — nhiều màu cách nhau bằng dấu phẩy
       "nam": 2025,
       "gia_niem_yet": 720000000,
-      "trang_thai": "dang_ban"      // "dang_ban" | "sap_ve" | "ngung_ban"
+      "trang_thai": "dang_ban"            // "dang_ban" | "sap_ve" | "ngung_ban"
     }
   ]
 }
 ```
 
-### `nhan-vien.json` (master + input theo tháng)
+`khach_hang[].mau_xe` lưu màu chốt thực tế cho từng KH (chuỗi đơn, chọn từ list trong `xe.mau`).
+
+### `nhan-vien.json` (master + tất cả input theo tuần)
 ```jsonc
 {
   "nhan_vien": [
     {
       "id": "nv001",
-      "ho_ten": "Nguyễn Văn A",
-      "anh": "assets/img/nv001.jpg",
-      "chuc_vu": "Nhân viên kinh doanh",
-      "sdt": "0901234567",
-      "ngay_vao": "2024-03-01",
-      "trang_thai": "dang_lam",      // "dang_lam" | "nghi_viec"
+      "ho_ten": "Lê Ngọc Nam",
+      "anh": "",                          // path tương đối hoặc URL
+      "chuc_vu": "TNBH",
+      "sdt": "0335678385",
+      "ngay_vao": "2025-04-01",
+      "phong_ban_id": "kd_1",             // FK → config.phong_ban
+      "loai_nhan_su": "chinh_thuc",       // "chinh_thuc" | "hoc_viec" | "thu_viec"
+      "trang_thai": "dang_lam",           // "dang_lam" | "nghi_viec"
 
-      // Input thủ công theo tháng (lead chưa thành KH → không có transaction để derive)
-      "lead_theo_thang": {
-        "2026-05": {
-          "fb_ca_nhan":   { "muc_tieu": 20, "thuc_te": 14 },
-          "mkt_cty":      { "muc_tieu": 30, "thuc_te": 22 },
-          "tiktok":       { "muc_tieu": 15, "thuc_te":  8 },
-          "sr_tiep_khach": 6,             // số trần, không có mục tiêu
-          "di_thi_truong": 4,
-          "telesales":    { "muc_tieu": 10, "thuc_te":  7 }
-        }
-      },
+      // FK → config.nhiem_vu_lib — quyết định nhiệm vụ nào hiện trong week-grid của NV này
+      "nhiem_vu_ids": [
+        "fb_ca_nhan", "mkt_cty", "tiktok", "telesales",
+        "luot_lai_thu"
+      ],
 
-      // Input thủ công theo tháng (output content marketing)
-      "noi_dung": {
+      // Tất cả input/output theo tuần — schema phẳng duy nhất
+      "du_lieu": {
         "2026-05": {
-          "gio_live": { "muc_tieu": 8, "thuc_te": 5 },
-          "videos": {                     // key = id tuyến nội dung trong cong-viec.json
-            "so_sanh_xe": 2,
-            "trai_nghiem": 1,
-            "hoi_dap":    3,
-            "review":     1
+          "tuan": {
+            "1": {
+              "fb_ca_nhan":   { "muc_tieu": 5, "thuc_te": 4 },
+              "mkt_cty":      { "muc_tieu": 8, "thuc_te": 6 },
+              "luot_lai_thu": { "muc_tieu": 2, "thuc_te": 1 }
+            },
+            "2": { /* ... */ },
+            "3": { /* ... */ },
+            "4": { /* ... */ },
+            "5": { /* tuần 5 chỉ dùng khi tháng có ngày 29+ */ }
           }
-        }
-      },
-
-      // Input thủ công: mục tiêu tuần (du_ky và ket_qua DERIVE từ khach-hang.json)
-      "muc_tieu_tuan": {
-        "2026-05": [
-          { "tuan": 1, "muc_tieu": 1 },
-          { "tuan": 2, "muc_tieu": 1 },
-          { "tuan": 3, "muc_tieu": 1 },
-          { "tuan": 4, "muc_tieu": 1 }
-        ]
+        },
+        "2026-04": { "tuan": { "1": {}, "2": {}, "3": {}, "4": {}, "5": {} } }
       }
     }
   ]
 }
 ```
+
+**Quy tắc serializeNhanVienV3** (khi ghi lên GitHub):
+- Chỉ giữ các cell có `muc_tieu` hoặc `thuc_te` khác 0.
+- Tuần luôn có khung `1..5` (5 chỉ render UI khi tháng có ngày 29+).
+- Trường `noi_dung[m].videos` của v2 được merge thành `du_lieu[m].tuan[1].so_video` khi serialize ngược.
 
 ### `khach-hang.json` (transaction — flat)
 ```jsonc
@@ -222,8 +255,10 @@ Khi thêm KH: ô **NV** và ô **Xe** là `<select>` lấy từ master data, **k
       "sdt": "0912345678",
       "dia_chi": "...",
 
-      "nhan_vien_id": "nv001",            // FK bắt buộc
-      "xe_id": "x001",                    // FK bắt buộc
+      "nhan_vien_id": "nv001",            // FK → nhan-vien.json (bắt buộc)
+      "xe_id": "x001",                    // FK → xe.json (bắt buộc)
+      "mau_xe": "Trắng",                  // màu KH chốt — chọn từ xe.mau
+      "kenh_lead": "fb_ca_nhan",          // FK → config.nhiem_vu_lib (loai="lead"), optional
       "ghi_chu_ctkm": "",                 // free text (không có module CTKM)
 
       "trang_thai": "dang_xu_ly",         // 1 trong 6 giá trị bên dưới
@@ -235,7 +270,7 @@ Khi thêm KH: ô **NV** và ô **Xe** là `<select>` lấy từ master data, **k
       "hinh_thuc_tt": "vay_von",          // "vay_von" | "tien_mat" | "ket_hop"
       "ngan_hang": "VietinBank",
       "so_tien_vay": 500000000,
-      "muc_dong_mong_muon": 200000000,
+      "muc_dong_mong_muon": 200000000,    // mức trả góp/tháng KH muốn
       "so_hd": "HĐ-2026-04-001",
 
       // Timeline append-only — mỗi cột mốc 1 dòng
@@ -275,19 +310,11 @@ Khi thêm KH: ô **NV** và ô **Xe** là `<select>` lấy từ master data, **k
 ### `cong-viec.json` (chỉ cấp công ty)
 ```jsonc
 {
-  "thang": "2026-05",
   "su_kien_lai_thu": {
-    "muc_tieu": 4,
     "danh_sach": [
       { "ngay": "2026-05-12", "dia_diem": "TP. BMT", "so_kh": 12, "ghi_chu": "" }
     ]
   },
-  "tuyen_noi_dung": [                    // chuẩn dùng chung cho mọi NV
-    { "id": "so_sanh_xe",  "ten": "So sánh xe" },
-    { "id": "trai_nghiem", "ten": "Trải nghiệm thực tế" },
-    { "id": "hoi_dap",     "ten": "Hỏi đáp" },
-    { "id": "review",      "ten": "Review xe mới" }
-  ],
   "zalo_oa": {
     "muc_tieu": 500,
     "thuc_te": 312,
@@ -296,7 +323,7 @@ Khi thêm KH: ô **NV** và ô **Xe** là `<select>` lấy từ master data, **k
 }
 ```
 
-`videos.muc_tieu` và `livestream` cấp công ty được **derive** từ tổng các NV — không lưu trong file này.
+**Bỏ** so với v2: `thang`, `tuyen_noi_dung` (videos/livestream/sự kiện-mục tiêu đều **derive** từ tổng các NV qua `du_lieu`).
 
 ### `lich-su.json` (optional — snapshot cuối tháng)
 ```jsonc
@@ -316,36 +343,54 @@ Tự sinh khi `config.thang_hien_tai` chuyển sang tháng mới — không cầ
 
 ## 🧮 DERIVED — công thức gốc
 
-Implement trong `assets/models.js`:
+Implement trong `assets/models/derive.js`. Tất cả nhận `allData` đã qua `normalizeData()`,
+nên có cả `du_lieu` (v3) lẫn `lead_theo_thang` (compat v2).
 
 ```javascript
-// Xe ký mới trong khoảng tháng (vd ['2026-05'] hoặc ['2026-04','2026-05','2026-06'] cho Q2)
-getXeKyMoi(allData, months)   = khach_hang.filter(k =>
-                                  k.ngay_ky && months.includes(k.ngay_ky.slice(0,7)))
+// === KPI segments per NV cho 1 KPI field qua nhiều tháng ===
+getKpiSegments(allData, kpiField, months)
+  // kpiField: 'xe_ky_moi' | 'hd_xuat_thang' | 'hd_ton' | 'lead_phat_sinh'
+  // → trả [{nv_id, nv_ten, value, pct_personal, color}], sort desc theo value
+  //
+  // xe_ky_moi:      count(KH có ngay_ky thuộc months) per NV
+  // hd_xuat_thang:  count(KH có ngay_giao_thuc_te thuộc months) per NV
+  // hd_ton:         count(KH ngay_ky < months[0], chưa giao, status ≠ da_giao/dong_cskh)
+  // lead_phat_sinh: sum(du_lieu[m].tuan[w][task].thuc_te) cho mọi task loai='lead'
 
-getHdXuat(allData, months)    = khach_hang.filter(k =>
-                                  k.ngay_giao_thuc_te &&
-                                  months.includes(k.ngay_giao_thuc_te.slice(0,7)))
+// === Mục tiêu cá nhân ===
+getEmployeeWeeklyTargetTotal(allData, nv, months, {loai}={})
+  // Sum muc_tieu của các task trong week-grid, lọc theo loai ('lead' | 'hoat_dong' | 'all')
 
-getHdTon(allData, months)     = khach_hang.filter(k =>
-                                  k.ngay_ky &&
-                                  k.ngay_ky.slice(0,7) < months[0] &&
-                                  !k.ngay_giao_thuc_te)
+getEmployeeTargetTotal(allData, nv, months, kpiField)
+  // Với kpiField='lead_phat_sinh' ưu tiên dùng weekly target từ du_lieu.
+  // Các kpiField khác fallback về config.muc_tieu_thang.muc_tieu_nv (compat v2).
 
-getLeadTotal(nv, month)       = sum 6 kênh trong nv.lead_theo_thang[month]
+// === Stats và ranking ===
+getNvStats(allData, nvId, months) = { xe_ky, xe_giao, lead, pct_muc_tieu }
+getRanking(allData, months)       = [...nvList].sort desc theo (xe_ky, xe_giao, lead, tên)
+getGroupSummaries(allData, months) // per phòng ban — totals + members_sorted
 
-getNvStats(allData, nvId, months) = {
-  xe_ky_moi:  count khach_hang theo nv + months
-  hd_xuat:    count đã giao
-  lead_total: sum lead_theo_thang qua các tháng
-  gio_live:   sum noi_dung[m].gio_live.thuc_te
-  videos:     sum noi_dung[m].videos qua các tuyến
-  muc_tieu:   từ config.muc_tieu_thang.muc_tieu_nv[nvId]
-  pct:        actual / target * 100, capped 100
-}
+// === KH tồn và sức bán theo dòng xe ===
+getKhTon(allData, months)    // KH ký trước months[0], chưa giao, sort desc theo days_ton
+getXeSucBan(allData, months) // [{xe_id, xe_ten, so_ky, so_giao, top_nv_ten}]
 
-getRanking(allData, kpi_field, months) = [...nv].sort by stats[kpi_field] desc
+// === Pace tháng/quý/năm ===
+getMonthPace(months, totalDone, target)
+  // → { daysInMonth, totalDays, daysPassed, daysLeft, dailyDone, dailyNeeded, ... }
+  // Nếu range chứa tháng hiện tại: daysPassed tính tới hôm nay; ngược lại = totalDays.
+
+// === Performance tier (cho color-coding NV) ===
+getPerformanceTier(pct) // → 'excellent' | 'good' | 'average' | 'weak' | 'none'
 ```
+
+Color rule trong `getKpiSegments`:
+| pct cá nhân | Màu |
+|---|---|
+| null (chưa có mục tiêu) | `--primary-light` |
+| ≥ 80 | `--success-light` |
+| 50–79 | `--warning-light` |
+| 20–49 | `--warning` |
+| < 20 | `--danger-light` |
 
 ---
 
@@ -423,28 +468,23 @@ State lưu trong URL hash (`#range=2026-Q2`) hoặc sessionStorage để reload 
 - Card có mini bar % cá nhân.
 - Click → detail. Nút "+ Thêm NV".
 
-### `nhan-vien-detail.html` — Chi tiết NV (4 tab có FORM)
+### `nhan-vien-detail.html` — Chi tiết NV (2 tab)
 
-**Header**: ảnh + tên + tổng quan KPI cá nhân (derive: xe ký / giao / lead / % mục tiêu tháng).
+**Header**: ảnh + tên + tổng quan KPI cá nhân (derive: xe ký / giao / lead / % mục tiêu).
 
-**Tab 1 — Lead theo kênh**:
-- Bảng 6 kênh × (mục tiêu | thực tế | %).
-- Nút `[Cập nhật lead tháng X]` mở modal: 6 cặp input cho 6 kênh.
+**Tab 1 — Nhập tuần** (week-grid):
+- Bảng `Nhiệm vụ × (T1, T2, T3, T4, T5) × (muc_tieu, thuc_te)` lấy từ `nv.nhiem_vu_ids`.
+- Mỗi cell autosave debounce 600ms, ghi vào `nv.du_lieu[month].tuan[w][task_id]`.
+- Tuần 5 chỉ hiện khi tháng có ngày 29+.
+- 2 dòng derive cuối bảng: **Dự ký** (count KH `du_ky` theo tuần), **Tỷ lệ CV** (du_ky/lead).
+- Nút `[+ Gán thêm nhiệm vụ]` mở picker từ `config.nhiem_vu_lib` (lọc theo `phong_ban_id`).
+- Khoá nhập khi range > 1 tháng (xem nhiều tháng, không cho gõ).
+- Mobile: render kèm `mobile-lead-stack` (accordion) song song với bảng desktop, CSS ẩn theo media query.
 
-**Tab 2 — Nội dung & Live**:
-- Card "Giờ live": thanh tiến độ + nút sửa.
-- Card "Videos theo tuyến": list tuyến từ `cong-viec.tuyen_noi_dung`, mỗi tuyến 1 input số.
-- Modal `[Cập nhật nội dung tháng X]`.
-
-**Tab 3 — KPI tuần**:
-- Bảng 4 tuần × (mục tiêu_nv | dự ký | kết quả).
-- `mục tiêu_nv` input được. `dự ký` = count KH `du_ky` của NV trong tuần. `kết quả` = count KH `ngay_ky` trong tuần. Cả 2 cột phải đều **derive**, không sửa.
-- Nút `[Setup mục tiêu tuần]`.
-
-**Tab 4 — KH của tôi** (gộp dự ký + ký + tồn + đã giao + CSKH):
+**Tab 2 — KH của tôi**:
 - Filter pill: `Tất cả | Dự ký | Mới ký | Đang xử lý | Chờ giao | Đã giao | Cần CSKH`.
 - Card cho từng KH: tên + xe + trạng thái + bước hiện tại + nút sửa/xem timeline.
-- Nút `[+ Thêm KH/Dự ký]` mở form **`khach-hang` Thêm mới với `nhan_vien_id` pre-fill** = NV đang xem.
+- Nút `[+ Thêm KH/Dự ký]` mở form thêm KH với `nhan_vien_id` prefilled.
 
 ### `khach-hang.html` — Bảng KH toàn công ty
 - Bảng phẳng từ `khach-hang.json`, có thêm cột NV (lookup từ `nhan_vien_id`) và Xe (lookup từ `xe_id`).
@@ -517,7 +557,7 @@ CSS: track height **18-22px** trên mobile, 22-28px desktop. Segment có border-
 - Noto Sans 400-500 cho body.
 
 ### Responsive
-- `< 768px` mobile: stack dọc, bottom-nav 5 mục.
+- `< 768px` mobile: stack dọc, bottom-nav 7 mục (mục tiêu rút xuống 5 — xem Checklist).
 - `768-1024px` tablet: 2 cột.
 - `> 1024px` desktop: sidebar trái + content 3-4 cột.
 
@@ -537,8 +577,12 @@ export function getRepoConfig() / setRepoConfig
 
 **Khác v1**: `writeData` ném lỗi rõ ràng khi GitHub fail. Modal sẽ hiển thị "Save lên GitHub thất bại — thử lại?". Không bao giờ ghi localStorage thay thế GitHub một cách lặng lẽ.
 
-### `models.js`
-Tất cả derive function (xem mục Derived).
+### `models.js` (barrel) + `models/*.js`
+- `models.js` chỉ là `export * from './models/*.js'` — public API không đổi, 21 file import hiện tại không cần sửa.
+- `constants.js`: hằng số (NAV, *_META, defaults).
+- `helpers.js`: lookup theo id, format, date utils, lead-channel/group helpers.
+- `normalize.js`: `normalizeData()` đọc raw JSON v3 và build compat layer (`lead_theo_thang`, `noi_dung`, `kpi_tuan`, `muc_tieu_thang`) cho các view chưa rewrite. `serializeFilePayload()` ngược lại — flatten về v3 trước khi push GitHub.
+- `derive.js`: tất cả derive function (xem mục Derived).
 
 ### `ui.js`
 ```javascript
@@ -580,25 +624,59 @@ Dùng `Notification` API (browser-side), check khi mở app + interval 30 phút.
 
 ---
 
+## 🔄 COMPAT LAYER v2 ↔ v3
+
+Runtime giữ 2 shape song song để chưa phải rewrite các view và derive cũ:
+
+**Khi đọc** (`normalizeData` trong `models/normalize.js`):
+1. Input: file v3 phẳng (`du_lieu[m].tuan[w][task_id]`).
+2. Output cho view dùng có cả:
+   - `nv.du_lieu` (giữ nguyên v3)
+   - `nv.lead_theo_thang[m][channel_id] = { muc_tieu, tuan: {1: actual, ...} }` (compat)
+   - `nv.noi_dung[m].videos.tong` (compat — từ task `so_video`)
+   - `nv.kpi_tuan[m] = [{tuan, muc_tieu_nv}]` (compat — sum target tuần lọc loai='lead')
+   - `config.muc_tieu_thang[m].muc_tieu_nv[nvId].lead_phat_sinh` (compat — sum target lead)
+   - `config.lead_channels` (compat — derive từ `nhiem_vu_lib`)
+
+**Khi ghi** (`serializeFilePayload`):
+1. Input: object trong memory (có cả v2 và v3 keys).
+2. Output: file phẳng v3 — `serializeNhanVienV3` ưu tiên `lead_theo_thang.tuan` để tái tạo `du_lieu`, merge `noi_dung.videos` vào `tuan[1].so_video`.
+3. `serializeConfigV3` chỉ giữ `thang_hien_tai`, `showroom`, `phong_ban`, `nhiem_vu_lib`.
+
+**Mục tiêu kế tiếp**: rewrite derive functions để đọc trực tiếp `du_lieu` rồi xoá compat. Việc này lớn, cần test kỹ.
+
+---
+
 ## 🚀 BUILD ORDER
 
 Xem [PROMPTS.md](PROMPTS.md) — 8 bước với prompt chi tiết.
 
 ---
 
-## ✅ CHECKLIST v2
+## ✅ CHECKLIST v3
 
-- [ ] Auth + repo config + verify quyền `repo`
-- [ ] Tách `app.js` cũ → `api.js` + `models.js` + `ui.js` + `views/*`
-- [ ] `xe.html` CRUD catalog
-- [ ] `nhan-vien.html` CRUD master
-- [ ] `config.json` mục tiêu tháng + setup wizard
-- [ ] `khach-hang.json` schema mới + form FK
-- [ ] Dashboard stacked bar + time range picker + click expand
-- [ ] KPI page derive only + setup mục tiêu modal
-- [ ] NV detail 4 tab có form input đầy đủ
-- [ ] CSKH filter view
-- [ ] Reminders chạy đúng
-- [ ] Snapshot tháng cũ → `lich-su.json`
-- [ ] Responsive mobile/desktop
-- [ ] Repo Private + deploy GitHub Pages
+Hoàn thành (đã chạy trên main):
+
+- [x] Auth + repo config (verify quyền `repo` còn TODO)
+- [x] Tách `app.js` cũ → `api.js` + `models/*` + `ui.js` + `views/*` + `modals/*` + `components/*`
+- [x] `xe.html` CRUD catalog
+- [x] `nhan-vien.html` CRUD master + `phong_ban_id` + `nhiem_vu_ids`
+- [x] `config.json` v3 (`phong_ban` + `nhiem_vu_lib`, bỏ `muc_tieu_thang`)
+- [x] `khach-hang.json` schema mới + form FK + `mau_xe` + `kenh_lead`
+- [x] Dashboard stacked bar + time range picker + click expand
+- [x] KPI page derive only
+- [x] NV detail 2 tab (week-grid + KH của tôi)
+- [x] CSKH filter view + reminders cơ bản
+- [x] Snapshot tháng cũ → `lich-su.json` (loop nhiều tháng còn TODO)
+- [x] Responsive mobile/desktop
+- [x] Repo Private + deploy GitHub Pages
+
+Còn lại:
+
+- [ ] `verifyToken` thử `GET /repos/{owner}/{repo}` để xác nhận quyền repo
+- [ ] Pipeline KH enforce 1 chiều (chặn lùi trạng thái)
+- [ ] `ensureMonthlySnapshot` loop tất cả tháng thiếu, không chỉ tháng trước
+- [ ] Polling 30s + pull-on-focus (giai đoạn 3 trong REFACTOR_v3_PROMPT.md)
+- [ ] Rewrite derive đọc trực tiếp `du_lieu`, xoá compat layer
+- [ ] Tách `style.css` (3983 dòng) thành core + components
+- [ ] Mobile: gộp 7 bottom-nav xuống 5

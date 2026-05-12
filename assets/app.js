@@ -77,7 +77,7 @@ export async function persistFile(filename, payload, successMessage, toast = tru
       if (showMsg) {
         showToast(`${successMessage} Đã lưu nháp trên máy, sẽ đồng bộ GitHub sau.`, 'warning');
       } else if (!sessionStorage.getItem('gdkd_deferred_sync_notice')) {
-        showToast('Đã lưu nháp trên máy. Khi xong việc, vào Thiết lập để đồng bộ GitHub.', 'warning');
+        showToast('Đã lưu nháp trên máy. Khi xong việc, bấm Đồng bộ GitHub ở góc trên để đẩy dữ liệu.', 'warning');
         sessionStorage.setItem('gdkd_deferred_sync_notice', '1');
       }
     }

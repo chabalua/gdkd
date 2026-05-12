@@ -103,7 +103,7 @@ export default function renderSettingsPage(data) {
     '<section class="section-header page-card-spacer">',
     '<div><h3 class="section-title">Thiết lập hệ thống</h3><p class="section-subtitle">Quản trị nguồn dữ liệu v3 cho phòng ban và nhiệm vụ dùng chung.</p></div>',
     '<div class="section-actions">',
-    '<button type="button" class="btn btn-soft" data-action="open-settings">GitHub</button>',
+    '<button type="button" class="btn btn-soft" data-action="open-settings">Đồng bộ GitHub</button>',
     '<button type="button" class="btn btn-soft" data-action="open-group-manager">Phòng ban</button>',
     '<button type="button" class="btn btn-primary" data-action="open-task-library-manager">Nhiệm vụ</button>',
     '</div>',
