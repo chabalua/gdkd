@@ -34,11 +34,56 @@
         },
         "2026-05": {
           "tuan": {
-            "1": {},
-            "2": {},
-            "3": {},
-            "4": {},
-            "5": {}
+            "1": {
+              "fb_ca_nhan": {
+                "muc_tieu": 1,
+                "thuc_te": 1
+              },
+              "mkt_cty": {
+                "muc_tieu": 1,
+                "thuc_te": 0
+              }
+            },
+            "2": {
+              "fb_ca_nhan": {
+                "muc_tieu": 20,
+                "thuc_te": 0
+              },
+              "mkt_cty": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              }
+            },
+            "3": {
+              "fb_ca_nhan": {
+                "muc_tieu": 1,
+                "thuc_te": 20
+              },
+              "mkt_cty": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              }
+            },
+            "4": {
+              "fb_ca_nhan": {
+                "muc_tieu": 1,
+                "thuc_te": 0
+              },
+              "mkt_cty": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              }
+            },
+            "5": {
+              "fb_ca_nhan": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "mkt_cty": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              }
+            }
           }
         }
       }
