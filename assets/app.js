@@ -52,38 +52,88 @@ if (window.navigator.standalone) {
 export const appState = { data: null };
 let reminderTimer = null;
 
-function isExpectedDeferredSyncError(error) {
-  const message = String(error?.message || '');
-  return message.includes('Chưa cấu hình GitHub');
+// === Local-first persistence ===
+// Mỗi CRUD: lưu localStorage NGAY (sync, không chờ mạng) rồi schedule push
+// GitHub sau BACKGROUND_SYNC_DELAY. Gõ tiếp trong khoảng đó → reset đồng hồ
+// → batch nhiều thay đổi thành 1 commit. Cảm giác "mượt như native": UI
+// không bao giờ chờ network.
+
+const BACKGROUND_SYNC_DELAY = 30 * 1000;
+let backgroundSyncTimer = null;
+let backgroundSyncInFlight = false;
+const syncStatusSubscribers = new Set();
+
+export function subscribeSyncStatus(callback) {
+  syncStatusSubscribers.add(callback);
+  callback(getSyncStatus());
+  return () => syncStatusSubscribers.delete(callback);
 }
 
-// === Persist file: writeData() throws khi GitHub fail; lưu draft cục bộ có chủ đích
-// để user tiếp tục làm việc rồi đồng bộ GitHub sau. ===
-export async function persistFile(filename, payload, successMessage, toast = true) {
-  const showMsg = Boolean(successMessage);
+export function getSyncStatus() {
+  const pending = getPendingWriteCount();
+  if (backgroundSyncInFlight) return { state: 'syncing', pending };
+  if (pending) return { state: 'pending', pending };
+  return { state: 'clean', pending: 0 };
+}
+
+function emitSyncStatus() {
+  const status = getSyncStatus();
+  syncStatusSubscribers.forEach((callback) => {
+    try { callback(status); } catch (error) { console.warn(error); }
+  });
+}
+
+function scheduleBackgroundSync() {
+  if (backgroundSyncTimer) window.clearTimeout(backgroundSyncTimer);
+  backgroundSyncTimer = window.setTimeout(() => {
+    backgroundSyncTimer = null;
+    runBackgroundSync();
+  }, BACKGROUND_SYNC_DELAY);
+}
+
+async function runBackgroundSync() {
+  if (backgroundSyncInFlight) return;
+  if (!getPendingWriteCount()) return;
+  const repoConfig = getRepoConfig();
+  if (!repoConfig.owner || !repoConfig.repo || !getToken()) return;
+  backgroundSyncInFlight = true;
+  emitSyncStatus();
   try {
-    const serializedPayload = serializeFilePayload(filename, payload);
-    await writeData(filename, serializedPayload);
-    clearPendingWrite(filename);
+    const result = await pushPendingWrites();
     if (appState.data) lastDataSignature = computeDataSignature(appState.data);
-    if (showMsg) showToast(successMessage, 'success');
-    return { storage: 'github' };
+    if (result.failures.length) {
+      console.warn('background sync failures', result.failures);
+      window.setTimeout(() => scheduleBackgroundSync(), 60 * 1000);
+    }
   } catch (error) {
-    if (!isExpectedDeferredSyncError(error)) {
-      console.error('writeData failed', error);
-    }
-    const serializedPayload = serializeFilePayload(filename, payload);
-    savePendingWrite(filename, serializedPayload, error.message);
-    if (toast) {
-      if (showMsg) {
-        showToast(`${successMessage} Đã lưu nháp trên máy, sẽ đồng bộ GitHub sau.`, 'warning');
-      } else if (!sessionStorage.getItem('gdkd_deferred_sync_notice')) {
-        showToast('Đã lưu nháp trên máy. Khi xong việc, bấm Đồng bộ GitHub ở góc trên để đẩy dữ liệu.', 'warning');
-        sessionStorage.setItem('gdkd_deferred_sync_notice', '1');
-      }
-    }
-    return { storage: 'draft', error };
+    console.warn('background sync error', error);
+    window.setTimeout(() => scheduleBackgroundSync(), 60 * 1000);
+  } finally {
+    backgroundSyncInFlight = false;
+    emitSyncStatus();
   }
+}
+
+export async function flushSyncNow() {
+  if (backgroundSyncTimer) {
+    window.clearTimeout(backgroundSyncTimer);
+    backgroundSyncTimer = null;
+  }
+  await runBackgroundSync();
+  return getSyncStatus();
+}
+
+// persistFile: API giữ nguyên signature để mọi caller cũ chạy ổn. Khác biệt:
+// - Ghi localStorage trước (sync), trả về resolved promise ngay.
+// - Lên lịch background push GitHub (debounced 30s).
+// - Không còn toast "đã lưu nháp" cho mỗi thao tác → bớt nhiễu.
+export async function persistFile(filename, payload, successMessage /* unused */, toast /* unused */) {
+  const serializedPayload = serializeFilePayload(filename, payload);
+  savePendingWrite(filename, serializedPayload, '');
+  emitSyncStatus();
+  scheduleBackgroundSync();
+  if (appState.data) lastDataSignature = computeDataSignature(appState.data);
+  return { storage: 'draft' };
 }
 
 export function rerenderApp() {
@@ -166,9 +216,30 @@ function ensureAutoRefreshHooks() {
   if (pollTimer) window.clearInterval(pollTimer);
   pollTimer = window.setInterval(() => refreshFromGithub('poll'), 60 * 1000);
   document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState === 'visible') refreshFromGithub('visibility');
+    if (document.visibilityState === 'visible') {
+      // Push pending trước nếu có, rồi mới fetch — tránh fetch xong bị mới
+      // hơn local rồi đè local mới gõ.
+      if (getPendingWriteCount()) {
+        runBackgroundSync().then(() => refreshFromGithub('visibility'));
+      } else {
+        refreshFromGithub('visibility');
+      }
+    }
   });
   window.addEventListener('focus', () => refreshFromGithub('focus'));
+}
+
+// === Cảnh báo khi đóng tab với pending writes chưa sync ===
+// Browser sẽ hiện popup "Có thay đổi chưa lưu — vẫn rời?". Đồng thời
+// thử push 1 lần cuối (best-effort, fetch có thể bị huỷ).
+function ensureUnloadGuard() {
+  window.addEventListener('beforeunload', (event) => {
+    if (!getPendingWriteCount()) return;
+    runBackgroundSync();
+    event.preventDefault();
+    event.returnValue = '';
+    return '';
+  });
 }
 
 function isMonthKey(value) {
@@ -304,6 +375,7 @@ async function initProtectedPage() {
     checkReminders(appState.data);
     ensureReminderLoop();
     ensureAutoRefreshHooks();
+    ensureUnloadGuard();
   } catch (error) {
     console.error(error);
     root.innerHTML = `<section class="empty-card">Không tải được dữ liệu. ${escapeHtml(error.message)}</section>`;

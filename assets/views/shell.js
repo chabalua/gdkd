@@ -46,8 +46,11 @@ export function createTopBar(activePage, data) {
   const pendingCount = getPendingWriteCount();
   const repoConfig = getRepoConfig();
   const hasGithubConfig = Boolean(repoConfig.owner && repoConfig.repo && getToken());
-  const githubButtonLabel = pendingCount ? `Đồng bộ GitHub (${pendingCount})` : (hasGithubConfig ? 'Đồng bộ GitHub' : 'Cấu hình GitHub');
-  const githubButtonAction = pendingCount ? 'sync-pending-writes' : 'open-settings';
+  const initialChip = !hasGithubConfig
+    ? { dot: '○', label: 'Cấu hình GitHub', action: 'open-settings' }
+    : pendingCount
+      ? { dot: '●', label: `${pendingCount} thay đổi · bấm để đồng bộ`, action: 'flush-sync-now' }
+      : { dot: '●', label: 'Đã đồng bộ', action: 'flush-sync-now' };
   return [
     '<header class="topbar">',
     '<div class="page-meta">',
@@ -55,8 +58,7 @@ export function createTopBar(activePage, data) {
     `<h1 class="page-title">${escapeHtml(meta.title)} · ${escapeHtml(rangeLabel)}</h1>`,
     '</div>',
     '<div class="topbar-actions">',
-    `<button type="button" class="btn btn-soft" data-action="refresh-from-github" title="Tải dữ liệu mới nhất từ GitHub">🔄 Làm mới</button>`,
-    `<button type="button" class="btn btn-soft" data-action="${githubButtonAction}" title="Mở cấu hình hoặc đồng bộ dữ liệu GitHub">${escapeHtml(githubButtonLabel)}</button>`,
+    `<button type="button" class="btn btn-soft sync-chip" data-sync-chip data-action="${initialChip.action}" title="Trạng thái đồng bộ GitHub. Bấm để đồng bộ ngay."><span class="sync-dot" data-sync-dot>${initialChip.dot}</span> <span data-sync-label>${escapeHtml(initialChip.label)}</span></button>`,
     `<a class="icon-button${activePage === 'settings' ? ' is-active' : ''}" href="settings.html" aria-label="Mở trang thiết lập">⚙️</a>`,
     '<button type="button" class="icon-button" data-action="show-notifications" aria-label="Thông báo">',
     '<span aria-hidden="true">🔔</span>',

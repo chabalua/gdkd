@@ -3,8 +3,7 @@
 // Tách khỏi app.js để mỗi file < 350 dòng. Không có state riêng — đọc state
 // qua import từ app.js (ESM live binding).
 
-import { clearToken, pushPendingWrites, savePendingWrite } from './api.js';
-import { serializeFilePayload } from './models.js';
+import { clearToken } from './api.js';
 import { showToast, confirmAction, showModal, getModalRoot, closeModal, saveRange, parseRangeValue, calcPercent, getPercentClass } from './ui.js';
 import { TODO_MESSAGE, countKhByXeId } from './models.js';
 
@@ -18,7 +17,34 @@ import { renderNotificationsPanel } from './modals/notifications.js';
 
 import { filterXeRows } from './views/xe.js';
 
-import { appState, persistFile, rerenderApp, triggerManualRefresh } from './app.js';
+import { appState, persistFile, rerenderApp, triggerManualRefresh, flushSyncNow, subscribeSyncStatus } from './app.js';
+
+// === Sync chip binding (module-level — bind 1 lần) ===
+let syncChipBound = false;
+function ensureSyncChipBinding() {
+  if (syncChipBound) return;
+  syncChipBound = true;
+  subscribeSyncStatus((status) => {
+    const chip = document.querySelector('[data-sync-chip]');
+    if (!chip) return;
+    const dot = chip.querySelector('[data-sync-dot]');
+    const label = chip.querySelector('[data-sync-label]');
+    chip.classList.remove('is-syncing', 'is-pending', 'is-clean');
+    if (status.state === 'syncing') {
+      chip.classList.add('is-syncing');
+      if (dot) dot.textContent = '◐';
+      if (label) label.textContent = 'Đang đồng bộ...';
+    } else if (status.state === 'pending') {
+      chip.classList.add('is-pending');
+      if (dot) dot.textContent = '●';
+      if (label) label.textContent = `${status.pending} thay đổi · bấm để đồng bộ`;
+    } else {
+      chip.classList.add('is-clean');
+      if (dot) dot.textContent = '●';
+      if (label) label.textContent = 'Đã đồng bộ';
+    }
+  });
+}
 
 // === In-page filters ===
 function filterEmployeeCards() {
@@ -88,15 +114,11 @@ export function bindCommonEvents(data) {
 
   document.querySelectorAll('[data-action="sync-pending-writes"]').forEach((button) => {
     button.addEventListener('click', async () => {
-      const result = await pushPendingWrites();
-      if (result.synced.length && !result.failures.length) {
-        showToast(`Đã đồng bộ ${result.synced.length} thay đổi lên GitHub.`, 'success');
-      } else if (result.synced.length && result.failures.length) {
-        showToast(`Đã đồng bộ ${result.synced.length} thay đổi, còn ${result.failures.length} thay đổi cần xử lý thêm.`, 'warning');
-      } else if (result.failures.length) {
-        showToast(`Chưa thể đồng bộ: ${result.failures[0].message}`, 'error');
+      const status = await flushSyncNow();
+      if (status.pending === 0) {
+        showToast('Đã đồng bộ lên GitHub.', 'success');
       } else {
-        showToast('Không có thay đổi nào chờ đồng bộ.', 'success');
+        showToast(`Còn ${status.pending} thay đổi chưa đồng bộ — sẽ thử lại.`, 'warning');
       }
       rerenderApp();
     });
@@ -105,6 +127,17 @@ export function bindCommonEvents(data) {
   document.querySelectorAll('[data-action="refresh-from-github"]').forEach((button) => {
     button.addEventListener('click', () => triggerManualRefresh());
   });
+
+  document.querySelectorAll('[data-action="flush-sync-now"]').forEach((button) => {
+    button.addEventListener('click', async () => {
+      await flushSyncNow();
+      triggerManualRefresh();
+    });
+  });
+
+  // Sync chip live-update — query lại chip mỗi lần status đổi để xử lý
+  // rerender. Subscriber là module-level (chỉ bind 1 lần).
+  ensureSyncChipBinding();
 
   document.querySelectorAll('[data-action="show-notifications"]').forEach((button) => {
     button.addEventListener('click', () => renderNotificationsPanel(data));
@@ -314,14 +347,9 @@ export function bindCommonEvents(data) {
       if (!employee.du_lieu[month].tuan[inputWeek]) employee.du_lieu[month].tuan[inputWeek] = {};
       employee.du_lieu[month].tuan[inputWeek][taskId] = { muc_tieu: target, thuc_te: actual };
     });
-    // Bước 1 (sync): lưu draft vào localStorage NGAY để dù user navigate đi
-    // giữa lúc fetch GitHub đang chạy, dữ liệu vẫn không mất.
-    const serialized = serializeFilePayload('nhan-vien.json', appState.data.nhanVien);
-    savePendingWrite('nhan-vien.json', serialized, 'pending-week-grid');
-    // Bước 2 (async): push GitHub. persistFile sẽ clearPendingWrite khi xong.
-    return persistFile('nhan-vien.json', appState.data.nhanVien, null).catch(() => {
-      // persistFile đã giữ draft + báo toast nếu fail.
-    });
+    // persistFile giờ là local-first: lưu localStorage sync ngay, background
+    // sync GitHub sau debounce 30s.
+    return persistFile('nhan-vien.json', appState.data.nhanVien, null);
   };
 
   const flushPendingWeekWrite = () => {

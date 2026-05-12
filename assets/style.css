@@ -469,6 +469,16 @@ img {
   color: var(--primary);
 }
 
+.sync-chip { font-size: 0.85em; gap: 0.4em; }
+.sync-chip .sync-dot { font-size: 0.9em; line-height: 1; }
+.sync-chip.is-clean { color: #16a34a; }
+.sync-chip.is-clean .sync-dot { color: #16a34a; }
+.sync-chip.is-pending { color: #d97706; }
+.sync-chip.is-pending .sync-dot { color: #d97706; }
+.sync-chip.is-syncing { color: #2563eb; }
+.sync-chip.is-syncing .sync-dot { color: #2563eb; animation: sync-spin 1s linear infinite; display: inline-block; }
+@keyframes sync-spin { from { transform: rotate(0); } to { transform: rotate(360deg); } }
+
 .btn-danger {
   background: var(--danger);
   color: #fff;
