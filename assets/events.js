@@ -33,15 +33,15 @@ function ensureSyncChipBinding() {
     if (status.state === 'syncing') {
       chip.classList.add('is-syncing');
       if (dot) dot.textContent = '◐';
-      if (label) label.textContent = 'Đang đồng bộ...';
+      if (label) label.textContent = 'Đang đẩy GitHub...';
     } else if (status.state === 'pending') {
       chip.classList.add('is-pending');
       if (dot) dot.textContent = '●';
-      if (label) label.textContent = `${status.pending} thay đổi · bấm để đồng bộ`;
+      if (label) label.textContent = `${status.pending} thay đổi · bấm để đẩy lên GitHub`;
     } else {
       chip.classList.add('is-clean');
       if (dot) dot.textContent = '●';
-      if (label) label.textContent = 'Đã đồng bộ';
+      if (label) label.textContent = 'Đã lên GitHub · bấm để tải mới';
     }
   });
 }
@@ -130,8 +130,13 @@ export function bindCommonEvents(data) {
 
   document.querySelectorAll('[data-action="flush-sync-now"]').forEach((button) => {
     button.addEventListener('click', async () => {
-      await flushSyncNow();
-      triggerManualRefresh();
+      // Có pending → push lên GitHub. Hết pending → kéo data thiết bị khác về.
+      const hadPending = await flushSyncNow();
+      if (hadPending.pending > 0) {
+        showToast(`Còn ${hadPending.pending} thay đổi chưa đẩy được — kiểm tra mạng/token.`, 'warning');
+      } else {
+        await triggerManualRefresh();
+      }
     });
   });
 

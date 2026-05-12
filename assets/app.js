@@ -13,7 +13,7 @@
 //   app.js     ← file này
 
 import {
-  readAllData, writeData, savePendingWrite, clearPendingWrite, getPendingWriteCount,
+  readAllData, savePendingWrite, getPendingWriteCount,
   pushPendingWrites, getRepoConfig, getToken,
 } from './api.js';
 import { showToast, escapeHtml, getCurrentRange, saveRange } from './ui.js';
@@ -52,15 +52,11 @@ if (window.navigator.standalone) {
 export const appState = { data: null };
 let reminderTimer = null;
 
-// === Local-first persistence ===
-// Mỗi CRUD: lưu localStorage NGAY (sync, không chờ mạng) rồi schedule push
-// GitHub sau BACKGROUND_SYNC_DELAY. Gõ tiếp trong khoảng đó → reset đồng hồ
-// → batch nhiều thay đổi thành 1 commit. Cảm giác "mượt như native": UI
-// không bao giờ chờ network.
+// === Local-first persistence — manual GitHub push ===
+// Mọi CRUD chỉ lưu localStorage. KHÔNG tự push GitHub. User bấm chip topbar
+// để push 1 lần khi muốn. Tránh spam GitHub Actions, giảm noise commit history.
 
-const BACKGROUND_SYNC_DELAY = 30 * 1000;
-let backgroundSyncTimer = null;
-let backgroundSyncInFlight = false;
+let pushInFlight = false;
 const syncStatusSubscribers = new Set();
 
 export function subscribeSyncStatus(callback) {
@@ -71,7 +67,7 @@ export function subscribeSyncStatus(callback) {
 
 export function getSyncStatus() {
   const pending = getPendingWriteCount();
-  if (backgroundSyncInFlight) return { state: 'syncing', pending };
+  if (pushInFlight) return { state: 'syncing', pending };
   if (pending) return { state: 'pending', pending };
   return { state: 'clean', pending: 0 };
 }
@@ -83,55 +79,38 @@ function emitSyncStatus() {
   });
 }
 
-function scheduleBackgroundSync() {
-  if (backgroundSyncTimer) window.clearTimeout(backgroundSyncTimer);
-  backgroundSyncTimer = window.setTimeout(() => {
-    backgroundSyncTimer = null;
-    runBackgroundSync();
-  }, BACKGROUND_SYNC_DELAY);
-}
-
-async function runBackgroundSync() {
-  if (backgroundSyncInFlight) return;
-  if (!getPendingWriteCount()) return;
+// flushSyncNow: bấm chip khi đang có pending → push tất cả lên GitHub.
+// Bấm chip khi clean (không pending) → fallback sang manual refresh
+// (kéo data thiết bị khác về). Handler ở events.js phân nhánh.
+export async function flushSyncNow() {
+  if (pushInFlight) return getSyncStatus();
+  if (!getPendingWriteCount()) return getSyncStatus();
   const repoConfig = getRepoConfig();
-  if (!repoConfig.owner || !repoConfig.repo || !getToken()) return;
-  backgroundSyncInFlight = true;
+  if (!repoConfig.owner || !repoConfig.repo || !getToken()) {
+    return getSyncStatus();
+  }
+  pushInFlight = true;
   emitSyncStatus();
   try {
     const result = await pushPendingWrites();
     if (appState.data) lastDataSignature = computeDataSignature(appState.data);
     if (result.failures.length) {
-      console.warn('background sync failures', result.failures);
-      window.setTimeout(() => scheduleBackgroundSync(), 60 * 1000);
+      console.warn('manual sync failures', result.failures);
     }
   } catch (error) {
-    console.warn('background sync error', error);
-    window.setTimeout(() => scheduleBackgroundSync(), 60 * 1000);
+    console.warn('manual sync error', error);
   } finally {
-    backgroundSyncInFlight = false;
+    pushInFlight = false;
     emitSyncStatus();
   }
-}
-
-export async function flushSyncNow() {
-  if (backgroundSyncTimer) {
-    window.clearTimeout(backgroundSyncTimer);
-    backgroundSyncTimer = null;
-  }
-  await runBackgroundSync();
   return getSyncStatus();
 }
 
-// persistFile: API giữ nguyên signature để mọi caller cũ chạy ổn. Khác biệt:
-// - Ghi localStorage trước (sync), trả về resolved promise ngay.
-// - Lên lịch background push GitHub (debounced 30s).
-// - Không còn toast "đã lưu nháp" cho mỗi thao tác → bớt nhiễu.
+// persistFile: chỉ ghi localStorage. Không touch network. Trả ngay → UI mượt.
 export async function persistFile(filename, payload, successMessage /* unused */, toast /* unused */) {
   const serializedPayload = serializeFilePayload(filename, payload);
   savePendingWrite(filename, serializedPayload, '');
   emitSyncStatus();
-  scheduleBackgroundSync();
   if (appState.data) lastDataSignature = computeDataSignature(appState.data);
   return { storage: 'draft' };
 }
@@ -144,12 +123,11 @@ export function rerenderApp() {
   bindCommonEvents(appState.data);
 }
 
-// === Auto-refresh khi quay lại tab / polling nhẹ ===
-// App 1 user nhưng dùng cả PC và điện thoại. Khi mở thiết bị B sau khi vừa
-// sửa trên A, B phải thấy data mới mà không cần F5.
-// Skip khi: đang mở modal, có pending writes, tab không visible, hoặc đang refresh khác.
+// === Auto-refresh khi quay lại tab ===
+// App 1 user, dùng cả PC + điện thoại. Khi mở thiết bị B sau khi vừa push
+// trên A, B phải thấy data mới mà không cần F5. Skip khi: đang mở modal,
+// có pending writes (giữ local), tab không visible, đang focus input.
 let refreshInFlight = false;
-let pollTimer = null;
 let lastDataSignature = '';
 
 function computeDataSignature(rawData) {
@@ -212,30 +190,26 @@ export function triggerManualRefresh() {
   return refreshFromGithub('manual');
 }
 
+// Local-first manual sync: KHÔNG auto-push, KHÔNG polling. Chỉ refresh từ
+// GitHub khi user quay lại tab (focus/visibility) NẾU không có pending —
+// để tránh đè local writes chưa push.
 function ensureAutoRefreshHooks() {
-  if (pollTimer) window.clearInterval(pollTimer);
-  pollTimer = window.setInterval(() => refreshFromGithub('poll'), 60 * 1000);
   document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState === 'visible') {
-      // Push pending trước nếu có, rồi mới fetch — tránh fetch xong bị mới
-      // hơn local rồi đè local mới gõ.
-      if (getPendingWriteCount()) {
-        runBackgroundSync().then(() => refreshFromGithub('visibility'));
-      } else {
-        refreshFromGithub('visibility');
-      }
-    }
+    if (document.visibilityState !== 'visible') return;
+    if (getPendingWriteCount()) return;
+    refreshFromGithub('visibility');
   });
-  window.addEventListener('focus', () => refreshFromGithub('focus'));
+  window.addEventListener('focus', () => {
+    if (getPendingWriteCount()) return;
+    refreshFromGithub('focus');
+  });
 }
 
-// === Cảnh báo khi đóng tab với pending writes chưa sync ===
-// Browser sẽ hiện popup "Có thay đổi chưa lưu — vẫn rời?". Đồng thời
-// thử push 1 lần cuối (best-effort, fetch có thể bị huỷ).
+// Cảnh báo khi đóng tab với pending writes chưa push lên GitHub. Data vẫn
+// an toàn trong localStorage, nhưng nhắc user biết là chưa lên cloud.
 function ensureUnloadGuard() {
   window.addEventListener('beforeunload', (event) => {
     if (!getPendingWriteCount()) return;
-    runBackgroundSync();
     event.preventDefault();
     event.returnValue = '';
     return '';
@@ -322,28 +296,6 @@ function ensureReminderLoop() {
   }, 30 * 60 * 1000);
 }
 
-async function syncPendingWritesOnStartup() {
-  const pendingCount = getPendingWriteCount();
-  if (!pendingCount) return;
-  const repoConfig = getRepoConfig();
-  if (!repoConfig.owner || !repoConfig.repo || !getToken()) return;
-
-  const result = await pushPendingWrites();
-  if (result.synced.length && !result.failures.length) {
-    showToast(`Đã tự đồng bộ ${result.synced.length} thay đổi lên GitHub.`, 'success');
-    return;
-  }
-
-  if (result.synced.length && result.failures.length) {
-    showToast(`Đã tự đồng bộ ${result.synced.length} thay đổi, còn ${result.failures.length} thay đổi cần kiểm tra.`, 'warning');
-    return;
-  }
-
-  if (result.failures.length) {
-    showToast(`Chưa tự đồng bộ được. Mở GitHub để kiểm tra cấu hình.`, 'warning');
-  }
-}
-
 function getProtectedRenderer(page) {
   switch (page) {
     case 'dashboard': return renderDashboard;
@@ -369,7 +321,6 @@ async function initProtectedPage() {
     appState.data = normalizeData(raw);
     lastDataSignature = computeDataSignature(raw);
     ensureValidStoredRange(appState.data);
-    await syncPendingWritesOnStartup();
     await ensureMonthlySnapshot();
     rerenderApp();
     checkReminders(appState.data);

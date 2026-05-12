@@ -49,8 +49,8 @@ export function createTopBar(activePage, data) {
   const initialChip = !hasGithubConfig
     ? { dot: '○', label: 'Cấu hình GitHub', action: 'open-settings' }
     : pendingCount
-      ? { dot: '●', label: `${pendingCount} thay đổi · bấm để đồng bộ`, action: 'flush-sync-now' }
-      : { dot: '●', label: 'Đã đồng bộ', action: 'flush-sync-now' };
+      ? { dot: '●', label: `${pendingCount} thay đổi · bấm để đẩy lên GitHub`, action: 'flush-sync-now' }
+      : { dot: '●', label: 'Đã lên GitHub · bấm để tải mới', action: 'flush-sync-now' };
   return [
     '<header class="topbar">',
     '<div class="page-meta">',
