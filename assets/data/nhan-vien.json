@@ -11,16 +11,7 @@
       "loai_nhan_su": "chinh_thuc",
       "trang_thai": "dang_lam",
       "nhiem_vu_ids": [
-        "fb_ca_nhan",
-        "mkt_cty",
-        "tiktok",
-        "telesales",
-        "sr_tiep_khach",
-        "di_thi_truong",
-        "luot_lai_thu",
-        "sr",
-        "so_tien_chay_quang_cao",
-        "kh_du_ki"
+        "fb_ca_nhan"
       ],
       "du_lieu": {
         "2026-04": {
@@ -34,56 +25,11 @@
         },
         "2026-05": {
           "tuan": {
-            "1": {
-              "fb_ca_nhan": {
-                "muc_tieu": 1,
-                "thuc_te": 1
-              },
-              "mkt_cty": {
-                "muc_tieu": 1,
-                "thuc_te": 0
-              }
-            },
-            "2": {
-              "fb_ca_nhan": {
-                "muc_tieu": 20,
-                "thuc_te": 0
-              },
-              "mkt_cty": {
-                "muc_tieu": 0,
-                "thuc_te": 0
-              }
-            },
-            "3": {
-              "fb_ca_nhan": {
-                "muc_tieu": 1,
-                "thuc_te": 20
-              },
-              "mkt_cty": {
-                "muc_tieu": 0,
-                "thuc_te": 0
-              }
-            },
-            "4": {
-              "fb_ca_nhan": {
-                "muc_tieu": 1,
-                "thuc_te": 0
-              },
-              "mkt_cty": {
-                "muc_tieu": 0,
-                "thuc_te": 0
-              }
-            },
-            "5": {
-              "fb_ca_nhan": {
-                "muc_tieu": 0,
-                "thuc_te": 0
-              },
-              "mkt_cty": {
-                "muc_tieu": 0,
-                "thuc_te": 0
-              }
-            }
+            "1": {},
+            "2": {},
+            "3": {},
+            "4": {},
+            "5": {}
           }
         }
       }
