@@ -118,7 +118,9 @@ export function openCustomerModal(customerId, prefillOptions) {
     .filter((channel) => channel.loai !== 'hoat_dong')
     .map((channel) => ({ value: channel.id, label: channel.label }));
 
-  const showGiao = ['da_giao', 'xuat_hd', 'dong_cskh'].includes(draft.trang_thai);
+  // xuat_hd có thể xảy ra song song với đã giao hoặc chưa giao xe — không ràng buộc.
+  // CSKH chỉ làm sau khi đã giao xe thực sự.
+  const showGiao = ['da_giao', 'dong_cskh'].includes(draft.trang_thai);
   const showXuatHd = ['xuat_hd', 'dong_cskh'].includes(draft.trang_thai);
   const showCskh = showGiao;
 
@@ -250,7 +252,7 @@ export function openCustomerModal(customerId, prefillOptions) {
   function toggleConditionalFields() {
     const val = statusSelect.value;
     const isDuKy = val === 'du_ky';
-    const isGiao = ['da_giao', 'xuat_hd', 'dong_cskh'].includes(val);
+    const isGiao = ['da_giao', 'dong_cskh'].includes(val);
     const isXuatHd = ['xuat_hd', 'dong_cskh'].includes(val);
     root.querySelector('#field-ngay-du-kien-ky').classList.toggle('is-hidden', !isDuKy);
     root.querySelector('#field-ngay-giao-thuc-te').classList.toggle('is-hidden', !isGiao);
@@ -293,8 +295,8 @@ export function openCustomerModal(customerId, prefillOptions) {
     const trangThai = trimmedValue(fd, 'trang_thai');
     const ngayGiaoThucTe = trimmedValue(fd, 'ngay_giao_thuc_te');
     const ngayXuatHd = trimmedValue(fd, 'ngay_xuat_hd');
-    if (['da_giao', 'xuat_hd', 'dong_cskh'].includes(trangThai) && !ngayGiaoThucTe) {
-      showToast('Khi trạng thái đã giao hoặc xa hơn, cần nhập ngày giao thực tế.', 'warning');
+    if (['da_giao', 'dong_cskh'].includes(trangThai) && !ngayGiaoThucTe) {
+      showToast('Khi trạng thái là đã giao hoặc đóng CSKH, cần nhập ngày giao thực tế.', 'warning');
       return;
     }
     if (['xuat_hd', 'dong_cskh'].includes(trangThai) && !ngayXuatHd) {
