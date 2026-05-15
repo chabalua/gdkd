@@ -76,7 +76,7 @@ export function getReminderItems(allData, now = new Date()) {
   const month = allData?.config?.thang_hien_tai || getCurrentMonth();
 
   allKh.forEach((kh) => {
-    if (!['da_giao', 'xuat_hd', 'dong_cskh'].includes(kh.trang_thai)) {
+    if (!['da_giao', 'dong_cskh'].includes(kh.trang_thai)) {
       const giaoDelta = daysUntil(kh.ngay_giao_du_kien, now);
       if (giaoDelta !== null && giaoDelta >= 0 && giaoDelta <= 3) {
         const nv = getNvLabel(allData, kh.nhan_vien_id) || 'Chưa gán NV';

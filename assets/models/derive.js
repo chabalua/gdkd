@@ -165,7 +165,7 @@ export function countNotifications(data) {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   const upcoming = allKh.filter((kh) => {
-    if (!kh.ngay_giao_du_kien || ['da_giao', 'xuat_hd', 'dong_cskh'].includes(kh.trang_thai)) return false;
+    if (!kh.ngay_giao_du_kien || ['da_giao', 'dong_cskh'].includes(kh.trang_thai)) return false;
     const target = new Date(kh.ngay_giao_du_kien);
     if (Number.isNaN(target.getTime())) return false;
     target.setHours(0, 0, 0, 0);
@@ -196,14 +196,21 @@ export function getKpiSegments(allData, kpiField, months) {
     if (kpiField === 'xe_ky_moi') {
       value = allKh.filter((kh) => kh.nhan_vien_id === nv.id && kh.ngay_ky && monthSet.has(kh.ngay_ky.slice(0, 7))).length;
     } else if (kpiField === 'hd_xuat_thang') {
+      // Xe đã giao trong kỳ (ngay_giao_thuc_te thuộc kỳ).
       value = allKh.filter((kh) => kh.nhan_vien_id === nv.id && kh.ngay_giao_thuc_te && monthSet.has(kh.ngay_giao_thuc_te.slice(0, 7))).length;
+    } else if (kpiField === 'hoa_don_xuat') {
+      // Hoá đơn xuất trong kỳ (ngay_xuat_hd thuộc kỳ).
+      value = allKh.filter((kh) => kh.nhan_vien_id === nv.id && kh.ngay_xuat_hd && monthSet.has(kh.ngay_xuat_hd.slice(0, 7))).length;
+    } else if (kpiField === 'xe_cho_giao') {
+      // KH đang ở status cho_giao — không phụ thuộc kỳ, là snapshot hiện tại.
+      value = allKh.filter((kh) => kh.nhan_vien_id === nv.id && kh.trang_thai === 'cho_giao').length;
     } else if (kpiField === 'hd_ton') {
       const minMonth = months[0];
       value = allKh.filter((kh) =>
         kh.nhan_vien_id === nv.id &&
         kh.ngay_ky && kh.ngay_ky.slice(0, 7) < minMonth &&
         !kh.ngay_giao_thuc_te &&
-        kh.trang_thai !== 'da_giao' && kh.trang_thai !== 'xuat_hd' && kh.trang_thai !== 'dong_cskh'
+        kh.trang_thai !== 'da_giao' && kh.trang_thai !== 'dong_cskh'
       ).length;
     } else if (kpiField === 'lead_phat_sinh') {
       value = months.reduce((sum, m) => {
@@ -232,7 +239,6 @@ export function getKhTon(allData, months) {
   today.setHours(0, 0, 0, 0);
   const isDelivered = (kh) => kh.ngay_giao_thuc_te
     || kh.trang_thai === 'da_giao'
-    || kh.trang_thai === 'xuat_hd'
     || kh.trang_thai === 'dong_cskh';
   return (allData.khachHang?.khach_hang || [])
     .filter((kh) => kh.ngay_ky && kh.ngay_ky.slice(0, 7) < minMonth && !isDelivered(kh))

@@ -11,13 +11,13 @@ function renderKhPanel(employee, allKh, allXe, channels) {
   const xeMap = Object.fromEntries((allXe || []).map((x) => [x.id, x]));
   const leadOnlyChannels = channels.filter((channel) => channel.loai !== 'hoat_dong');
   const channelMap = Object.fromEntries(leadOnlyChannels.map((channel) => [channel.id, channel.label]));
-  const needCskh = (kh) => ['da_giao', 'xuat_hd'].includes(kh.trang_thai)
+  const needCskh = (kh) => kh.trang_thai === 'da_giao'
     && (!kh.cskh?.length || kh.cskh.some((c) => c.trang_thai_xu_ly !== 'da_xu_ly'));
 
   const statusFilters = [
     ['all', 'T\u1ea5t c\u1ea3'], ['du_ky', 'D\u1ef1 k\u00fd'], ['moi_ky', 'M\u1edbi k\u00fd'],
-    ['dang_xu_ly', '\u0110ang x\u1eed l\u00fd'], ['cho_giao', 'Ch\u1edd giao'],
-    ['da_giao', '\u0110\u00e3 giao'], ['xuat_hd', 'Xu\u1ea5t H\u0110'], ['can_cskh', 'C\u1ea7n CSKH'],
+    ['dang_xu_ly', '\u0110ang x\u1eed l\u00fd'], ['xuat_hd', 'Xu\u1ea5t H\u0110'], ['cho_giao', 'Ch\u1edd giao'],
+    ['da_giao', '\u0110\u00e3 giao'], ['can_cskh', 'C\u1ea7n CSKH'],
   ];
   const statusPills = statusFilters.map(([val, label]) =>
     `<button type="button" class="chip${val === 'all' ? ' is-active' : ''}" data-kh-filter="${escapeHtml(val)}">${escapeHtml(label)}</button>`

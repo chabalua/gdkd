@@ -5,10 +5,12 @@ import {
 } from '../models.js';
 
 export const KPI_CORE_FIELDS = [
-  { field: 'xe_ky_moi', icon: '🚗', label: 'Xe Ký Mới', unit: 'xe', short: 'xe' },
-  { field: 'hd_xuat_thang', icon: '📄', label: 'HĐ Xuất Tháng', unit: 'hợp đồng', short: 'HĐ' },
-  { field: 'hd_ton', icon: '📦', label: 'HĐ Tồn', unit: 'hồ sơ', short: 'HS' },
-  { field: 'lead_phat_sinh', icon: '👥', label: 'Lead Phát Sinh', unit: 'lead', short: 'lead' },
+  { field: 'xe_ky_moi',     icon: '📑', label: 'Hợp đồng ký mới',   unit: 'HĐ',       short: 'HĐ' },
+  { field: 'hoa_don_xuat',  icon: '🧾', label: 'Hoá đơn xuất tháng', unit: 'hoá đơn', short: 'HĐ' },
+  { field: 'xe_cho_giao',   icon: '🚛', label: 'Xe chờ giao',        unit: 'xe',      short: 'xe' },
+  { field: 'hd_xuat_thang', icon: '🚗', label: 'Xe giao trong tháng',unit: 'xe',      short: 'xe' },
+  { field: 'hd_ton',        icon: '📦', label: 'Hồ sơ tồn',          unit: 'hồ sơ',   short: 'HS' },
+  { field: 'lead_phat_sinh',icon: '👥', label: 'Lead phát sinh',     unit: 'lead',    short: 'lead' },
 ];
 
 function renderNvChipStack(segments, total) {
@@ -101,16 +103,26 @@ function getEmptyStateHint(field, allData, months) {
   if (field === 'xe_ky_moi') {
     if (totalKh === 0) return 'Chưa có khách hàng nào. Thêm KH đầu tiên ở trang Khách hàng.';
     const duKy = allKh.filter((kh) => kh.trang_thai === 'du_ky').length;
-    if (duKy) return `${duKy} KH đang ở trạng thái "Dự ký" — chuyển sang "Mới ký" khi ký HĐ.`;
-    return 'Chưa có KH nào ký trong kỳ. Cập nhật ngày ký khi có hợp đồng.';
+    if (duKy) return `${duKy} KH đang ở "Dự ký" — chuyển sang "Mới ký" khi ký hợp đồng.`;
+    return 'Chưa có hợp đồng nào ký trong kỳ. Cập nhật ngày ký khi có hợp đồng.';
+  }
+  if (field === 'hoa_don_xuat') {
+    const dangXuLy = allKh.filter((kh) =>
+      kh.ngay_ky && !kh.ngay_xuat_hd && ['moi_ky', 'dang_xu_ly'].includes(kh.trang_thai),
+    ).length;
+    if (dangXuLy) return `${dangXuLy} KH đã ký, chưa xuất hoá đơn. Cập nhật khi xuất HĐ tài chính.`;
+    if (totalKh === 0) return 'Chưa có khách hàng nào để xuất hoá đơn.';
+    return 'Chưa hoá đơn nào xuất trong kỳ.';
+  }
+  if (field === 'xe_cho_giao') {
+    if (totalKh === 0) return 'Chưa có khách hàng nào.';
+    return '👍 Không có xe nào đang chờ giao.';
   }
   if (field === 'hd_xuat_thang') {
-    const choGiao = allKh.filter((kh) =>
-      kh.ngay_ky && !kh.ngay_giao_thuc_te && kh.trang_thai !== 'da_giao' && kh.trang_thai !== 'dong_cskh',
-    ).length;
-    if (choGiao) return `${choGiao} KH đã ký, chưa giao. Cập nhật ngày giao thực tế khi giao xe.`;
-    if (totalKh === 0) return 'Chưa có khách hàng nào để xuất hoá đơn.';
-    return 'Chưa KH nào được giao xe trong kỳ.';
+    const choGiao = allKh.filter((kh) => kh.trang_thai === 'cho_giao').length;
+    if (choGiao) return `${choGiao} xe đang chờ giao. Cập nhật ngày giao thực tế khi giao xe.`;
+    if (totalKh === 0) return 'Chưa có khách hàng nào.';
+    return 'Chưa xe nào giao trong kỳ.';
   }
   if (field === 'hd_ton') {
     return '👍 Không còn hồ sơ tồn từ kỳ trước.';
