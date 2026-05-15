@@ -23,15 +23,23 @@ export const PAGE_META = {
   settings: { title: 'Thiết Lập', kicker: 'Dashboard / Thiết lập' },
 };
 
-// V2 schema — 6 trạng thái pipeline 1 chiều
+// Pipeline 7 trạng thái 1 chiều: ... → đã giao → xuất HĐ → đóng CSKH.
+// Thứ tự khai báo = thứ tự pipeline. Mọi nơi cần order/index dùng KH_STATUS_ORDER.
 export const KH_STATUS_META = {
-  du_ky:      ['🟡 Dự ký',      'is-warning'],
-  moi_ky:     ['🔵 Mới ký',     'is-info'],
-  dang_xu_ly: ['🟠 Đang xử lý', 'is-warning'],
-  cho_giao:   ['🔵 Chờ giao',   'is-purple'],
+  du_ky:      ['🟡 Dự ký',       'is-warning'],
+  moi_ky:     ['🔵 Mới ký',      'is-info'],
+  dang_xu_ly: ['🟠 Đang xử lý',  'is-warning'],
+  cho_giao:   ['🔵 Chờ giao',    'is-purple'],
   da_giao:    ['🟢 Đã giao',     'is-success'],
-  dong_cskh:  ['✅ Đóng CSKH',  'is-success'],
+  xuat_hd:    ['🧾 Xuất HĐ',     'is-success'],
+  dong_cskh:  ['✅ Đóng CSKH',   'is-success'],
 };
+
+// Thứ tự pipeline để derive count "đã xuất HĐ" (status >= xuat_hd).
+export const KH_STATUS_ORDER = Object.keys(KH_STATUS_META);
+
+// KH được tính "đã xuất hoá đơn" khi status >= xuat_hd (xuat_hd hoặc dong_cskh).
+export const KH_STATUS_INVOICED = new Set(['xuat_hd', 'dong_cskh']);
 
 export const CSKH_STATUS_META = {
   chua_xu_ly: ['Chưa xử lý', 'is-danger'],

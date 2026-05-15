@@ -284,7 +284,7 @@ function renderUrgentTable(data) {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   const urgent = (data.khachHang?.khach_hang || []).filter((kh) => {
-    if (!kh.ngay_giao_du_kien || ['da_giao', 'dong_cskh'].includes(kh.trang_thai)) return false;
+    if (!kh.ngay_giao_du_kien || ['da_giao', 'xuat_hd', 'dong_cskh'].includes(kh.trang_thai)) return false;
     const d = new Date(kh.ngay_giao_du_kien);
     if (Number.isNaN(d.getTime())) return false;
     d.setHours(0, 0, 0, 0);
