@@ -1,6 +1,70 @@
 {
   "lich_su": [
     {
+      "thang": "2026-04",
+      "xe_ky_moi": 16,
+      "hd_xuat": 0,
+      "lead_phat_sinh": 0,
+      "ranking": [
+        {
+          "nv_id": "nv003",
+          "xe": 5
+        },
+        {
+          "nv_id": "nv004",
+          "xe": 3
+        },
+        {
+          "nv_id": "nv001",
+          "xe": 2
+        },
+        {
+          "nv_id": "nv011",
+          "xe": 2
+        },
+        {
+          "nv_id": "nv010",
+          "xe": 2
+        },
+        {
+          "nv_id": "nv007",
+          "xe": 1
+        },
+        {
+          "nv_id": "nv009",
+          "xe": 1
+        },
+        {
+          "nv_id": "nv008",
+          "xe": 0
+        },
+        {
+          "nv_id": "nv002",
+          "xe": 0
+        },
+        {
+          "nv_id": "nv006",
+          "xe": 0
+        },
+        {
+          "nv_id": "nvmowbby4f8k8l",
+          "xe": 0
+        },
+        {
+          "nv_id": "nv005",
+          "xe": 0
+        },
+        {
+          "nv_id": "nv013",
+          "xe": 0
+        },
+        {
+          "nv_id": "nv012",
+          "xe": 0
+        }
+      ]
+    },
+    {
       "thang": "2026-03",
       "xe_ky_moi": 0,
       "hd_xuat": 0,
