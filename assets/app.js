@@ -16,7 +16,7 @@ import {
   readAllData, savePendingWrite, getPendingWriteCount,
   pushPendingWrites, getRepoConfig, getToken,
 } from './api.js';
-import { showToast, escapeHtml, getCurrentRange, saveRange } from './ui.js';
+import { showToast, escapeHtml, getCurrentRange, saveRange, getCurrentMonth } from './ui.js';
 import { normalizeData, serializeFilePayload, getPreviousMonthKey, buildMonthlySnapshot } from './models.js';
 import { checkReminders } from './notify.js';
 import { bindCommonEvents } from './events.js';
@@ -324,6 +324,24 @@ function ensureValidStoredRange(data) {
   }
 }
 
+// Đồng bộ config.thang_hien_tai với tháng hệ thống.
+// Lý do: nếu user không mở app sang tháng mới, hoặc quên chỉnh tay,
+// dashboard sẽ default range về tháng cũ → KPI hiển thị 0 gây hiểu nhầm.
+// Chỉ tiến tới, không lùi (tránh ghi đè khi user cố tình xem tháng cũ).
+async function ensureCurrentMonth() {
+  const config = appState.data?.config;
+  if (!config) return;
+  const systemMonth = getCurrentMonth();
+  const storedMonth = config.thang_hien_tai;
+  if (storedMonth && storedMonth >= systemMonth) return;
+  config.thang_hien_tai = systemMonth;
+  try {
+    await persistFile('config.json', config, null, false);
+  } catch (error) {
+    console.warn('ensureCurrentMonth persist failed', error);
+  }
+}
+
 async function ensureMonthlySnapshot() {
   const currentMonth = appState.data?.config?.thang_hien_tai;
   const previousMonth = getPreviousMonthKey(currentMonth);
@@ -375,6 +393,7 @@ async function initProtectedPage() {
     const raw = await readAllData();
     appState.data = normalizeData(raw);
     lastDataSignature = computeDataSignature(raw);
+    await ensureCurrentMonth();
     ensureValidStoredRange(appState.data);
     await ensureMonthlySnapshot();
     rerenderApp();

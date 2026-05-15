@@ -2364,6 +2364,11 @@ img {
   overflow: hidden;
   text-overflow: ellipsis;
 }
+.kpi-core-note.is-empty-hint {
+  white-space: normal;
+  overflow: visible;
+  color: var(--text);
+}
 
 .kpi-core-metrics {
   display: flex;
@@ -3990,4 +3995,116 @@ img {
   padding: 4px 10px;
   font-size: 0.8rem;
   min-height: 28px;
+}
+
+/* === Sync action card (trang Thiết lập) === */
+.sync-card {
+  border: 1px solid var(--border);
+  background: var(--card);
+}
+.sync-repo-info {
+  margin: 8px 0 16px;
+  font-size: 0.9rem;
+}
+.sync-repo-info code {
+  background: rgba(0, 0, 0, 0.05);
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-size: 0.85em;
+}
+.sync-action-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.sync-action-btn {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 20px;
+  min-height: 72px;
+  text-align: left;
+  justify-content: flex-start;
+  border-radius: var(--radius);
+}
+.sync-action-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+.sync-action-icon {
+  font-size: 1.8rem;
+  line-height: 1;
+  flex-shrink: 0;
+}
+.sync-action-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.sync-action-text strong {
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+.sync-action-sub {
+  font-size: 0.78rem;
+  opacity: 0.85;
+  font-weight: 400;
+  line-height: 1.3;
+}
+.btn-large {
+  font-size: 0.95rem;
+}
+.btn-small {
+  padding: 6px 10px;
+  font-size: 0.82rem;
+  min-height: 32px;
+}
+.sync-pending-box {
+  background: rgba(232, 160, 32, 0.08);
+  border: 1px solid rgba(232, 160, 32, 0.3);
+  border-radius: var(--radius);
+  padding: 12px 14px;
+  margin-bottom: 12px;
+}
+.sync-pending-title {
+  margin: 0 0 6px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--text);
+}
+.sync-pending-list {
+  margin: 0 0 8px;
+  padding-left: 22px;
+  font-size: 0.85rem;
+}
+.sync-pending-list li {
+  margin: 2px 0;
+}
+.sync-pending-warn {
+  margin: 6px 0 0;
+  font-size: 0.8rem;
+  line-height: 1.4;
+}
+.sync-footer {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 8px;
+  border-top: 1px solid var(--border);
+  margin-top: 4px;
+}
+
+@media (max-width: 640px) {
+  .sync-action-grid {
+    grid-template-columns: 1fr;
+  }
+  .sync-action-btn {
+    min-height: 64px;
+    padding: 14px 16px;
+  }
+  .sync-action-icon {
+    font-size: 1.5rem;
+  }
 }

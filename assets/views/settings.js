@@ -1,7 +1,32 @@
 import { renderShell } from './shell.js';
 import { escapeHtml } from '../ui.js';
 import { ACTIVITY_UNIT_META, getEmployeeGroups, getEmployeesByGroup } from '../models.js';
-import { getPendingWriteCount } from '../api.js';
+import { getPendingWriteCount, getLastSyncAt, getPendingWrites, getRepoConfig, getToken } from '../api.js';
+
+function formatRelativeSync(isoString) {
+  if (!isoString) return '';
+  const d = new Date(isoString);
+  if (Number.isNaN(d.getTime())) return '';
+  const now = new Date();
+  const sameDay = d.getFullYear() === now.getFullYear()
+    && d.getMonth() === now.getMonth()
+    && d.getDate() === now.getDate();
+  const hh = String(d.getHours()).padStart(2, '0');
+  const mm = String(d.getMinutes()).padStart(2, '0');
+  if (sameDay) return `hôm nay ${hh}:${mm}`;
+  const dd = String(d.getDate()).padStart(2, '0');
+  const mo = String(d.getMonth() + 1).padStart(2, '0');
+  return `${dd}/${mo} ${hh}:${mm}`;
+}
+
+const FILE_LABELS = {
+  'config.json': 'Cấu hình',
+  'xe.json': 'Catalog xe',
+  'nhan-vien.json': 'Nhân viên',
+  'khach-hang.json': 'Khách hàng',
+  'cong-viec.json': 'Công việc',
+  'lich-su.json': 'Lịch sử',
+};
 
 const TASK_TYPE_LABEL = {
   lead: 'Kênh lead',
@@ -82,16 +107,67 @@ function renderTaskSection(departments, tasks) {
 
 function renderGithubSection() {
   const pendingCount = getPendingWriteCount();
+  const pendingWrites = getPendingWrites();
+  const pendingFiles = Object.keys(pendingWrites);
+  const lastSyncAt = getLastSyncAt();
+  const lastSyncLabel = formatRelativeSync(lastSyncAt);
+  const repoConfig = getRepoConfig();
+  const hasGithubConfig = Boolean(repoConfig.owner && repoConfig.repo && getToken());
+
+  const pendingList = pendingFiles.length
+    ? `<ul class="sync-pending-list">${pendingFiles.map((f) => `<li><strong>${escapeHtml(FILE_LABELS[f] || f)}</strong> <span class="muted">(${escapeHtml(f)})</span></li>`).join('')}</ul>`
+    : '';
+
+  const repoInfo = hasGithubConfig
+    ? `<p class="muted sync-repo-info">📦 Kho: <strong>${escapeHtml(repoConfig.owner)}/${escapeHtml(repoConfig.repo)}</strong> · nhánh <code>${escapeHtml(repoConfig.branch)}</code></p>`
+    : '<p class="text-danger sync-repo-info">⚠️ Chưa cấu hình GitHub. Bấm "Cấu hình GitHub" bên dưới để nhập token và repo.</p>';
+
+  const pushButton = pendingCount
+    ? `<button type="button" class="btn btn-primary btn-large sync-action-btn" data-action="sync-pending-writes">
+         <span class="sync-action-icon" aria-hidden="true">⬆️</span>
+         <span class="sync-action-text">
+           <strong>Đẩy lên GitHub</strong>
+           <span class="sync-action-sub">${pendingCount} file đang chờ đẩy</span>
+         </span>
+       </button>`
+    : `<button type="button" class="btn btn-soft btn-large sync-action-btn" data-action="sync-pending-writes" disabled>
+         <span class="sync-action-icon" aria-hidden="true">⬆️</span>
+         <span class="sync-action-text">
+           <strong>Đẩy lên GitHub</strong>
+           <span class="sync-action-sub">Không có thay đổi mới để đẩy</span>
+         </span>
+       </button>`;
+
+  const pullButton = `<button type="button" class="btn btn-soft btn-large sync-action-btn" data-action="pull-from-github"${hasGithubConfig ? '' : ' disabled'}>
+       <span class="sync-action-icon" aria-hidden="true">⬇️</span>
+       <span class="sync-action-text">
+         <strong>Tải từ GitHub</strong>
+         <span class="sync-action-sub">${lastSyncLabel ? `Lần tải gần nhất ${lastSyncLabel}` : 'Lấy dữ liệu mới nhất về máy'}</span>
+       </span>
+     </button>`;
+
   return [
-    '<article class="card page-card-spacer">',
+    '<article class="card page-card-spacer sync-card">',
     '<div class="table-header">',
-    '<div><h3 class="table-title">Kết nối GitHub</h3><p class="table-subtitle">Token và repo config để mọi CRUD ghi thẳng lên GitHub Contents API.</p></div>',
-    '<div class="button-row">',
-    pendingCount ? `<button type="button" class="btn btn-primary" data-action="sync-pending-writes">Đồng bộ ${pendingCount} thay đổi</button>` : '',
-    '<button type="button" class="btn btn-soft" data-action="open-settings">Mở cấu hình GitHub</button>',
+    '<div><h3 class="table-title">🔄 Đồng bộ dữ liệu với GitHub</h3>',
+    '<p class="table-subtitle">App lưu thay đổi vào máy trước. Bấm <strong>Đẩy lên GitHub</strong> khi muốn đồng bộ. Mở app trên thiết bị khác bấm <strong>Tải từ GitHub</strong> để lấy bản mới nhất.</p>',
     '</div>',
     '</div>',
-    `<p class="muted" style="margin:0">${pendingCount ? `Hiện có ${pendingCount} thay đổi đang lưu nháp trên máy và chờ đẩy lên GitHub.` : 'Trang này hoàn tất vòng quản trị v3: quản lý phòng ban, thư viện nhiệm vụ và cấu hình nơi lưu dữ liệu.'}</p>`,
+    repoInfo,
+    '<div class="sync-action-grid">',
+    pushButton,
+    pullButton,
+    '</div>',
+    pendingCount ? [
+      '<div class="sync-pending-box">',
+      `<p class="sync-pending-title">📝 Có ${pendingCount} thay đổi chưa đẩy lên GitHub:</p>`,
+      pendingList,
+      '<p class="muted sync-pending-warn">⚠️ Các thay đổi này chỉ tồn tại trên thiết bị này. Bấm <strong>Đẩy lên GitHub</strong> để các thiết bị khác cũng thấy được.</p>',
+      '</div>',
+    ].join('') : '',
+    '<div class="sync-footer">',
+    '<button type="button" class="btn btn-ghost btn-small" data-action="open-settings">⚙️ Cấu hình GitHub (token, owner, repo)</button>',
+    '</div>',
     '</article>',
   ].join('');
 }
@@ -108,10 +184,10 @@ export default function renderSettingsPage(data) {
     '<button type="button" class="btn btn-primary" data-action="open-task-library-manager">Nhiệm vụ</button>',
     '</div>',
     '</section>',
+    renderGithubSection(),
     renderSummaryCards(departments, tasks),
     renderDepartmentSection(data, departments, tasks),
     renderTaskSection(departments, tasks),
-    renderGithubSection(),
   ].join('');
   return renderShell('settings', content, data);
 }

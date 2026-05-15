@@ -92,6 +92,35 @@ export function renderTierLegend() {
   ].join('');
 }
 
+// Gợi ý hành động khi tổng KPI = 0, giúp user phân biệt "chưa nhập"
+// vs "đã nhập nhưng chưa đến mốc đếm" (vd HĐ Xuất = 0 vì KH chưa được
+// giao xe trong tháng — không phải lỗi).
+function getEmptyStateHint(field, allData, months) {
+  const allKh = allData.khachHang?.khach_hang || [];
+  const totalKh = allKh.length;
+  if (field === 'xe_ky_moi') {
+    if (totalKh === 0) return 'Chưa có khách hàng nào. Thêm KH đầu tiên ở trang Khách hàng.';
+    const duKy = allKh.filter((kh) => kh.trang_thai === 'du_ky').length;
+    if (duKy) return `${duKy} KH đang ở trạng thái "Dự ký" — chuyển sang "Mới ký" khi ký HĐ.`;
+    return 'Chưa có KH nào ký trong kỳ. Cập nhật ngày ký khi có hợp đồng.';
+  }
+  if (field === 'hd_xuat_thang') {
+    const choGiao = allKh.filter((kh) =>
+      kh.ngay_ky && !kh.ngay_giao_thuc_te && kh.trang_thai !== 'da_giao' && kh.trang_thai !== 'dong_cskh',
+    ).length;
+    if (choGiao) return `${choGiao} KH đã ký, chưa giao. Cập nhật ngày giao thực tế khi giao xe.`;
+    if (totalKh === 0) return 'Chưa có khách hàng nào để xuất hoá đơn.';
+    return 'Chưa KH nào được giao xe trong kỳ.';
+  }
+  if (field === 'hd_ton') {
+    return '👍 Không còn hồ sơ tồn từ kỳ trước.';
+  }
+  if (field === 'lead_phat_sinh') {
+    return 'Chưa có lead nào trong kỳ. Nhập ở tab "Nhập tuần" của từng nhân viên.';
+  }
+  return '';
+}
+
 export function renderKpiCard(fieldMeta, data, months) {
   const { field, icon, label, unit } = fieldMeta;
   const segments = getKpiSegments(data, field, months);
@@ -115,11 +144,15 @@ export function renderKpiCard(fieldMeta, data, months) {
 
   const isHdTon = field === 'hd_ton';
   const topLabel = isHdTon ? 'Tồn nhiều nhất' : 'Top';
-  const compactNote = [
-    paceText,
-    topNv ? `${topLabel} ${topNv.nv_ten}: ${topNv.value}` : '',
-    !isHdTon && worstNv && worstNv !== topNv ? `Cần đẩy ${worstNv.nv_ten}: ${worstNv.pct_personal}%` : '',
-  ].filter(Boolean).join(' · ') || 'Nhấn để xem chi tiết theo nhân viên';
+  const isEmpty = total === 0;
+  const emptyHint = isEmpty ? getEmptyStateHint(field, data, months) : '';
+  const compactNote = isEmpty && emptyHint
+    ? emptyHint
+    : ([
+      paceText,
+      topNv ? `${topLabel} ${topNv.nv_ten}: ${topNv.value}` : '',
+      !isHdTon && worstNv && worstNv !== topNv ? `Cần đẩy ${worstNv.nv_ten}: ${worstNv.pct_personal}%` : '',
+    ].filter(Boolean).join(' · ') || 'Nhấn để xem chi tiết theo nhân viên');
 
   const expandContent = field === 'hd_ton'
     ? renderKhTonRows(getKhTon(data, months), data)
@@ -133,7 +166,7 @@ export function renderKpiCard(fieldMeta, data, months) {
     `<span class="kpi-icon" aria-hidden="true">${icon}</span>`,
     `<span class="kpi-label">${escapeHtml(label)}</span>`,
     '</div>',
-    `<div class="kpi-core-note">${escapeHtml(compactNote)}</div>`,
+    `<div class="kpi-core-note${isEmpty && emptyHint ? ' is-empty-hint' : ''}">${escapeHtml(compactNote)}</div>`,
     '</div>',
     '<div class="kpi-core-metrics">',
     pct !== null ? `<span class="badge ${pctClass} kpi-pct-badge">${pct}%</span>` : '<span class="kpi-pct-badge-spacer"></span>',

@@ -3,7 +3,7 @@
 // Tách khỏi app.js để mỗi file < 350 dòng. Không có state riêng — đọc state
 // qua import từ app.js (ESM live binding).
 
-import { clearToken } from './api.js';
+import { clearToken, getLastSyncAt, getPendingWriteCount } from './api.js';
 import { showToast, confirmAction, showModal, getModalRoot, closeModal, saveRange, parseRangeValue, calcPercent, getPercentClass } from './ui.js';
 import { TODO_MESSAGE, countKhByXeId } from './models.js';
 
@@ -21,6 +21,23 @@ import { appState, persistFile, rerenderApp, triggerManualRefresh, flushSyncNow,
 
 // === Sync chip binding (module-level — bind 1 lần) ===
 let syncChipBound = false;
+
+function formatRelativeSync(isoString) {
+  if (!isoString) return '';
+  const d = new Date(isoString);
+  if (Number.isNaN(d.getTime())) return '';
+  const now = new Date();
+  const sameDay = d.getFullYear() === now.getFullYear()
+    && d.getMonth() === now.getMonth()
+    && d.getDate() === now.getDate();
+  const hh = String(d.getHours()).padStart(2, '0');
+  const mm = String(d.getMinutes()).padStart(2, '0');
+  if (sameDay) return `${hh}:${mm}`;
+  const dd = String(d.getDate()).padStart(2, '0');
+  const mo = String(d.getMonth() + 1).padStart(2, '0');
+  return `${dd}/${mo} ${hh}:${mm}`;
+}
+
 function ensureSyncChipBinding() {
   if (syncChipBound) return;
   syncChipBound = true;
@@ -34,14 +51,23 @@ function ensureSyncChipBinding() {
       chip.classList.add('is-syncing');
       if (dot) dot.textContent = '◐';
       if (label) label.textContent = 'Đang đẩy GitHub...';
+      chip.setAttribute('title', 'Đang đẩy các thay đổi lên GitHub, vui lòng đợi.');
     } else if (status.state === 'pending') {
       chip.classList.add('is-pending');
       if (dot) dot.textContent = '●';
-      if (label) label.textContent = `${status.pending} thay đổi · bấm để đẩy lên GitHub`;
+      if (label) label.textContent = `Có ${status.pending} thay đổi chưa đẩy · Đồng bộ ngay`;
+      chip.setAttribute('title', `Còn ${status.pending} file thay đổi chưa lên GitHub. Bấm để đẩy tất cả.`);
     } else {
       chip.classList.add('is-clean');
       if (dot) dot.textContent = '●';
-      if (label) label.textContent = 'Đã lên GitHub · bấm để tải mới';
+      const lastSyncLabel = formatRelativeSync(getLastSyncAt());
+      if (label) label.textContent = lastSyncLabel ? `Đã đồng bộ ${lastSyncLabel} · Tải mới` : 'Đã đồng bộ · Tải mới';
+      chip.setAttribute(
+        'title',
+        lastSyncLabel
+          ? `Lần đồng bộ gần nhất: ${lastSyncLabel}. Bấm để kéo dữ liệu mới từ GitHub.`
+          : 'Chưa có lần đồng bộ nào trên thiết bị này. Bấm để kéo dữ liệu mới từ GitHub.',
+      );
     }
   });
 }
@@ -126,6 +152,28 @@ export function bindCommonEvents(data) {
 
   document.querySelectorAll('[data-action="refresh-from-github"]').forEach((button) => {
     button.addEventListener('click', () => triggerManualRefresh());
+  });
+
+  // Nút "Tải từ GitHub" ở trang Thiết lập.
+  // Nếu đang có pending writes, hỏi xác nhận vì refresh sẽ rerender từ remote
+  // và có thể che mất các thay đổi local chưa push (chúng vẫn nằm trong
+  // gdkd_pending_writes — overlay sẽ giữ nguyên, nhưng user nên biết).
+  document.querySelectorAll('[data-action="pull-from-github"]').forEach((button) => {
+    button.addEventListener('click', async () => {
+      const pendingCount = getPendingWriteCount();
+      const runPull = async () => {
+        await triggerManualRefresh();
+        rerenderApp();
+      };
+      if (pendingCount > 0) {
+        confirmAction(
+          `Đang có ${pendingCount} thay đổi chưa đẩy lên GitHub. Bạn vẫn muốn tải dữ liệu mới về máy? (Các thay đổi local vẫn được giữ trong nháp.)`,
+          runPull,
+        );
+      } else {
+        runPull();
+      }
+    });
   });
 
   document.querySelectorAll('[data-action="flush-sync-now"]').forEach((button) => {

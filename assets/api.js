@@ -16,6 +16,7 @@ const STORAGE_KEYS = {
   repoName: 'gdkd_repo_name',
   repoBranch: 'gdkd_repo_branch',
   pendingWrites: 'gdkd_pending_writes',
+  lastSyncAt: 'gdkd_last_sync_at',
 };
 
 function safeJsonParse(rawValue, fallback) {
@@ -77,7 +78,14 @@ export async function pushPendingWrites() {
     }
   }
   savePendingWritesMap(nextPendingWrites);
+  if (synced.length && !failures.length) {
+    localStorage.setItem(STORAGE_KEYS.lastSyncAt, new Date().toISOString());
+  }
   return { synced, failures, remaining: Object.keys(nextPendingWrites).length };
+}
+
+export function getLastSyncAt() {
+  return localStorage.getItem(STORAGE_KEYS.lastSyncAt) || '';
 }
 
 // === Auth token ===

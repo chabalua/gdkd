@@ -4,7 +4,24 @@
 
 import { escapeHtml, getCurrentMonth, calcPercent, getPercentClass, renderProgressBar, avatarHtml, getCurrentRange, getRangeLabel } from '../ui.js';
 import { NAV_ITEMS, PAGE_META, countNotifications } from '../models.js';
-import { getPendingWriteCount, getRepoConfig, getToken } from '../api.js';
+import { getPendingWriteCount, getRepoConfig, getToken, getLastSyncAt } from '../api.js';
+
+// "13:24" nếu trong hôm nay, "14/05 13:24" nếu khác ngày, "—" nếu chưa từng sync.
+function formatRelativeSync(isoString) {
+  if (!isoString) return '';
+  const d = new Date(isoString);
+  if (Number.isNaN(d.getTime())) return '';
+  const now = new Date();
+  const sameDay = d.getFullYear() === now.getFullYear()
+    && d.getMonth() === now.getMonth()
+    && d.getDate() === now.getDate();
+  const hh = String(d.getHours()).padStart(2, '0');
+  const mm = String(d.getMinutes()).padStart(2, '0');
+  if (sameDay) return `${hh}:${mm}`;
+  const dd = String(d.getDate()).padStart(2, '0');
+  const mo = String(d.getMonth() + 1).padStart(2, '0');
+  return `${dd}/${mo} ${hh}:${mm}`;
+}
 
 export function createSidebar(activePage, config) {
   const rangeLabel = getRangeLabel(getCurrentRange());
@@ -46,11 +63,24 @@ export function createTopBar(activePage, data) {
   const pendingCount = getPendingWriteCount();
   const repoConfig = getRepoConfig();
   const hasGithubConfig = Boolean(repoConfig.owner && repoConfig.repo && getToken());
+  const lastSyncLabel = formatRelativeSync(getLastSyncAt());
   const initialChip = !hasGithubConfig
-    ? { dot: '○', label: 'Cấu hình GitHub', action: 'open-settings' }
+    ? { dot: '○', label: 'Cấu hình GitHub', title: 'Bấm để cấu hình owner/repo/token GitHub.', action: 'open-settings' }
     : pendingCount
-      ? { dot: '●', label: `${pendingCount} thay đổi · bấm để đẩy lên GitHub`, action: 'flush-sync-now' }
-      : { dot: '●', label: 'Đã lên GitHub · bấm để tải mới', action: 'flush-sync-now' };
+      ? {
+        dot: '●',
+        label: `Có ${pendingCount} thay đổi chưa đẩy · Đồng bộ ngay`,
+        title: `Còn ${pendingCount} file thay đổi chưa lên GitHub. Bấm để đẩy tất cả.`,
+        action: 'flush-sync-now',
+      }
+      : {
+        dot: '●',
+        label: lastSyncLabel ? `Đã đồng bộ ${lastSyncLabel} · Tải mới` : 'Đã đồng bộ · Tải mới',
+        title: lastSyncLabel
+          ? `Lần đồng bộ gần nhất: ${lastSyncLabel}. Bấm để kéo dữ liệu mới từ GitHub.`
+          : 'Chưa có lần đồng bộ nào trên thiết bị này. Bấm để kéo dữ liệu mới từ GitHub.',
+        action: 'flush-sync-now',
+      };
   return [
     '<header class="topbar">',
     '<div class="page-meta">',
@@ -58,7 +88,7 @@ export function createTopBar(activePage, data) {
     `<h1 class="page-title">${escapeHtml(meta.title)} · ${escapeHtml(rangeLabel)}</h1>`,
     '</div>',
     '<div class="topbar-actions">',
-    `<button type="button" class="btn btn-soft sync-chip" data-sync-chip data-action="${initialChip.action}" title="Trạng thái đồng bộ GitHub. Bấm để đồng bộ ngay."><span class="sync-dot" data-sync-dot>${initialChip.dot}</span> <span data-sync-label>${escapeHtml(initialChip.label)}</span></button>`,
+    `<button type="button" class="btn btn-soft sync-chip${pendingCount ? ' is-pending' : ''}" data-sync-chip data-action="${initialChip.action}" title="${escapeHtml(initialChip.title)}"><span class="sync-dot" data-sync-dot>${initialChip.dot}</span> <span data-sync-label>${escapeHtml(initialChip.label)}</span></button>`,
     `<a class="icon-button${activePage === 'settings' ? ' is-active' : ''}" href="settings.html" aria-label="Mở trang thiết lập">⚙️</a>`,
     '<button type="button" class="icon-button" data-action="show-notifications" aria-label="Thông báo">',
     '<span aria-hidden="true">🔔</span>',
