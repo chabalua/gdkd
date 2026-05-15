@@ -258,6 +258,14 @@ export function openCustomerModal(customerId, prefillOptions) {
     root.querySelector('#field-ngay-xuat-hd').classList.toggle('is-hidden', !isXuatHd);
     root.querySelector('#field-ngay-giao-thuc-te').classList.toggle('is-hidden', !isGiao);
     root.querySelector('#cskh-section').classList.toggle('is-hidden', !isGiao);
+
+    // Auto-fill ngày hôm nay nếu user vừa mở status mà field còn rỗng.
+    // User có thể sửa lại. Tránh quên nhập → KPI không nhảy số.
+    const today = new Date().toISOString().slice(0, 10);
+    const xuatHdInput = root.querySelector('[name="ngay_xuat_hd"]');
+    const giaoInput = root.querySelector('[name="ngay_giao_thuc_te"]');
+    if (isXuatHd && xuatHdInput && !xuatHdInput.value) xuatHdInput.value = today;
+    if (isGiao && giaoInput && !giaoInput.value) giaoInput.value = today;
   }
   statusSelect.addEventListener('change', toggleConditionalFields);
   xeSelect.addEventListener('change', () => {
