@@ -357,6 +357,7 @@ function serializeKhachHangV3(payload) {
       ngay_ky: customer.ngay_ky || null,
       ngay_giao_du_kien: customer.ngay_giao_du_kien || null,
       ngay_giao_thuc_te: customer.ngay_giao_thuc_te || null,
+      ngay_xuat_hd: customer.ngay_xuat_hd || null,
       hinh_thuc_tt: customer.hinh_thuc_tt || '',
       ngan_hang: customer.ngan_hang || '',
       so_tien_vay: numberValue(customer.so_tien_vay),
