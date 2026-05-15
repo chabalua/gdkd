@@ -107,10 +107,8 @@ function getEmptyStateHint(field, allData, months) {
     return 'Chưa có hợp đồng nào ký trong kỳ. Cập nhật ngày ký khi có hợp đồng.';
   }
   if (field === 'hoa_don_xuat') {
-    const dangXuLy = allKh.filter((kh) =>
-      kh.ngay_ky && !kh.ngay_xuat_hd && ['moi_ky', 'dang_xu_ly'].includes(kh.trang_thai),
-    ).length;
-    if (dangXuLy) return `${dangXuLy} KH đã ký, chưa xuất hoá đơn. Cập nhật khi xuất HĐ tài chính.`;
+    const chuaXuat = allKh.filter((kh) => kh.ngay_ky && !kh.ngay_xuat_hd).length;
+    if (chuaXuat) return `${chuaXuat} KH đã ký, chưa xuất hoá đơn. Tick "Đã xuất HĐ" trong form KH khi xuất.`;
     if (totalKh === 0) return 'Chưa có khách hàng nào để xuất hoá đơn.';
     return 'Chưa hoá đơn nào xuất trong kỳ.';
   }

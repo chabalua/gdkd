@@ -23,14 +23,13 @@ export const PAGE_META = {
   settings: { title: 'Thiết Lập', kicker: 'Dashboard / Thiết lập' },
 };
 
-// Pipeline 7 trạng thái 1 chiều: Xuất hoá đơn xảy ra giữa "đang xử lý" và "chờ giao"
-// (HĐ tài chính xuất ra để khách thanh toán, trước khi xe sẵn sàng giao).
-// Thứ tự khai báo = thứ tự pipeline. Mọi nơi cần order/index dùng KH_STATUS_ORDER.
+// Pipeline 6 trạng thái 1 chiều. "Xuất hoá đơn" KHÔNG nằm ở đây — nó là
+// cờ độc lập (kh.ngay_xuat_hd) vì có thể xảy ra song song bất kỳ status nào,
+// và để không bị mất khi user chuyển status (gây tụt KPI Hoá đơn xuất).
 export const KH_STATUS_META = {
   du_ky:      ['🟡 Dự ký',       'is-warning'],
   moi_ky:     ['🔵 Mới ký',      'is-info'],
   dang_xu_ly: ['🟠 Đang xử lý',  'is-warning'],
-  xuat_hd:    ['🧾 Xuất HĐ',     'is-info'],
   cho_giao:   ['🔵 Chờ giao',    'is-purple'],
   da_giao:    ['🟢 Đã giao',     'is-success'],
   dong_cskh:  ['✅ Đóng CSKH',   'is-success'],

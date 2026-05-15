@@ -118,11 +118,11 @@ export function openCustomerModal(customerId, prefillOptions) {
     .filter((channel) => channel.loai !== 'hoat_dong')
     .map((channel) => ({ value: channel.id, label: channel.label }));
 
-  // Xuất HĐ (hoá đơn) xảy ra trước "Chờ giao". Status >= xuat_hd cần nhập ngày xuất HĐ.
-  // Status >= da_giao cần nhập ngày giao thực tế. CSKH chỉ làm sau khi đã giao xe.
-  const showXuatHd = ['xuat_hd', 'cho_giao', 'da_giao', 'dong_cskh'].includes(draft.trang_thai);
+  // Xuất hoá đơn là cờ độc lập với pipeline — KH có thể xuất HĐ ở bất kỳ status nào.
+  // Field ngày xuất HĐ luôn hiện (cùng cụm với checkbox), không gắn với trạng thái.
   const showGiao = ['da_giao', 'dong_cskh'].includes(draft.trang_thai);
   const showCskh = showGiao;
+  const daXuatHd = Boolean(draft.ngay_xuat_hd);
 
   const formHtml = [
     `<h3 class="modal-title">${existing ? 'Cập nhật khách hàng' : 'Thêm khách hàng'}</h3>`,
@@ -150,11 +150,18 @@ export function openCustomerModal(customerId, prefillOptions) {
     `</div>`,
     createField('Ngày ký HĐ', 'ngay_ky', 'date', draft.ngay_ky || ''),
     createField('Dự kiến giao xe', 'ngay_giao_du_kien', 'date', draft.ngay_giao_du_kien || ''),
-    `<div id="field-ngay-xuat-hd" class="field-toggle${showXuatHd ? '' : ' is-hidden'}">`,
-    createField('Ngày xuất hoá đơn', 'ngay_xuat_hd', 'date', draft.ngay_xuat_hd || ''),
-    `</div>`,
     `<div id="field-ngay-giao-thuc-te" class="field-toggle${showGiao ? '' : ' is-hidden'}">`,
     createField('Ngày giao thực tế', 'ngay_giao_thuc_te', 'date', draft.ngay_giao_thuc_te || ''),
+    `</div>`,
+    '</fieldset>',
+
+    '<fieldset class="customer-form-section"><legend>🧾 Hoá đơn</legend>',
+    '<label class="field xhd-toggle-row">',
+    `<input type="checkbox" name="da_xuat_hd"${daXuatHd ? ' checked' : ''} data-toggle-xhd>`,
+    '<span class="field-label is-inline">Đã xuất hoá đơn</span>',
+    '</label>',
+    `<div id="field-ngay-xuat-hd" class="field-toggle${daXuatHd ? '' : ' is-hidden'}">`,
+    createField('Ngày xuất hoá đơn', 'ngay_xuat_hd', 'date', draft.ngay_xuat_hd || ''),
     `</div>`,
     '</fieldset>',
 
@@ -252,22 +259,35 @@ export function openCustomerModal(customerId, prefillOptions) {
   function toggleConditionalFields() {
     const val = statusSelect.value;
     const isDuKy = val === 'du_ky';
-    const isXuatHd = ['xuat_hd', 'cho_giao', 'da_giao', 'dong_cskh'].includes(val);
     const isGiao = ['da_giao', 'dong_cskh'].includes(val);
     root.querySelector('#field-ngay-du-kien-ky').classList.toggle('is-hidden', !isDuKy);
-    root.querySelector('#field-ngay-xuat-hd').classList.toggle('is-hidden', !isXuatHd);
     root.querySelector('#field-ngay-giao-thuc-te').classList.toggle('is-hidden', !isGiao);
     root.querySelector('#cskh-section').classList.toggle('is-hidden', !isGiao);
 
-    // Auto-fill ngày hôm nay nếu user vừa mở status mà field còn rỗng.
-    // User có thể sửa lại. Tránh quên nhập → KPI không nhảy số.
+    // Auto-fill ngày giao = hôm nay khi user vừa chuyển sang Đã giao mà field rỗng.
     const today = new Date().toISOString().slice(0, 10);
-    const xuatHdInput = root.querySelector('[name="ngay_xuat_hd"]');
     const giaoInput = root.querySelector('[name="ngay_giao_thuc_te"]');
-    if (isXuatHd && xuatHdInput && !xuatHdInput.value) xuatHdInput.value = today;
     if (isGiao && giaoInput && !giaoInput.value) giaoInput.value = today;
   }
   statusSelect.addEventListener('change', toggleConditionalFields);
+
+  // Checkbox "Đã xuất HĐ" — độc lập với pipeline trạng thái.
+  // Tick: hiện field ngày + auto-fill hôm nay (nếu rỗng).
+  // Bỏ tick: ẩn field, clear ngày (để KPI bỏ đếm KH này).
+  const xhdCheckbox = root.querySelector('[data-toggle-xhd]');
+  xhdCheckbox.addEventListener('change', () => {
+    const fieldWrap = root.querySelector('#field-ngay-xuat-hd');
+    const xhdInput = root.querySelector('[name="ngay_xuat_hd"]');
+    if (xhdCheckbox.checked) {
+      fieldWrap.classList.remove('is-hidden');
+      if (xhdInput && !xhdInput.value) {
+        xhdInput.value = new Date().toISOString().slice(0, 10);
+      }
+    } else {
+      fieldWrap.classList.add('is-hidden');
+      if (xhdInput) xhdInput.value = '';
+    }
+  });
   xeSelect.addEventListener('change', () => {
     const currentColor = root.querySelector('[name="mau_xe"]')?.value || '';
     root.querySelector('#customer-xe-color-field').innerHTML = renderXeColorField(allData, xeSelect.value, currentColor);
@@ -302,13 +322,15 @@ export function openCustomerModal(customerId, prefillOptions) {
 
     const trangThai = trimmedValue(fd, 'trang_thai');
     const ngayGiaoThucTe = trimmedValue(fd, 'ngay_giao_thuc_te');
-    const ngayXuatHd = trimmedValue(fd, 'ngay_xuat_hd');
-    if (['xuat_hd', 'cho_giao', 'da_giao', 'dong_cskh'].includes(trangThai) && !ngayXuatHd) {
-      showToast('Đã xuất hoá đơn rồi, vui lòng nhập ngày xuất hoá đơn.', 'warning');
-      return;
-    }
+    // ngay_xuat_hd chỉ lưu khi checkbox đã tick. Nếu untick thì coi như chưa xuất.
+    const daXuatHdChecked = fd.get('da_xuat_hd') === 'on';
+    const ngayXuatHd = daXuatHdChecked ? trimmedValue(fd, 'ngay_xuat_hd') : '';
     if (['da_giao', 'dong_cskh'].includes(trangThai) && !ngayGiaoThucTe) {
       showToast('Khi trạng thái là đã giao hoặc đóng CSKH, cần nhập ngày giao thực tế.', 'warning');
+      return;
+    }
+    if (daXuatHdChecked && !ngayXuatHd) {
+      showToast('Đã tick "Đã xuất hoá đơn", vui lòng nhập ngày xuất.', 'warning');
       return;
     }
 

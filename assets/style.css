@@ -4108,3 +4108,29 @@ img {
     font-size: 1.5rem;
   }
 }
+
+/* === Checkbox "Đã xuất hoá đơn" trong form KH === */
+.xhd-toggle-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: rgba(232, 160, 32, 0.06);
+  border: 1px solid rgba(232, 160, 32, 0.25);
+  border-radius: var(--radius);
+  cursor: pointer;
+  margin-bottom: 8px;
+}
+.xhd-toggle-row input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  accent-color: var(--accent);
+  margin: 0;
+}
+.xhd-toggle-row .field-label.is-inline {
+  margin: 0;
+  font-weight: 600;
+  cursor: pointer;
+}
