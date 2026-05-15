@@ -196,14 +196,7 @@ export function getKpiSegments(allData, kpiField, months) {
     if (kpiField === 'xe_ky_moi') {
       value = allKh.filter((kh) => kh.nhan_vien_id === nv.id && kh.ngay_ky && monthSet.has(kh.ngay_ky.slice(0, 7))).length;
     } else if (kpiField === 'hd_xuat_thang') {
-      // Đếm KH có ngay_xuat_hd trong tháng. Fallback: status đã ở xuat_hd/dong_cskh
-      // nhưng thiếu ngay_xuat_hd thì dùng ngay_giao_thuc_te (backward compat).
-      value = allKh.filter((kh) => {
-        if (kh.nhan_vien_id !== nv.id) return false;
-        const xuatDate = kh.ngay_xuat_hd
-          || ((kh.trang_thai === 'xuat_hd' || kh.trang_thai === 'dong_cskh') ? kh.ngay_giao_thuc_te : null);
-        return xuatDate && monthSet.has(xuatDate.slice(0, 7));
-      }).length;
+      value = allKh.filter((kh) => kh.nhan_vien_id === nv.id && kh.ngay_giao_thuc_te && monthSet.has(kh.ngay_giao_thuc_te.slice(0, 7))).length;
     } else if (kpiField === 'hd_ton') {
       const minMonth = months[0];
       value = allKh.filter((kh) =>

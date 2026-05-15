@@ -102,7 +102,6 @@ export function openCustomerModal(customerId, prefillOptions) {
     trang_thai: prefillStatus || 'du_ky',
     ngay_du_kien_ky: '', ngay_ky: '',
     ngay_giao_du_kien: '', ngay_giao_thuc_te: '',
-    ngay_xuat_hd: '',
     hinh_thuc_tt: 'vay_von', ngan_hang: '',
     so_tien_vay: 0, muc_dong_mong_muon: 0,
     so_hd: '',
@@ -118,10 +117,9 @@ export function openCustomerModal(customerId, prefillOptions) {
     .filter((channel) => channel.loai !== 'hoat_dong')
     .map((channel) => ({ value: channel.id, label: channel.label }));
 
-  // xuat_hd có thể xảy ra song song với đã giao hoặc chưa giao xe — không ràng buộc.
+  // xuat_hd là cột mốc đánh dấu — không yêu cầu nhập field nào thêm.
   // CSKH chỉ làm sau khi đã giao xe thực sự.
   const showGiao = ['da_giao', 'dong_cskh'].includes(draft.trang_thai);
-  const showXuatHd = ['xuat_hd', 'dong_cskh'].includes(draft.trang_thai);
   const showCskh = showGiao;
 
   const formHtml = [
@@ -152,9 +150,6 @@ export function openCustomerModal(customerId, prefillOptions) {
     createField('Dự kiến giao xe', 'ngay_giao_du_kien', 'date', draft.ngay_giao_du_kien || ''),
     `<div id="field-ngay-giao-thuc-te" class="field-toggle${showGiao ? '' : ' is-hidden'}">`,
     createField('Ngày giao thực tế', 'ngay_giao_thuc_te', 'date', draft.ngay_giao_thuc_te || ''),
-    `</div>`,
-    `<div id="field-ngay-xuat-hd" class="field-toggle${showXuatHd ? '' : ' is-hidden'}">`,
-    createField('Ngày xuất hoá đơn', 'ngay_xuat_hd', 'date', draft.ngay_xuat_hd || ''),
     `</div>`,
     '</fieldset>',
 
@@ -253,10 +248,8 @@ export function openCustomerModal(customerId, prefillOptions) {
     const val = statusSelect.value;
     const isDuKy = val === 'du_ky';
     const isGiao = ['da_giao', 'dong_cskh'].includes(val);
-    const isXuatHd = ['xuat_hd', 'dong_cskh'].includes(val);
     root.querySelector('#field-ngay-du-kien-ky').classList.toggle('is-hidden', !isDuKy);
     root.querySelector('#field-ngay-giao-thuc-te').classList.toggle('is-hidden', !isGiao);
-    root.querySelector('#field-ngay-xuat-hd').classList.toggle('is-hidden', !isXuatHd);
     root.querySelector('#cskh-section').classList.toggle('is-hidden', !isGiao);
   }
   statusSelect.addEventListener('change', toggleConditionalFields);
@@ -294,13 +287,8 @@ export function openCustomerModal(customerId, prefillOptions) {
 
     const trangThai = trimmedValue(fd, 'trang_thai');
     const ngayGiaoThucTe = trimmedValue(fd, 'ngay_giao_thuc_te');
-    const ngayXuatHd = trimmedValue(fd, 'ngay_xuat_hd');
     if (['da_giao', 'dong_cskh'].includes(trangThai) && !ngayGiaoThucTe) {
       showToast('Khi trạng thái là đã giao hoặc đóng CSKH, cần nhập ngày giao thực tế.', 'warning');
-      return;
-    }
-    if (['xuat_hd', 'dong_cskh'].includes(trangThai) && !ngayXuatHd) {
-      showToast('Khi trạng thái là xuất HĐ hoặc đóng CSKH, cần nhập ngày xuất hoá đơn.', 'warning');
       return;
     }
 
@@ -320,7 +308,6 @@ export function openCustomerModal(customerId, prefillOptions) {
       ngay_ky: trimmedValue(fd, 'ngay_ky') || null,
       ngay_giao_du_kien: trimmedValue(fd, 'ngay_giao_du_kien') || null,
       ngay_giao_thuc_te: ngayGiaoThucTe || null,
-      ngay_xuat_hd: ngayXuatHd || null,
       hinh_thuc_tt: trimmedValue(fd, 'hinh_thuc_tt'),
       ngan_hang: trimmedValue(fd, 'ngan_hang'),
       so_tien_vay: numberValue(fd.get('so_tien_vay')),
