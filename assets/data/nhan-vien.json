@@ -1097,16 +1097,64 @@
               "sr_tiep_khach": {
                 "muc_tieu": 0,
                 "thuc_te": 1
+              },
+              "tiktok": {
+                "muc_tieu": 0,
+                "thuc_te": 1
+              },
+              "fb_ca_nhan": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "sr": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "so_tien_chay_quang_cao": {
+                "muc_tieu": 0,
+                "thuc_te": 0
               }
             },
             "2": {
               "sr_tiep_khach": {
                 "muc_tieu": 0,
+                "thuc_te": 1
+              },
+              "tiktok": {
+                "muc_tieu": 0,
                 "thuc_te": 0
+              },
+              "fb_ca_nhan": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "sr": {
+                "muc_tieu": 0,
+                "thuc_te": 6
+              },
+              "so_tien_chay_quang_cao": {
+                "muc_tieu": 0,
+                "thuc_te": 500000
               }
             },
             "3": {
               "sr_tiep_khach": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "tiktok": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "fb_ca_nhan": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "sr": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "so_tien_chay_quang_cao": {
                 "muc_tieu": 0,
                 "thuc_te": 0
               }
@@ -1115,10 +1163,42 @@
               "sr_tiep_khach": {
                 "muc_tieu": 0,
                 "thuc_te": 0
+              },
+              "tiktok": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "fb_ca_nhan": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "sr": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "so_tien_chay_quang_cao": {
+                "muc_tieu": 0,
+                "thuc_te": 0
               }
             },
             "5": {
               "sr_tiep_khach": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "tiktok": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "fb_ca_nhan": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "sr": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "so_tien_chay_quang_cao": {
                 "muc_tieu": 0,
                 "thuc_te": 0
               }
@@ -1205,11 +1285,11 @@
             "2": {
               "fb_ca_nhan": {
                 "muc_tieu": 0,
-                "thuc_te": 0
+                "thuc_te": 9
               },
               "so_tien_chay_quang_cao": {
                 "muc_tieu": 0,
-                "thuc_te": 0
+                "thuc_te": 978000
               }
             },
             "3": {
