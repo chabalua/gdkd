@@ -168,6 +168,31 @@ export function setEmployeeTaskWeekMetrics(employee, month, week, taskId, { muc_
   };
 }
 
+export function pruneEmployeeTasks(employee, allowedTaskIds) {
+  const allowedIds = new Set((allowedTaskIds || []).filter(Boolean));
+  employee.nhiem_vu_ids = Array.from(allowedIds);
+
+  Object.values(employee?.du_lieu || {}).forEach((monthBlock) => {
+    Object.values(monthBlock?.tuan || {}).forEach((weekBlock) => {
+      Object.keys(weekBlock || {}).forEach((taskId) => {
+        if (!allowedIds.has(taskId)) delete weekBlock[taskId];
+      });
+    });
+  });
+
+  Object.values(employee?.lead_theo_thang || {}).forEach((monthBlock) => {
+    Object.keys(monthBlock || {}).forEach((taskId) => {
+      if (!allowedIds.has(taskId)) delete monthBlock[taskId];
+    });
+  });
+
+  if (!allowedIds.has('so_video')) {
+    Object.values(employee?.noi_dung || {}).forEach((monthBlock) => {
+      if (monthBlock?.videos) monthBlock.videos = {};
+    });
+  }
+}
+
 // === Employee group helpers ===
 export function slugifyGroupId(value, fallbackIndex = 1) {
   const base = String(value || '')

@@ -152,7 +152,7 @@ function buildCompatEmployeeData(employee, taskLibrary, departments) {
         if (taskId === 'so_video' && actual) {
           contentData[month].videos.tong = numberValue(contentData[month].videos.tong) + actual;
         }
-        if (taskMap[taskId]?.loai !== 'hoat_dong') {
+        if (taskMap[taskId]?.loai === 'lead') {
           weeklyTarget += target;
         }
       });
@@ -195,7 +195,7 @@ function buildCompatMonthlyTargets(employees, taskLibrary) {
       let employeeLeadTarget = 0;
       Object.values(employee?.du_lieu?.[month]?.tuan || {}).forEach((weekBlock) => {
         Object.entries(weekBlock || {}).forEach(([taskId, metrics]) => {
-          if (taskMap[taskId]?.loai === 'hoat_dong') return;
+          if (taskMap[taskId]?.loai !== 'lead') return;
           employeeLeadTarget += numberValue(metrics?.muc_tieu);
         });
       });

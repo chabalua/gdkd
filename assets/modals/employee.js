@@ -4,7 +4,7 @@ import {
   escapeHtml, trimmedValue, numberValue, makeId, getCurrentMonth, showToast,
   createField, createSelectField, renderIcon,
 } from '../ui.js';
-import { ensureEmployeeMonth, NV_STATUS_META, LOAI_NHAN_SU_META, DEFAULT_LEAD_CHANNELS, getLeadChannels, ACTIVITY_UNIT_META, getEmployeeGroups, getActiveMonth, getEmployeeTaskMonthTarget, setEmployeeTaskMonthTarget } from '../models.js';
+import { ensureEmployeeMonth, NV_STATUS_META, LOAI_NHAN_SU_META, DEFAULT_LEAD_CHANNELS, getLeadChannels, ACTIVITY_UNIT_META, getEmployeeGroups, getActiveMonth, getEmployeeTaskMonthTarget, setEmployeeTaskMonthTarget, pruneEmployeeTasks } from '../models.js';
 import { appState, persistFile, rerenderApp } from '../app.js';
 
 function getDepartmentDrafts() {
@@ -356,7 +356,7 @@ export function openEmployeeTaskModal(nvId) {
       showToast('Chọn ít nhất 1 nhiệm vụ cho nhân viên.', 'warning');
       return;
     }
-    nv.nhiem_vu_ids = nextTaskIds;
+    pruneEmployeeTasks(nv, nextTaskIds);
     closeModal();
     await persistFile('nhan-vien.json', appState.data.nhanVien, 'Đã cập nhật nhiệm vụ cho nhân viên.');
     rerenderApp();
@@ -368,37 +368,38 @@ export function openManageModal(nvId) {
   const nv = appState.data.nhanVien.nhan_vien.find((n) => n.id === nvId);
   if (!nv) return;
   const month = getActiveMonth(appState.data);
-  let channels = getLeadChannels(appState.data).map((channel) => ({ ...channel }));
+  const departmentId = nv.phong_ban_id || nv.nhom_id || '';
+  const taskLibrary = (appState.data.config.nhiem_vu_lib || []).filter((task) => {
+    if (!Array.isArray(task?.phong_ban_ids) || !task.phong_ban_ids.length) return false;
+    return task.phong_ban_ids.includes(departmentId);
+  });
+  const channelMap = new Map(getLeadChannels(appState.data).map((channel) => [channel.id, { ...channel }]));
+  const assignedIds = Array.isArray(nv.nhiem_vu_ids) && nv.nhiem_vu_ids.length
+    ? nv.nhiem_vu_ids
+    : taskLibrary.map((task) => task.id);
+  const channels = assignedIds
+    .map((taskId) => channelMap.get(taskId) || (taskLibrary.find((task) => task.id === taskId)
+      ? {
+        id: taskId,
+        label: taskLibrary.find((task) => task.id === taskId)?.ten || taskId,
+        loai: taskLibrary.find((task) => task.id === taskId)?.loai || 'lead',
+        don_vi: taskLibrary.find((task) => task.id === taskId)?.don_vi || 'so',
+      }
+      : null))
+    .filter(Boolean);
   ensureEmployeeMonth(nv, month, channels);
   const [yr, mn] = month.split('-');
-  let nextNewId = 1;
-
-  const LOAI_OPTIONS = [
-    { value: 'lead', label: 'Kênh lead' },
-    { value: 'hoat_dong', label: 'Chỉ tiêu hoạt động' },
-  ];
-
-  const DON_VI_OPTIONS = Object.entries(ACTIVITY_UNIT_META).map(([value, label]) => ({ value, label }));
 
   function renderChannelRows(list) {
     return list.map((ch, i) => [
       `<div class="channel-edit-row" data-channel-index="${i}">`,
-      `<input class="input" type="text" value="${escapeHtml(ch.label)}" data-channel-label data-idx="${i}" placeholder="Tên nội dung">`,
-      `<select class="select" data-channel-loai data-idx="${i}">`,
-      LOAI_OPTIONS.map((opt) => `<option value="${opt.value}"${(ch.loai || 'lead') === opt.value ? ' selected' : ''}>${escapeHtml(opt.label)}</option>`).join(''),
-      '</select>',
-      `<select class="select" data-channel-unit data-idx="${i}" ${(ch.loai || 'lead') === 'hoat_dong' ? '' : 'disabled'}>`,
-      DON_VI_OPTIONS.map((opt) => `<option value="${opt.value}"${(ch.don_vi || 'so') === opt.value ? ' selected' : ''}>${escapeHtml(opt.label)}</option>`).join(''),
-      '</select>',
+      `<input class="input" type="text" value="${escapeHtml(ch.label)}" disabled aria-label="Tên nhiệm vụ ${i + 1}">`,
+      `<input class="input" type="text" value="${escapeHtml(ch.loai === 'hoat_dong' ? 'Chỉ tiêu hoạt động' : 'Kênh lead')}" disabled aria-label="Loại nhiệm vụ ${i + 1}">`,
+      `<input class="input" type="text" value="${escapeHtml(ACTIVITY_UNIT_META[ch.don_vi] || 'Số')}" disabled aria-label="Đơn vị nhiệm vụ ${i + 1}">`,
       `<input class="input" type="number" min="0" ${ch.don_vi === 'gio' ? 'step="0.5"' : ch.don_vi === 'tien' ? 'step="1000"' : ''} name="ch_${escapeHtml(ch.id)}" value="${escapeHtml(getEmployeeTaskMonthTarget(nv, month, ch.id) || 0)}" placeholder="Mục tiêu">`,
-      `<button type="button" class="btn-icon is-danger" data-delete-channel="${i}" aria-label="Xoá nội dung này" title="Xoá nội dung này">${renderIcon('x', { size: 14 })}</button>`,
+      '<span></span>',
       '</div>',
     ].join('')).join('');
-  }
-
-  function slugify(label) {
-    return label.normalize('NFD').replace(/[\u0300-\u036f\u1ea0-\u1ef9]/g, '').replace(/[đĐ]/g, 'd')
-      .toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '').slice(0, 30) || `ch_${Date.now()}`;
   }
 
   showModal([
@@ -407,24 +408,14 @@ export function openManageModal(nvId) {
     '<form data-manage-form class="stack-list form-grid-two">',
     `<input type="hidden" name="nv_id" value="${escapeHtml(nvId)}">`,
     '<div class="field" style="grid-column:1/-1">',
-    '<div class="field-label">Danh sách nội dung lead / hoạt động</div>',
-    '<div class="modal-copy" style="margin:0">Mỗi dòng gồm tên nội dung, loại, đơn vị và mục tiêu. Nếu là chỉ tiêu hoạt động, chọn đơn vị giờ, lượt hoặc tiền để toàn bộ app và dashboard hiểu đúng dữ liệu.</div>',
+    '<div class="field-label">Mục tiêu theo nhiệm vụ đã gán</div>',
+    '<div class="modal-copy" style="margin:0">Modal này chỉ cập nhật mục tiêu tháng cho nhân viên hiện tại. Thư viện nhiệm vụ dùng chung được quản lý ở Thiết lập để tránh ghi đè logic toàn app.</div>',
     '</div>',
     '<div class="channel-manage-head" style="grid-column:1/-1">',
     '<span>Tên nội dung</span><span>Loại</span><span>Đơn vị</span><span>Mục tiêu</span><span></span>',
     '</div>',
     '<div data-channels-list class="channel-manage-list" style="grid-column:1/-1">',
     renderChannelRows(channels),
-    '</div>',
-    '<div class="channel-add-row" style="grid-column:1/-1">',
-    '<input class="input" type="text" id="new-channel-name" placeholder="Tên nội dung mới...">',
-    '<select class="select" id="new-channel-loai">',
-    LOAI_OPTIONS.map((opt) => `<option value="${opt.value}">${escapeHtml(opt.label)}</option>`).join(''),
-    '</select>',
-    '<select class="select" id="new-channel-unit">',
-    DON_VI_OPTIONS.map((opt) => `<option value="${opt.value}">${escapeHtml(opt.label)}</option>`).join(''),
-    '</select>',
-    `<button type="button" class="btn btn-soft" data-add-channel>${renderIcon('plus', { size: 14 })} Thêm</button>`,
     '</div>',
     '<div class="button-row" style="grid-column:1/-1">',
     '<button type="button" class="btn btn-ghost" data-modal-cancel>Huỷ</button>',
@@ -433,49 +424,6 @@ export function openManageModal(nvId) {
   ].join(''), { cardClass: 'is-wide' });
 
   const root = getModalRoot();
-  const listEl = root.querySelector('[data-channels-list]');
-  const newNameInput = root.querySelector('#new-channel-name');
-  const newLoaiSelect = root.querySelector('#new-channel-loai');
-  const newUnitSelect = root.querySelector('#new-channel-unit');
-
-  function syncUnitState(row) {
-    const loaiSelect = row.querySelector('[data-channel-loai]');
-    const unitSelect = row.querySelector('[data-channel-unit]');
-    if (!loaiSelect || !unitSelect) return;
-    const isActivity = loaiSelect.value === 'hoat_dong';
-    unitSelect.disabled = !isActivity;
-    if (!isActivity) {
-      unitSelect.value = 'so';
-    }
-  }
-
-  function refreshList() {
-    listEl.innerHTML = renderChannelRows(channels);
-    listEl.querySelectorAll('.channel-edit-row').forEach((row) => {
-      syncUnitState(row);
-      row.querySelector('[data-channel-loai]')?.addEventListener('change', () => syncUnitState(row));
-    });
-    listEl.querySelectorAll('[data-delete-channel]').forEach((btn) => {
-      btn.addEventListener('click', () => {
-        const idx = Number(btn.getAttribute('data-delete-channel'));
-        channels.splice(idx, 1);
-        refreshList();
-      });
-    });
-  }
-  refreshList();
-
-  root.querySelector('[data-add-channel]').addEventListener('click', () => {
-    const label = newNameInput.value.trim();
-    if (!label) return;
-    const existingIds = channels.map((c) => c.id);
-    let id = slugify(label);
-    while (existingIds.includes(id)) id = `${id}_${nextNewId++}`;
-    const loai = newLoaiSelect.value === 'hoat_dong' ? 'hoat_dong' : 'lead';
-    channels.push({ id, label, loai, don_vi: loai === 'hoat_dong' ? (newUnitSelect.value || 'so') : 'so' });
-    newNameInput.value = '';
-    refreshList();
-  });
 
   root.querySelector('[data-modal-cancel]').addEventListener('click', closeModal, { once: true });
 
@@ -483,34 +431,6 @@ export function openManageModal(nvId) {
     ev.preventDefault();
     const fd = new FormData(ev.currentTarget);
 
-    // 1. Collect edited channel labels + loai from DOM
-    const labelInputs = listEl.querySelectorAll('[data-channel-label]');
-    const loaiSelects = listEl.querySelectorAll('[data-channel-loai]');
-    labelInputs.forEach((inp) => {
-      const idx = Number(inp.getAttribute('data-idx'));
-      if (channels[idx]) channels[idx].label = inp.value.trim() || channels[idx].label;
-    });
-    loaiSelects.forEach((sel) => {
-      const idx = Number(sel.getAttribute('data-idx'));
-      if (channels[idx]) channels[idx].loai = sel.value;
-    });
-    listEl.querySelectorAll('[data-channel-unit]').forEach((sel) => {
-      const idx = Number(sel.getAttribute('data-idx'));
-      if (channels[idx]) channels[idx].don_vi = channels[idx].loai === 'hoat_dong' ? (sel.value || 'so') : 'so';
-    });
-    const existingTaskMap = new Map((appState.data.config.nhiem_vu_lib || []).map((task) => [task.id, task]));
-    appState.data.config.lead_channels = channels;
-    appState.data.config.nhiem_vu_lib = channels.map((channel) => ({
-      id: channel.id,
-      ten: channel.label,
-      loai: channel.loai === 'hoat_dong' ? 'hoat_dong' : 'lead',
-      don_vi: channel.loai === 'hoat_dong' ? (channel.don_vi || 'so') : 'so',
-      phong_ban_ids: Array.isArray(existingTaskMap.get(channel.id)?.phong_ban_ids) && existingTaskMap.get(channel.id).phong_ban_ids.length
-        ? existingTaskMap.get(channel.id).phong_ban_ids
-        : [nv.phong_ban_id || nv.nhom_id || 'kd_1'],
-    }));
-
-    // 2. Update mục tiêu in nv data
     const nvIdx = appState.data.nhanVien.nhan_vien.findIndex((n) => n.id === nvId);
     if (nvIdx >= 0) {
       const emp = appState.data.nhanVien.nhan_vien[nvIdx];
@@ -522,9 +442,7 @@ export function openManageModal(nvId) {
     }
 
     closeModal();
-    // Save both config (channels) and nv data
-    await persistFile('config.json', appState.data.config, null);
-    await persistFile('nhan-vien.json', appState.data.nhanVien, 'Đã lưu mục tiêu và danh sách kênh.');
+    await persistFile('nhan-vien.json', appState.data.nhanVien, 'Đã lưu mục tiêu nhiệm vụ.');
     rerenderApp();
   });
 }

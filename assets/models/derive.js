@@ -317,6 +317,7 @@ export function getGroupSummaries(allData, months) {
   if (!months?.length) return [];
   const allKh = filterValidKh(allData?.khachHang?.khach_hang);
   const leadChannels = getLeadMetricChannels(allData);
+  const activityChannels = getLeadChannels(allData).filter((channel) => channel.loai === 'hoat_dong');
   const groups = getEmployeeGroups(allData);
   const monthSet = new Set(months);
   const minMonth = months[0];
@@ -336,11 +337,26 @@ export function getGroupSummaries(allData, months) {
       !isDeliveredStatus(kh.trang_thai)
     ).length;
     const lead = members.reduce((sum, member) => sum + months.reduce((monthSum, month) => monthSum + getEmployeeLeadTotal(member, month, leadChannels), 0), 0);
-    const gio_live = members.reduce((sum, member) => sum + months.reduce((monthSum, month) => monthSum + getEmployeeActivityTotal(member, month, 'gio_live'), 0), 0);
-    const luot_lai_thu = members.reduce((sum, member) => sum + months.reduce((monthSum, month) => monthSum + getEmployeeActivityTotal(member, month, 'luot_lai_thu'), 0), 0);
-    const so_tien_qc = members.reduce((sum, member) => sum + months.reduce((monthSum, month) => {
-      return monthSum + getEmployeeTaskMonthActualByIds(member, month, ['so_tien_chay_quang_cao', 'so_tien_qc']);
-    }, 0), 0);
+    const activityTotals = Object.fromEntries(activityChannels.map((channel) => [channel.id, {
+      id: channel.id,
+      label: channel.label,
+      don_vi: channel.don_vi || 'so',
+      thuc_te: 0,
+    }]));
+    activityChannels.forEach((channel) => {
+      activityTotals[channel.id].thuc_te = members.reduce((sum, member) => sum + months.reduce((monthSum, month) => {
+        if (channel.id === 'so_tien_qc') {
+          return monthSum + getEmployeeTaskMonthActualByIds(member, month, ['so_tien_chay_quang_cao', 'so_tien_qc']);
+        }
+        if (channel.id === 'so_tien_chay_quang_cao') {
+          return monthSum + getEmployeeTaskMonthActualByIds(member, month, ['so_tien_chay_quang_cao', 'so_tien_qc']);
+        }
+        return monthSum + getEmployeeActivityTotal(member, month, channel.id);
+      }, 0), 0);
+    });
+    const gio_live = activityTotals.gio_live?.thuc_te || 0;
+    const luot_lai_thu = activityTotals.luot_lai_thu?.thuc_te || 0;
+    const so_tien_qc = activityTotals.so_tien_chay_quang_cao?.thuc_te || activityTotals.so_tien_qc?.thuc_te || 0;
     const target_xe_ky = members.reduce((sum, member) => sum + getEmployeeTargetTotal(allData, member, months, 'xe_ky_moi'), 0);
     const target_lead = members.reduce((sum, member) => sum + getEmployeeWeeklyTargetTotal(allData, member, months, { loai: 'lead' }), 0);
     const pct_xe_ky = target_lead > 0 ? calcPercent(lead, target_lead) : (target_xe_ky > 0 ? calcPercent(xe_ky, target_xe_ky) : null);
@@ -359,6 +375,7 @@ export function getGroupSummaries(allData, months) {
       du_ky,
       hd_ton,
       lead,
+      hoat_dong: Object.values(activityTotals).filter((item) => item.thuc_te > 0),
       gio_live,
       luot_lai_thu,
       so_tien_qc,

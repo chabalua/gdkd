@@ -1,5 +1,5 @@
 import { showModal, closeModal, getModalRoot, escapeHtml, showToast, renderIcon } from '../ui.js';
-import { ACTIVITY_UNIT_META, getEmployeeGroups } from '../models.js';
+import { ACTIVITY_UNIT_META, getEmployeeGroups, pruneEmployeeTasks } from '../models.js';
 import { appState, persistFile, rerenderApp } from '../app.js';
 
 const TASK_TYPE_META = {
@@ -43,18 +43,7 @@ function syncEmployeesWithTaskLibrary(tasks, departments) {
       const task = taskMap.get(taskId);
       return validTaskIds.has(taskId) && task?.phong_ban_ids.includes(departmentId);
     });
-    employee.nhiem_vu_ids = nextTaskIds.length ? nextTaskIds : allowedTaskIds;
-
-    Object.values(employee.du_lieu || {}).forEach((monthBlock) => {
-      Object.values(monthBlock?.tuan || {}).forEach((weekBlock) => {
-        Object.keys(weekBlock || {}).forEach((taskId) => {
-          const task = taskMap.get(taskId);
-          if (!task || !task.phong_ban_ids.includes(departmentId)) {
-            delete weekBlock[taskId];
-          }
-        });
-      });
-    });
+    pruneEmployeeTasks(employee, nextTaskIds.length ? nextTaskIds : allowedTaskIds);
   });
 }
 
