@@ -4520,15 +4520,16 @@ body {
 }
 body[data-sidebar="collapsed"] .sidebar-toggle { transform: rotate(180deg); }
 
-/* === Bottom-nav: chỉ 5 mục mobile, ẩn 2 mục phụ === */
+/* === Bottom-nav: chỉ 5 mục mobile, ẩn Công việc + CSKH (sidebar desktop có đủ) === */
 .bottom-nav {
   background: rgba(255, 255, 255, 0.98);
   border-top: 1px solid var(--border);
   grid-template-columns: repeat(5, minmax(0, 1fr));
 }
 
-.bottom-nav .nav-link[data-id="xe"],
-.bottom-nav .nav-link[data-id="congviec"] {
+/* Mobile: ẩn Công việc + CSKH (ít dùng), giữ Tổng quan/KPI/Xe/NV/KH */
+.bottom-nav .nav-link[data-id="congviec"],
+.bottom-nav .nav-link[data-id="cskh"] {
   display: none;
 }
 
