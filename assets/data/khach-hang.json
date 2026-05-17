@@ -264,18 +264,23 @@
       "ngay_ky": "2026-04-13",
       "ngay_giao_du_kien": "2026-05-26",
       "ngay_giao_thuc_te": null,
-      "ngay_xuat_hd": null,
+      "ngay_xuat_hd": "2026-04-29",
       "hinh_thuc_tt": "vay_von",
       "ngan_hang": "VP Bank",
       "so_tien_vay": 538999999,
       "muc_dong_mong_muon": 0,
-      "so_hd": "",
+      "so_hd": "07-100426/HĐMB-NCDN",
       "kenh_lead": "sr_tiep_khach",
       "tien_do": [
         {
           "ngay": "2026-05-14",
           "buoc": 1,
           "noi_dung": "Đang xử lý biển định danh của khách hàng"
+        },
+        {
+          "ngay": "2026-05-17",
+          "buoc": 2,
+          "noi_dung": "Tuần sau mới có thể xử lý định danh được, hẹn thứ 3 check lại"
         }
       ],
       "cskh": []
