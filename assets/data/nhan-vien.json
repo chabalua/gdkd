@@ -954,11 +954,11 @@
             "2": {
               "fb_ca_nhan": {
                 "muc_tieu": 0,
-                "thuc_te": 25
+                "thuc_te": 26
               },
               "mkt_cty": {
                 "muc_tieu": 0,
-                "thuc_te": 2
+                "thuc_te": 0
               },
               "sr": {
                 "muc_tieu": 0,
