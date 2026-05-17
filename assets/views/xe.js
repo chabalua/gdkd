@@ -3,7 +3,7 @@
 // KH (transaction) sẽ tham chiếu xe.id qua FK ở bước 4.
 
 import { renderShell, renderEmptyState, renderTableEmptyRow } from './shell.js';
-import { escapeHtml, formatCurrency } from '../ui.js';
+import { escapeHtml, formatCurrency, renderIcon } from '../ui.js';
 import { XE_STATUS_META, countKhByXeId, formatXeColorSummary, formatXeFullName } from '../models.js';
 
 export default function renderXePage(data) {
@@ -36,8 +36,8 @@ export default function renderXePage(data) {
         `<td><span class="badge ${meta[1]}">${escapeHtml(meta[0])}</span></td>`,
         `<td class="is-number">${refCount}</td>`,
         '<td><div class="button-row">',
-        `<button type="button" class="btn btn-soft" data-action="open-xe-edit" data-id="${escapeHtml(xe.id)}">Chỉnh sửa</button>`,
-        `<button type="button" class="btn btn-danger" data-action="delete-xe" data-id="${escapeHtml(xe.id)}" ${refCount > 0 ? 'disabled title="Có KH đang dùng xe này"' : ''}>Xoá</button>`,
+        `<button type="button" class="btn-icon" data-action="open-xe-edit" data-id="${escapeHtml(xe.id)}" aria-label="Chỉnh sửa" title="Chỉnh sửa">${renderIcon('edit', { size: 16 })}</button>`,
+        `<button type="button" class="btn-icon is-danger" data-action="delete-xe" data-id="${escapeHtml(xe.id)}" ${refCount > 0 ? 'disabled title="Có KH đang dùng xe này"' : 'aria-label="Xoá" title="Xoá"'}>${renderIcon('trash', { size: 16 })}</button>`,
         '</div></td>',
         '</tr>',
       ].join('');
@@ -60,7 +60,7 @@ export default function renderXePage(data) {
 
     '<section class="section-header">',
     '<div><h3 class="section-title">Catalog xe</h3><p class="section-subtitle">Master data dùng làm dropdown khi nhập KH ở bước 4.</p></div>',
-    '<button type="button" class="btn btn-primary" data-action="open-xe-create">+ Thêm dòng xe</button>',
+    `<button type="button" class="btn btn-primary" data-action="open-xe-create">${renderIcon('plus', { size: 16 })} Thêm dòng xe</button>`,
     '</section>',
 
     '<section class="table-card">',

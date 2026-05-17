@@ -57,7 +57,7 @@ function renderTienDo(tienDo) {
     `<span class="customer-log-date">${escapeHtml(step.ngay || '')}</span>`,
     `<span class="customer-log-step">${step.buoc || ''}</span>`,
     `<span class="customer-log-content">${escapeHtml(step.noi_dung || '')}</span>`,
-    `<button type="button" class="btn btn-ghost btn-sm" data-delete-tiendo="${i}" title="Xoá bước này">✕</button>`,
+    `<button type="button" class="btn-icon is-danger" data-delete-tiendo="${i}" aria-label="Xoá bước này" title="Xoá bước này">${renderIcon('x', { size: 14 })}</button>`,
     '</div>',
   ].join('')).join('');
 }
@@ -73,7 +73,7 @@ function renderCskhList(cskhList) {
       '<div class="customer-feedback-head">',
       `<strong>${escapeHtml(c.ngay || '')} · ${escapeHtml(c.kenh || '')} · ${'⭐'.repeat(c.danh_gia || 0)}</strong>`,
       `<span class="badge ${statusMeta[1]}">${statusMeta[0]}</span>`,
-      `<button type="button" class="btn btn-ghost btn-sm" data-delete-cskh="${i}" title="Xoá phản hồi này">✕</button>`,
+      `<button type="button" class="btn-icon is-danger" data-delete-cskh="${i}" aria-label="Xoá phản hồi này" title="Xoá phản hồi này">${renderIcon('x', { size: 14 })}</button>`,
       `</div>`,
       c.phan_hoi ? `<p class="customer-feedback-line">${renderIcon('message-square', { size: 14 })} ${escapeHtml(c.phan_hoi)}</p>` : '',
       c.van_de ? `<p class="customer-feedback-line is-danger">${renderIcon('alert-triangle', { size: 14 })} ${escapeHtml(c.van_de)}</p>` : '',
@@ -180,7 +180,7 @@ export function openCustomerModal(customerId, prefillOptions) {
     '<fieldset class="customer-form-section"><legend>Tiến độ (Append-only)</legend>',
     `<div id="tien-do-list" class="button-row-bottom">${renderTienDo(draft.tien_do)}</div>`,
     '<div class="customer-subpanel">',
-    '<strong class="customer-subpanel-title">+ Thêm cập nhật mới</strong>',
+    '<strong class="customer-subpanel-title">Thêm cập nhật mới</strong>',
     createField('Ngày', 'td_ngay', 'date', new Date().toISOString().slice(0, 10)),
     createField('Bước (số)', 'td_buoc', 'number', String((draft.tien_do?.length || 0) + 1), 'min="1"'),
     createField('Nội dung', 'td_noi_dung', 'textarea', ''),
@@ -190,7 +190,7 @@ export function openCustomerModal(customerId, prefillOptions) {
     `<fieldset id="cskh-section" class="customer-form-section field-toggle${showCskh ? '' : ' is-hidden'}"><legend>CSKH sau giao xe</legend>`,
     `<div id="cskh-list" class="button-row-bottom">${renderCskhList(draft.cskh)}</div>`,
     '<div class="customer-subpanel">',
-    '<strong class="customer-subpanel-title">+ Thêm phản hồi CSKH</strong>',
+    '<strong class="customer-subpanel-title">Thêm phản hồi CSKH</strong>',
     createField('Ngày', 'cskh_ngay', 'date', new Date().toISOString().slice(0, 10)),
     createSelectField('Kênh', 'cskh_kenh', [
       { value: 'dien_thoai', label: 'Điện thoại' },

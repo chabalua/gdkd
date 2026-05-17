@@ -2,7 +2,7 @@
 import {
   showModal, closeModal, getModalRoot,
   escapeHtml, trimmedValue, numberValue, makeId, getCurrentMonth, showToast,
-  createField, createSelectField,
+  createField, createSelectField, renderIcon,
 } from '../ui.js';
 import { ensureEmployeeMonth, NV_STATUS_META, LOAI_NHAN_SU_META, DEFAULT_LEAD_CHANNELS, getLeadChannels, ACTIVITY_UNIT_META, getEmployeeGroups, getActiveMonth } from '../models.js';
 import { appState, persistFile, rerenderApp } from '../app.js';
@@ -392,7 +392,7 @@ export function openManageModal(nvId) {
       DON_VI_OPTIONS.map((opt) => `<option value="${opt.value}"${(ch.don_vi || 'so') === opt.value ? ' selected' : ''}>${escapeHtml(opt.label)}</option>`).join(''),
       '</select>',
       `<input class="input" type="number" min="0" ${ch.don_vi === 'gio' ? 'step="0.5"' : ch.don_vi === 'tien' ? 'step="1000"' : ''} name="ch_${escapeHtml(ch.id)}" value="${escapeHtml(lead[ch.id]?.muc_tieu || 0)}" placeholder="Mục tiêu">`,
-      `<button type="button" class="btn btn-ghost btn-sm" data-delete-channel="${i}" title="Xoá nội dung này">✕</button>`,
+      `<button type="button" class="btn-icon is-danger" data-delete-channel="${i}" aria-label="Xoá nội dung này" title="Xoá nội dung này">${renderIcon('x', { size: 14 })}</button>`,
       '</div>',
     ].join('')).join('');
   }
@@ -425,7 +425,7 @@ export function openManageModal(nvId) {
     '<select class="select" id="new-channel-unit">',
     DON_VI_OPTIONS.map((opt) => `<option value="${opt.value}">${escapeHtml(opt.label)}</option>`).join(''),
     '</select>',
-    '<button type="button" class="btn btn-soft" data-add-channel>+ Thêm</button>',
+    `<button type="button" class="btn btn-soft" data-add-channel>${renderIcon('plus', { size: 14 })} Thêm</button>`,
     '</div>',
     '<div class="button-row" style="grid-column:1/-1">',
     '<button type="button" class="btn btn-ghost" data-modal-cancel>Huỷ</button>',

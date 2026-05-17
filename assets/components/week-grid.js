@@ -1,4 +1,4 @@
-import { escapeHtml, calcPercent, getPercentClass } from '../ui.js';
+import { escapeHtml, calcPercent, getPercentClass, renderIcon } from '../ui.js';
 import { ACTIVITY_UNIT_META, getWeekOfMonth } from '../models.js';
 
 function getDaysInMonth(month) {
@@ -144,7 +144,7 @@ export function renderWeekGrid({ nvId, month, channels, data, canEdit }) {
     `<h3 class="table-title">Nhập tuần · ${escapeHtml(month)}</h3>`,
     `<p class="table-subtitle">${canEdit ? 'Nhập mục tiêu và số thực tế theo tuần, lưu tự động sau 600ms.' : 'Khoá nhập khi đang xem nhiều tháng. Chọn 1 tháng cụ thể để chỉnh.'}</p>`,
     '</div>',
-    `<div class="button-row"><button type="button" class="btn btn-soft" data-action="open-manage-modal" data-id="${escapeHtml(nvId)}"${canEdit ? '' : ' disabled'}>+ Gán thêm nhiệm vụ</button></div>`,
+    `<div class="button-row"><button type="button" class="btn btn-soft" data-action="open-manage-modal" data-id="${escapeHtml(nvId)}"${canEdit ? '' : ' disabled'}>${renderIcon('plus', { size: 14 })} Gán thêm nhiệm vụ</button></div>`,
     '</div>',
     '<div class="table-responsive lead-table-scroll desktop-lead-table">',
     '<table class="data-table data-table-lead">',

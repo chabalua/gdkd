@@ -4721,6 +4721,192 @@ body[data-sidebar="collapsed"] .sidebar-toggle { transform: rotate(180deg); }
 .progress-bar.is-warning { background: var(--color-warning); }
 .progress-bar.is-danger  { background: var(--color-danger); }
 
+/* === Icon utility classes === */
+.icon-rotate-180 { transform: rotate(180deg); }
+
+/* === Row actions: icon-only inline (table action cells) === */
+.btn-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  min-height: 0;
+  padding: 0;
+  border-radius: var(--radius-btn);
+  background: transparent;
+  color: var(--text-muted);
+  border: 1px solid transparent;
+  transition: background-color var(--transition-fast), color var(--transition-fast), border-color var(--transition-fast);
+}
+.btn-icon:hover {
+  background: var(--color-pale-gray);
+  color: var(--text-heading);
+  transform: none;
+}
+.btn-icon.is-danger {
+  color: var(--color-danger);
+}
+.btn-icon.is-danger:hover {
+  background: rgba(220, 38, 38, 0.10);
+  color: var(--color-danger);
+}
+.btn-icon:disabled,
+.btn-icon[disabled] {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.btn-icon:disabled:hover,
+.btn-icon[disabled]:hover {
+  background: transparent;
+}
+
+/* Row action cell: keep inline horizontally, no full-width stretch (override
+   mobile rule .btn { width: 100% } only for icon-only buttons trong table). */
+.btn-icon {
+  width: 32px !important;
+  flex: 0 0 32px !important;
+}
+
+/* Action cell button-row: inline gap nhỏ */
+td .button-row,
+td.button-row,
+.data-table .button-row {
+  flex-wrap: nowrap;
+  gap: 4px;
+  justify-content: flex-start;
+  margin: 0;
+}
+
+/* === Soften btn-danger (legacy full-button) — chỉ dùng trong confirm modal === */
+.btn-danger {
+  background: var(--color-danger);
+  color: #fff;
+}
+.btn-danger:hover {
+  background: #b91c1c;
+}
+/* "Xoá" trong row action giờ là .btn-icon.is-danger, không phải btn-danger fill. */
+
+/* === Sync chip topbar — pill compact, remove emoji dot === */
+.sync-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  min-height: 32px;
+  border-radius: var(--radius-full);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-semibold);
+  background: var(--color-pale-gray);
+  color: var(--text-muted);
+  border: none;
+}
+.sync-chip:hover {
+  background: #d8e3f1;
+  transform: none;
+}
+.sync-chip .sync-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: currentColor;
+  font-size: 0;
+  line-height: 0;
+  flex-shrink: 0;
+}
+.sync-chip.is-clean    { background: rgba(22, 163, 74, 0.10); color: var(--color-success); }
+.sync-chip.is-pending  { background: rgba(245, 158, 11, 0.14); color: var(--color-warning); }
+.sync-chip.is-syncing  { background: rgba(0, 107, 255, 0.10); color: var(--accent); }
+.sync-chip.is-no-config { background: var(--color-pale-gray); color: var(--text-muted); }
+.sync-chip.is-syncing .sync-dot {
+  animation: sync-spin 1s linear infinite;
+  background: transparent;
+  border: 2px solid currentColor;
+  border-top-color: transparent;
+  border-radius: 50%;
+  width: 12px;
+  height: 12px;
+}
+
+/* === Brand subtitle in sidebar — softer === */
+.brand-subtitle {
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 0.72rem;
+  font-weight: var(--fw-medium);
+}
+
+/* === Sidebar logout — secondary style === */
+.sidebar-logout {
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  font-weight: var(--fw-medium);
+}
+.sidebar-logout:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+}
+
+/* === Select dropdown refresh === */
+.select {
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8' fill='none' stroke='%23476788' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='1 2 6 7 11 2'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 36px;
+}
+
+/* === Filter section spacing === */
+.filter-row,
+.toolbar-row {
+  align-items: flex-end;
+  gap: 16px;
+}
+.filter-row .field-label,
+.toolbar-row .field-label {
+  text-transform: none;
+  font-weight: var(--fw-semibold);
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+  letter-spacing: 0;
+}
+
+/* === Add button with leading icon === */
+.btn .icon + span,
+.btn span + .icon {
+  margin-left: 0;
+}
+
+/* === Data table refresh: rounded card, no double border === */
+.table-card {
+  padding: 0;
+  overflow: hidden;
+}
+.table-card .toolbar-row,
+.table-card > .button-row {
+  padding: 16px 16px 0;
+  margin: 0 0 12px;
+}
+.table-card .table-responsive {
+  border-top: 1px solid var(--border);
+}
+.data-table th:first-child,
+.data-table td:first-child {
+  padding-left: 16px;
+}
+.data-table th:last-child,
+.data-table td:last-child {
+  padding-right: 16px;
+}
+.data-table th {
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: 0.7rem;
+}
+
 /* Reduce-motion */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {

@@ -1,4 +1,4 @@
-import { showModal, closeModal, getModalRoot, escapeHtml, showToast } from '../ui.js';
+import { showModal, closeModal, getModalRoot, escapeHtml, showToast, renderIcon } from '../ui.js';
 import { ACTIVITY_UNIT_META, getEmployeeGroups } from '../models.js';
 import { appState, persistFile, rerenderApp } from '../app.js';
 
@@ -104,7 +104,7 @@ export function openTaskLibraryManagerModal() {
       `<select class="select" data-task-unit data-idx="${index}"${task.loai === 'hoat_dong' ? '' : ' disabled'}>`,
       Object.entries(ACTIVITY_UNIT_META).map(([value, label]) => `<option value="${value}"${task.don_vi === value ? ' selected' : ''}>${escapeHtml(label)}</option>`).join(''),
       '</select>',
-      `<button type="button" class="btn btn-ghost" data-delete-task="${index}">Xoá</button>`,
+      `<button type="button" class="btn-icon is-danger" data-delete-task="${index}" aria-label="Xoá nhiệm vụ" title="Xoá nhiệm vụ">${renderIcon('trash', { size: 14 })}</button>`,
       '</div>',
       '<div class="task-dept-picker">',
       departments.map((department) => {

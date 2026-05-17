@@ -1,6 +1,6 @@
 // assets/views/nhan-vien.js
 import { renderShell, renderEmptyState } from './shell.js';
-import { escapeHtml, getPercentClass, renderProgressBar, avatarHtml, renderRangePicker, getCurrentRange, getRangeLabel } from '../ui.js';
+import { escapeHtml, getPercentClass, renderProgressBar, avatarHtml, renderRangePicker, getCurrentRange, getRangeLabel, renderIcon } from '../ui.js';
 import {
   getNvStats, NV_STATUS_META, LOAI_NHAN_SU_META,
   getEmployeeGroups, getEmployeeGroupLabel,
@@ -62,9 +62,9 @@ function renderEmployeeCard(employee, opts = {}) {
     isResigned || employee.kpiPct === null ? '' : `<div class="employee-card-bar">${renderProgressBar(employee.kpiPct)}</div>`,
 
     '<div class="employee-card-actions">',
-    `<a class="btn btn-soft" href="nhan-vien-detail.html?id=${encodeURIComponent(employee.id)}">Xem hồ sơ</a>`,
-    `<button type="button" class="btn btn-soft" data-action="open-employee-edit" data-id="${escapeHtml(employee.id)}">Chỉnh sửa</button>`,
-    `<button type="button" class="btn btn-danger" data-action="delete-employee" data-id="${escapeHtml(employee.id)}">Xoá</button>`,
+    `<a class="btn btn-soft" href="nhan-vien-detail.html?id=${encodeURIComponent(employee.id)}">${renderIcon('eye', { size: 14 })} Xem hồ sơ</a>`,
+    `<button type="button" class="btn-icon" data-action="open-employee-edit" data-id="${escapeHtml(employee.id)}" aria-label="Chỉnh sửa" title="Chỉnh sửa">${renderIcon('edit', { size: 16 })}</button>`,
+    `<button type="button" class="btn-icon is-danger" data-action="delete-employee" data-id="${escapeHtml(employee.id)}" aria-label="Xoá" title="Xoá">${renderIcon('trash', { size: 16 })}</button>`,
     '</div>',
     '</article>',
   ].join('');
@@ -123,8 +123,8 @@ export default function renderNhanVienPage(data) {
     `<div><h3 class="section-title">Đội ngũ nhân sự</h3><p class="section-subtitle">Quản lý theo phòng ban · ${escapeHtml(rangeLabel)}</p></div>`,
     '<div class="section-actions">',
     renderRangePicker(range),
-    '<button type="button" class="btn btn-soft" data-action="open-group-manager">+ Thêm nhóm</button>',
-    '<button type="button" class="btn btn-primary" data-action="open-employee-create">+ Thêm nhân viên</button>',
+    `<button type="button" class="btn btn-soft" data-action="open-group-manager">${renderIcon('plus', { size: 14 })} Thêm nhóm</button>`,
+    `<button type="button" class="btn btn-primary" data-action="open-employee-create">${renderIcon('plus', { size: 16 })} Thêm nhân viên</button>`,
     '</div>',
     '</section>',
     '<div class="employee-search-wrap">',

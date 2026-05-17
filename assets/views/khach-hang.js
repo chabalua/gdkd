@@ -51,8 +51,8 @@ function renderKhRow(item, allData) {
     `<td>${item.ngay_giao_du_kien ? formatDate(item.ngay_giao_du_kien) : '—'}</td>`,
     `<td>${item.ngay_giao_thuc_te ? formatDate(item.ngay_giao_thuc_te) : '—'}</td>`,
     '<td><div class="button-row">',
-    `<button type="button" class="btn btn-soft" data-action="open-customer-edit" data-id="${escapeHtml(item.id)}">Chỉnh sửa</button>`,
-    `<button type="button" class="btn btn-danger" data-action="delete-customer" data-id="${escapeHtml(item.id)}">Xoá</button>`,
+    `<button type="button" class="btn-icon" data-action="open-customer-edit" data-id="${escapeHtml(item.id)}" aria-label="Chỉnh sửa" title="Chỉnh sửa">${renderIcon('edit', { size: 16 })}</button>`,
+    `<button type="button" class="btn-icon is-danger" data-action="delete-customer" data-id="${escapeHtml(item.id)}" aria-label="Xoá" title="Xoá">${renderIcon('trash', { size: 16 })}</button>`,
     '</div></td>',
     '</tr>',
   ].join('');
@@ -96,8 +96,8 @@ function renderKhCard(item, allData) {
     item.muc_dong_mong_muon ? `<div class="meta-pair"><span class="meta-key">Mức đóng mong muốn</span><span class="meta-value">${formatCurrency(item.muc_dong_mong_muon)}</span></div>` : '',
     '</div>',
     '<div class="button-row button-row-top">',
-    `<button type="button" class="btn btn-soft" data-action="open-customer-edit" data-id="${escapeHtml(item.id)}">Chỉnh sửa</button>`,
-    `<button type="button" class="btn btn-danger" data-action="delete-customer" data-id="${escapeHtml(item.id)}">Xoá</button>`,
+    `<button type="button" class="btn btn-soft" data-action="open-customer-edit" data-id="${escapeHtml(item.id)}">${renderIcon('edit', { size: 14 })} Chỉnh sửa</button>`,
+    `<button type="button" class="btn-icon is-danger" data-action="delete-customer" data-id="${escapeHtml(item.id)}" aria-label="Xoá" title="Xoá">${renderIcon('trash', { size: 16 })}</button>`,
     '</div>',
     '</article>',
   ].join('');
@@ -178,7 +178,7 @@ export default function renderKhachHangPage(data) {
     '</div>',
     '</div>',
 
-    `<div class="button-row button-row-bottom"><button type="button" class="btn btn-primary" data-action="open-customer-create"${setup.all ? '' : ' disabled title="Cần setup master data trước"'}>+ Thêm khách hàng</button></div>`,
+    `<div class="button-row button-row-bottom"><button type="button" class="btn btn-primary" data-action="open-customer-create"${setup.all ? '' : ' disabled title="Cần setup master data trước"'}>${renderIcon('plus', { size: 16 })} Thêm khách hàng</button></div>`,
 
     `<div class="mobile-customer-list">${mobileCards}</div>`,
     '<div class="table-responsive desktop-customer-table"><table class="data-table">',

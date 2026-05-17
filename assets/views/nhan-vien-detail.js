@@ -1,6 +1,6 @@
 // assets/views/nhan-vien-detail.js
 import { renderShell, renderEmptyState } from './shell.js';
-import { escapeHtml, avatarHtml, renderRangePicker, getCurrentRange, getRangeLabel } from '../ui.js';
+import { escapeHtml, avatarHtml, renderRangePicker, getCurrentRange, getRangeLabel, renderIcon } from '../ui.js';
 import { getLeadChannels, getNvStats, getWeekOfMonth, KH_STATUS_META, LOAI_NHAN_SU_META, getEmployeeGroupLabel, getActiveMonth, isSingleMonthRange, getXeLabel } from '../models.js';
 import { renderWeekGrid } from '../components/week-grid.js';
 
@@ -66,7 +66,7 @@ function renderKhPanel(employee, allKh, allXe, channels) {
     `<div class="filter-bar filter-row-tight button-row-bottom">${statusPills}</div>`,
     kenhPills ? `<div class="filter-bar filter-row-tight button-row-bottom"><span class="filter-label-inline">K\u00eanh:</span>${kenhPills}</div>` : '',
     `<div id="nv-kh-list">${cards}</div>`,
-    `<div class="button-row button-row-top"><button type="button" class="btn btn-primary" data-action="open-customer-create-for-nv" data-nv-id="${escapeHtml(employee.id)}">+ Thêm KH dự ký</button><button type="button" class="btn btn-soft" data-action="open-customer-create">+ Thêm KH đầy đủ</button></div>`,
+    `<div class="button-row button-row-top"><button type="button" class="btn btn-primary" data-action="open-customer-create-for-nv" data-nv-id="${escapeHtml(employee.id)}">${renderIcon('plus', { size: 16 })} Thêm KH dự ký</button><button type="button" class="btn btn-soft" data-action="open-customer-create">${renderIcon('plus', { size: 14 })} Thêm KH đầy đủ</button></div>`,
     '</section>',
   ].join('');
 }
@@ -113,9 +113,9 @@ export default function renderNhanVienDetailPage(data) {
     '</div></div>',
     '<div class="button-row detail-hero-actions">',
     renderRangePicker(range),
-    `<button type="button" class="btn btn-primary" data-action="save-week-draft" data-id="${escapeHtml(employee.id)}"${canEdit ? '' : ' disabled'}>Lưu</button>`,
-    '<a class="btn btn-ghost" href="nhan-vien.html">← Danh sách NV</a>',
-    `<button type="button" class="btn btn-soft" data-action="open-employee-edit" data-id="${escapeHtml(employee.id)}">Chỉnh sửa</button>`,
+    `<button type="button" class="btn btn-primary" data-action="save-week-draft" data-id="${escapeHtml(employee.id)}"${canEdit ? '' : ' disabled'}>${renderIcon('save', { size: 14 })} Lưu</button>`,
+    `<a class="btn btn-ghost" href="nhan-vien.html">${renderIcon('chevron-right', { size: 14, className: 'icon-rotate-180' })} Danh sách NV</a>`,
+    `<button type="button" class="btn btn-soft" data-action="open-employee-edit" data-id="${escapeHtml(employee.id)}">${renderIcon('edit', { size: 14 })} Chỉnh sửa</button>`,
     '</div></div></section>',
   ].join('');
 
