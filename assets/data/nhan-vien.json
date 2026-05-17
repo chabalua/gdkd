@@ -36,12 +36,28 @@
           "tuan": {
             "1": {
               "fb_ca_nhan": {
-                "muc_tieu": 23,
+                "muc_tieu": 309,
                 "thuc_te": 1
               },
               "mkt_cty": {
                 "muc_tieu": 1,
-                "thuc_te": 0
+                "thuc_te": 10
+              },
+              "tiktok": {
+                "muc_tieu": 0,
+                "thuc_te": 1
+              },
+              "sr_tiep_khach": {
+                "muc_tieu": 0,
+                "thuc_te": 1
+              },
+              "luot_lai_thu": {
+                "muc_tieu": 0,
+                "thuc_te": 1
+              },
+              "so_tien_chay_quang_cao": {
+                "muc_tieu": 0,
+                "thuc_te": 909000
               }
             },
             "2": {
@@ -50,6 +66,22 @@
                 "thuc_te": 0
               },
               "mkt_cty": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "tiktok": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "sr_tiep_khach": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "luot_lai_thu": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "so_tien_chay_quang_cao": {
                 "muc_tieu": 0,
                 "thuc_te": 0
               }
@@ -62,6 +94,22 @@
               "mkt_cty": {
                 "muc_tieu": 0,
                 "thuc_te": 0
+              },
+              "tiktok": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "sr_tiep_khach": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "luot_lai_thu": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "so_tien_chay_quang_cao": {
+                "muc_tieu": 0,
+                "thuc_te": 0
               }
             },
             "4": {
@@ -72,6 +120,22 @@
               "mkt_cty": {
                 "muc_tieu": 0,
                 "thuc_te": 0
+              },
+              "tiktok": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "sr_tiep_khach": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "luot_lai_thu": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "so_tien_chay_quang_cao": {
+                "muc_tieu": 0,
+                "thuc_te": 0
               }
             },
             "5": {
@@ -80,6 +144,22 @@
                 "thuc_te": 0
               },
               "mkt_cty": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "tiktok": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "sr_tiep_khach": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "luot_lai_thu": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "so_tien_chay_quang_cao": {
                 "muc_tieu": 0,
                 "thuc_te": 0
               }
@@ -105,7 +185,10 @@
         "telesales",
         "sr_tiep_khach",
         "di_thi_truong",
-        "luot_lai_thu"
+        "luot_lai_thu",
+        "sr",
+        "so_tien_chay_quang_cao",
+        "kh_du_ki"
       ],
       "du_lieu": {
         "2026-04": {
@@ -123,10 +206,42 @@
               "fb_ca_nhan": {
                 "muc_tieu": 1,
                 "thuc_te": 1
+              },
+              "mkt_cty": {
+                "muc_tieu": 0,
+                "thuc_te": 6
+              },
+              "tiktok": {
+                "muc_tieu": 0,
+                "thuc_te": 1
+              },
+              "so_tien_chay_quang_cao": {
+                "muc_tieu": 0,
+                "thuc_te": 234000
+              },
+              "kh_du_ki": {
+                "muc_tieu": 1,
+                "thuc_te": 1
               }
             },
             "2": {
               "fb_ca_nhan": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "mkt_cty": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "tiktok": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "so_tien_chay_quang_cao": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "kh_du_ki": {
                 "muc_tieu": 0,
                 "thuc_te": 0
               }
@@ -135,16 +250,64 @@
               "fb_ca_nhan": {
                 "muc_tieu": 0,
                 "thuc_te": 0
+              },
+              "mkt_cty": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "tiktok": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "so_tien_chay_quang_cao": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "kh_du_ki": {
+                "muc_tieu": 0,
+                "thuc_te": 0
               }
             },
             "4": {
               "fb_ca_nhan": {
                 "muc_tieu": 0,
                 "thuc_te": 0
+              },
+              "mkt_cty": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "tiktok": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "so_tien_chay_quang_cao": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "kh_du_ki": {
+                "muc_tieu": 0,
+                "thuc_te": 0
               }
             },
             "5": {
               "fb_ca_nhan": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "mkt_cty": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "tiktok": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "so_tien_chay_quang_cao": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "kh_du_ki": {
                 "muc_tieu": 0,
                 "thuc_te": 0
               }
@@ -170,7 +333,10 @@
         "telesales",
         "sr_tiep_khach",
         "di_thi_truong",
-        "luot_lai_thu"
+        "luot_lai_thu",
+        "sr",
+        "so_tien_chay_quang_cao",
+        "kh_du_ki"
       ],
       "du_lieu": {
         "2026-04": {
@@ -180,6 +346,140 @@
             "3": {},
             "4": {},
             "5": {}
+          }
+        },
+        "2026-05": {
+          "tuan": {
+            "1": {
+              "fb_ca_nhan": {
+                "muc_tieu": 0,
+                "thuc_te": 7
+              },
+              "mkt_cty": {
+                "muc_tieu": 0,
+                "thuc_te": 7
+              },
+              "luot_lai_thu": {
+                "muc_tieu": 0,
+                "thuc_te": 3
+              },
+              "di_thi_truong": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "kh_du_ki": {
+                "muc_tieu": 0,
+                "thuc_te": 1
+              },
+              "so_tien_chay_quang_cao": {
+                "muc_tieu": 0,
+                "thuc_te": 100000
+              }
+            },
+            "2": {
+              "fb_ca_nhan": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "mkt_cty": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "luot_lai_thu": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "di_thi_truong": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "kh_du_ki": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "so_tien_chay_quang_cao": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              }
+            },
+            "3": {
+              "fb_ca_nhan": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "mkt_cty": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "luot_lai_thu": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "di_thi_truong": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "kh_du_ki": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "so_tien_chay_quang_cao": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              }
+            },
+            "4": {
+              "fb_ca_nhan": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "mkt_cty": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "luot_lai_thu": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "di_thi_truong": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "kh_du_ki": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "so_tien_chay_quang_cao": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              }
+            },
+            "5": {
+              "fb_ca_nhan": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "mkt_cty": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "luot_lai_thu": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "di_thi_truong": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "kh_du_ki": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "so_tien_chay_quang_cao": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              }
+            }
           }
         }
       }
@@ -201,7 +501,10 @@
         "telesales",
         "sr_tiep_khach",
         "di_thi_truong",
-        "luot_lai_thu"
+        "luot_lai_thu",
+        "sr",
+        "so_tien_chay_quang_cao",
+        "kh_du_ki"
       ],
       "du_lieu": {
         "2026-04": {
@@ -211,6 +514,160 @@
             "3": {},
             "4": {},
             "5": {}
+          }
+        },
+        "2026-05": {
+          "tuan": {
+            "1": {
+              "fb_ca_nhan": {
+                "muc_tieu": 0,
+                "thuc_te": 3
+              },
+              "mkt_cty": {
+                "muc_tieu": 0,
+                "thuc_te": 4
+              },
+              "tiktok": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "sr_tiep_khach": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "di_thi_truong": {
+                "muc_tieu": 0,
+                "thuc_te": 1
+              },
+              "luot_lai_thu": {
+                "muc_tieu": 0,
+                "thuc_te": 2
+              },
+              "so_tien_chay_quang_cao": {
+                "muc_tieu": 0,
+                "thuc_te": 1400099
+              }
+            },
+            "2": {
+              "fb_ca_nhan": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "mkt_cty": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "tiktok": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "sr_tiep_khach": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "di_thi_truong": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "luot_lai_thu": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "so_tien_chay_quang_cao": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              }
+            },
+            "3": {
+              "fb_ca_nhan": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "mkt_cty": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "tiktok": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "sr_tiep_khach": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "di_thi_truong": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "luot_lai_thu": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "so_tien_chay_quang_cao": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              }
+            },
+            "4": {
+              "fb_ca_nhan": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "mkt_cty": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "tiktok": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "sr_tiep_khach": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "di_thi_truong": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "luot_lai_thu": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "so_tien_chay_quang_cao": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              }
+            },
+            "5": {
+              "fb_ca_nhan": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "mkt_cty": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "tiktok": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "sr_tiep_khach": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "di_thi_truong": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "luot_lai_thu": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "so_tien_chay_quang_cao": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              }
+            }
           }
         }
       }
@@ -248,7 +705,7 @@
     },
     {
       "id": "nv006",
-      "ho_ten": "Đỗ Văn Toàn",
+      "ho_ten": "Đỗ Văn Toán",
       "anh": "",
       "chuc_vu": "Nhân viên kinh doanh",
       "sdt": "0966992914",
@@ -263,7 +720,10 @@
         "telesales",
         "sr_tiep_khach",
         "di_thi_truong",
-        "luot_lai_thu"
+        "luot_lai_thu",
+        "sr",
+        "so_tien_chay_quang_cao",
+        "kh_du_ki"
       ],
       "du_lieu": {
         "2026-04": {
@@ -273,6 +733,120 @@
             "3": {},
             "4": {},
             "5": {}
+          }
+        },
+        "2026-05": {
+          "tuan": {
+            "1": {
+              "fb_ca_nhan": {
+                "muc_tieu": 0,
+                "thuc_te": 6
+              },
+              "tiktok": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "di_thi_truong": {
+                "muc_tieu": 0,
+                "thuc_te": 2
+              },
+              "luot_lai_thu": {
+                "muc_tieu": 0,
+                "thuc_te": 3
+              },
+              "so_tien_chay_quang_cao": {
+                "muc_tieu": 0,
+                "thuc_te": 300000
+              }
+            },
+            "2": {
+              "fb_ca_nhan": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "tiktok": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "di_thi_truong": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "luot_lai_thu": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "so_tien_chay_quang_cao": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              }
+            },
+            "3": {
+              "fb_ca_nhan": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "tiktok": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "di_thi_truong": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "luot_lai_thu": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "so_tien_chay_quang_cao": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              }
+            },
+            "4": {
+              "fb_ca_nhan": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "tiktok": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "di_thi_truong": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "luot_lai_thu": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "so_tien_chay_quang_cao": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              }
+            },
+            "5": {
+              "fb_ca_nhan": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "tiktok": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "di_thi_truong": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "luot_lai_thu": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "so_tien_chay_quang_cao": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              }
+            }
           }
         }
       }
@@ -294,7 +868,10 @@
         "telesales",
         "sr_tiep_khach",
         "di_thi_truong",
-        "luot_lai_thu"
+        "luot_lai_thu",
+        "sr",
+        "so_tien_chay_quang_cao",
+        "kh_du_ki"
       ],
       "du_lieu": {
         "2026-04": {
@@ -304,6 +881,140 @@
             "3": {},
             "4": {},
             "5": {}
+          }
+        },
+        "2026-05": {
+          "tuan": {
+            "1": {
+              "fb_ca_nhan": {
+                "muc_tieu": 0,
+                "thuc_te": 13
+              },
+              "mkt_cty": {
+                "muc_tieu": 0,
+                "thuc_te": 2
+              },
+              "sr": {
+                "muc_tieu": 0,
+                "thuc_te": 2
+              },
+              "luot_lai_thu": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "di_thi_truong": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "so_tien_chay_quang_cao": {
+                "muc_tieu": 0,
+                "thuc_te": 1015000
+              }
+            },
+            "2": {
+              "fb_ca_nhan": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "mkt_cty": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "sr": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "luot_lai_thu": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "di_thi_truong": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "so_tien_chay_quang_cao": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              }
+            },
+            "3": {
+              "fb_ca_nhan": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "mkt_cty": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "sr": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "luot_lai_thu": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "di_thi_truong": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "so_tien_chay_quang_cao": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              }
+            },
+            "4": {
+              "fb_ca_nhan": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "mkt_cty": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "sr": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "luot_lai_thu": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "di_thi_truong": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "so_tien_chay_quang_cao": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              }
+            },
+            "5": {
+              "fb_ca_nhan": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "mkt_cty": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "sr": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "luot_lai_thu": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "di_thi_truong": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "so_tien_chay_quang_cao": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              }
+            }
           }
         }
       }
@@ -325,7 +1036,10 @@
         "telesales",
         "sr_tiep_khach",
         "di_thi_truong",
-        "luot_lai_thu"
+        "luot_lai_thu",
+        "sr",
+        "so_tien_chay_quang_cao",
+        "kh_du_ki"
       ],
       "du_lieu": {
         "2026-04": {
@@ -335,6 +1049,40 @@
             "3": {},
             "4": {},
             "5": {}
+          }
+        },
+        "2026-05": {
+          "tuan": {
+            "1": {
+              "sr_tiep_khach": {
+                "muc_tieu": 0,
+                "thuc_te": 1
+              }
+            },
+            "2": {
+              "sr_tiep_khach": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              }
+            },
+            "3": {
+              "sr_tiep_khach": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              }
+            },
+            "4": {
+              "sr_tiep_khach": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              }
+            },
+            "5": {
+              "sr_tiep_khach": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              }
+            }
           }
         }
       }
@@ -376,7 +1124,7 @@
       "anh": "",
       "chuc_vu": "Nhân viên kinh doanh",
       "sdt": "0988000547",
-      "ngay_vao": "",
+      "ngay_vao": "2026-04-01",
       "phong_ban_id": "kd_2",
       "loai_nhan_su": "thu_viec",
       "trang_thai": "dang_lam",
@@ -387,7 +1135,10 @@
         "telesales",
         "sr_tiep_khach",
         "di_thi_truong",
-        "luot_lai_thu"
+        "luot_lai_thu",
+        "sr",
+        "so_tien_chay_quang_cao",
+        "kh_du_ki"
       ],
       "du_lieu": {
         "2026-04": {
@@ -397,6 +1148,60 @@
             "3": {},
             "4": {},
             "5": {}
+          }
+        },
+        "2026-05": {
+          "tuan": {
+            "1": {
+              "fb_ca_nhan": {
+                "muc_tieu": 0,
+                "thuc_te": 2
+              },
+              "so_tien_chay_quang_cao": {
+                "muc_tieu": 0,
+                "thuc_te": 240000
+              }
+            },
+            "2": {
+              "fb_ca_nhan": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "so_tien_chay_quang_cao": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              }
+            },
+            "3": {
+              "fb_ca_nhan": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "so_tien_chay_quang_cao": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              }
+            },
+            "4": {
+              "fb_ca_nhan": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "so_tien_chay_quang_cao": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              }
+            },
+            "5": {
+              "fb_ca_nhan": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "so_tien_chay_quang_cao": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              }
+            }
           }
         }
       }
@@ -418,7 +1223,10 @@
         "telesales",
         "sr_tiep_khach",
         "di_thi_truong",
-        "luot_lai_thu"
+        "luot_lai_thu",
+        "sr",
+        "so_tien_chay_quang_cao",
+        "kh_du_ki"
       ],
       "du_lieu": {
         "2026-04": {
@@ -428,6 +1236,80 @@
             "3": {},
             "4": {},
             "5": {}
+          }
+        },
+        "2026-05": {
+          "tuan": {
+            "1": {
+              "fb_ca_nhan": {
+                "muc_tieu": 0,
+                "thuc_te": 6
+              },
+              "mkt_cty": {
+                "muc_tieu": 0,
+                "thuc_te": 2
+              },
+              "sr": {
+                "muc_tieu": 0,
+                "thuc_te": 4
+              }
+            },
+            "2": {
+              "fb_ca_nhan": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "mkt_cty": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "sr": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              }
+            },
+            "3": {
+              "fb_ca_nhan": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "mkt_cty": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "sr": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              }
+            },
+            "4": {
+              "fb_ca_nhan": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "mkt_cty": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "sr": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              }
+            },
+            "5": {
+              "fb_ca_nhan": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "mkt_cty": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "sr": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              }
+            }
           }
         }
       }
