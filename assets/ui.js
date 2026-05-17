@@ -2,8 +2,13 @@
 // Small DOM helpers + format utilities + modal/toast/field builders.
 // Pure UI primitives — không biết về data hay business logic.
 
+import { icon as renderIcon } from './components/icons.js';
+
 let modalRoot = null;
 let toastRoot = null;
+
+// Re-export icon helper để mọi view có thể import từ ui.js (giảm import paths).
+export { renderIcon };
 
 // === Escape & format ===
 export function escapeHtml(value) {
@@ -277,6 +282,81 @@ export function renderRangePicker(currentRange) {
     '</optgroup>',
     '</select>',
     '</div>',
+  ].join('');
+}
+
+// === Badge / status pill ===
+/**
+ * Render 1 badge pill.
+ * @param {string} text
+ * @param {'success'|'warning'|'danger'|'info'|'purple'|'neutral'} [variant='neutral']
+ */
+export function renderBadge(text, variant = 'neutral') {
+  const cls = variant && variant !== 'neutral' ? ` is-${variant}` : '';
+  return `<span class="badge${cls}">${escapeHtml(text)}</span>`;
+}
+
+/**
+ * Render 1 status pill có dot indicator (tier color-coded).
+ * @param {string} label
+ * @param {string} [dotColor] CSS color (var hoặc hex). Mặc định currentColor.
+ * @param {string} [variant] thêm class is-<variant>
+ */
+export function renderStatusPill(label, dotColor, variant) {
+  const cls = variant ? ` is-${variant}` : '';
+  const color = dotColor || 'currentColor';
+  return [
+    `<span class="status-pill${cls}">`,
+    `<span class="tier-dot" style="background:${color}" aria-hidden="true"></span>`,
+    escapeHtml(label),
+    '</span>',
+  ].join('');
+}
+
+// === Sparkline SVG ===
+/**
+ * Render 1 sparkline inline SVG.
+ * @param {number[]} values - chuỗi số liệu (>= 2 điểm)
+ * @param {object} [opts]
+ * @param {number} [opts.width=120]
+ * @param {number} [opts.height=36]
+ * @param {boolean} [opts.area=true] - vẽ area gradient bên dưới
+ * @param {boolean} [opts.lastDot=true] - chấm điểm cuối
+ * @returns {string} HTML SVG string
+ */
+export function renderSparkline(values, opts = {}) {
+  const series = (values || []).map((v) => Number(v) || 0);
+  if (series.length < 2) {
+    return '<svg class="sparkline-svg" viewBox="0 0 120 36" aria-hidden="true"></svg>';
+  }
+  const w = opts.width ?? 120;
+  const h = opts.height ?? 36;
+  const showArea = opts.area !== false;
+  const showDot = opts.lastDot !== false;
+  const min = Math.min(...series);
+  const max = Math.max(...series);
+  const range = max - min || 1;
+  const stepX = w / (series.length - 1);
+  const points = series.map((v, i) => {
+    const x = i * stepX;
+    const y = h - ((v - min) / range) * (h - 4) - 2;
+    return [x, y];
+  });
+  const path = points.map((p, i) => `${i === 0 ? 'M' : 'L'}${p[0].toFixed(1)},${p[1].toFixed(1)}`).join(' ');
+  const areaPath = `${path} L${w.toFixed(1)},${h} L0,${h} Z`;
+  const last = points[points.length - 1];
+  return [
+    `<svg class="sparkline-svg" viewBox="0 0 ${w} ${h}" preserveAspectRatio="none" aria-hidden="true">`,
+    showArea ? [
+      '<defs><linearGradient id="spark-grad" x1="0" y1="0" x2="0" y2="1">',
+      '<stop offset="0%" stop-color="currentColor" stop-opacity="0.4"/>',
+      '<stop offset="100%" stop-color="currentColor" stop-opacity="0"/>',
+      '</linearGradient></defs>',
+      `<path class="sparkline-area" d="${areaPath}" fill="url(#spark-grad)"/>`,
+    ].join('') : '',
+    `<path class="sparkline-line" d="${path}"/>`,
+    showDot ? `<circle class="sparkline-dot" cx="${last[0].toFixed(1)}" cy="${last[1].toFixed(1)}" r="2.5"/>` : '',
+    '</svg>',
   ].join('');
 }
 

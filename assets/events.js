@@ -97,6 +97,19 @@ function filterCskhCards() {
   });
 }
 
+/**
+ * Khôi phục trạng thái sidebar (collapsed/expanded) từ localStorage.
+ * Gọi 1 lần ở bootstrap trước khi render shell để tránh nháy.
+ */
+export function applySidebarStateFromStorage() {
+  try {
+    const v = localStorage.getItem('ui:sidebar:collapsed');
+    document.body.setAttribute('data-sidebar', v === '1' ? 'collapsed' : 'expanded');
+  } catch {
+    document.body.setAttribute('data-sidebar', 'expanded');
+  }
+}
+
 // === Common event delegation (data-action="...") ===
 export function bindCommonEvents(data) {
   const getVisibleElements = (selector) => {
@@ -111,6 +124,16 @@ export function bindCommonEvents(data) {
         clearToken();
         showToast('Đã đăng xuất. App vẫn dùng dữ liệu local hiện có.', 'success');
       });
+    });
+  });
+
+  // Sidebar collapsible (desktop ≥ 1024px). State persist localStorage.
+  document.querySelectorAll('[data-action="toggle-sidebar"]').forEach((button) => {
+    button.addEventListener('click', () => {
+      const current = document.body.getAttribute('data-sidebar') === 'collapsed';
+      const next = current ? 'expanded' : 'collapsed';
+      document.body.setAttribute('data-sidebar', next);
+      try { localStorage.setItem('ui:sidebar:collapsed', next === 'collapsed' ? '1' : '0'); } catch { /* ignore */ }
     });
   });
 

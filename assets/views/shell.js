@@ -2,14 +2,22 @@
 // Sidebar + topbar + bottom-nav + common card builders.
 // Mọi view đều gọi renderShell() để bọc nội dung trang.
 
-import { escapeHtml, getCurrentMonth, calcPercent, getPercentClass, renderProgressBar, avatarHtml, getCurrentRange, getRangeLabel } from '../ui.js';
+import { escapeHtml, getCurrentMonth, calcPercent, getPercentClass, renderProgressBar, avatarHtml, getCurrentRange, getRangeLabel, renderIcon } from '../ui.js';
 import { NAV_ITEMS, PAGE_META, countNotifications } from '../models.js';
 import { renderSyncChip } from '../components/sync-status.js';
+
+function navIconHtml(item, opts = {}) {
+  if (item.iconName) return renderIcon(item.iconName, { size: opts.size ?? 20 });
+  return `<span aria-hidden="true">${item.icon}</span>`;
+}
 
 export function createSidebar(activePage, config) {
   const rangeLabel = getRangeLabel(getCurrentRange());
   return [
     '<aside class="sidebar" aria-label="Điều hướng chính">',
+    '<button type="button" class="sidebar-toggle" data-action="toggle-sidebar" aria-label="Thu/mở sidebar">',
+    renderIcon('chevron-right', { size: 16 }),
+    '</button>',
     '<div class="brand">',
     '<span class="brand-mark">GĐ</span>',
     '<div>',
@@ -19,8 +27,8 @@ export function createSidebar(activePage, config) {
     '</div>',
     '<nav class="sidebar-nav">',
     NAV_ITEMS.map((item) => [
-      `<a class="nav-link${item.id === activePage ? ' is-active' : ''}" href="${item.href}">`,
-      `<span class="nav-icon" aria-hidden="true">${item.icon}</span>`,
+      `<a class="nav-link${item.id === activePage ? ' is-active' : ''}" href="${item.href}" data-id="${item.id}">`,
+      `<span class="nav-icon">${navIconHtml(item)}</span>`,
       `<span>${item.label}</span>`,
       '</a>',
     ].join('')).join(''),
@@ -33,7 +41,10 @@ export function createSidebar(activePage, config) {
     `<div class="brand-subtitle">${escapeHtml(rangeLabel)}</div>`,
     '</div>',
     '</div>',
-    '<button type="button" class="btn btn-ghost sidebar-logout" data-action="logout">Đăng xuất</button>',
+    '<button type="button" class="btn btn-ghost sidebar-logout" data-action="logout">',
+    renderIcon('log-out', { size: 16 }),
+    '<span>Đăng xuất</span>',
+    '</button>',
     '</div>',
     '</aside>',
   ].join('');
@@ -51,9 +62,9 @@ export function createTopBar(activePage, data) {
     '</div>',
     '<div class="topbar-actions">',
     renderSyncChip(),
-    `<a class="icon-button${activePage === 'settings' ? ' is-active' : ''}" href="settings.html" aria-label="Mở trang thiết lập">⚙️</a>`,
+    `<a class="icon-button${activePage === 'settings' ? ' is-active' : ''}" href="settings.html" aria-label="Mở trang thiết lập">${renderIcon('settings')}</a>`,
     '<button type="button" class="icon-button" data-action="show-notifications" aria-label="Thông báo">',
-    '<span aria-hidden="true">🔔</span>',
+    renderIcon('bell'),
     notificationCount ? `<span class="icon-badge">${notificationCount}</span>` : '',
     '</button>',
     '</div>',
@@ -65,8 +76,8 @@ export function createBottomNav(activePage) {
   return [
     '<nav class="bottom-nav" aria-label="Điều hướng nhanh">',
     NAV_ITEMS.map((item) => [
-      `<a class="nav-link${item.id === activePage ? ' is-active' : ''}" href="${item.href}">`,
-      `<span class="nav-icon" aria-hidden="true">${item.icon}</span>`,
+      `<a class="nav-link${item.id === activePage ? ' is-active' : ''}" href="${item.href}" data-id="${item.id}">`,
+      `<span class="nav-icon">${navIconHtml(item, { size: 18 })}</span>`,
       `<span>${item.label}</span>`,
       '</a>',
     ].join('')).join(''),
@@ -90,6 +101,7 @@ export function renderShell(activePage, content, data) {
 export function renderEmptyState(title, description, actionLabel, action) {
   return [
     '<section class="empty-card">',
+    renderIcon('info', { size: 48 }),
     `<h3 class="section-title">${escapeHtml(title)}</h3>`,
     `<p class="section-subtitle">${escapeHtml(description)}</p>`,
     actionLabel && action ? `<div class="button-row button-row-top"><button type="button" class="btn btn-primary" data-action="${escapeHtml(action)}">${escapeHtml(actionLabel)}</button></div>` : '',

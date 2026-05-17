@@ -1,14 +1,16 @@
 // assets/models/constants.js
 // Hằng số và metadata dùng chung — không phụ thuộc state, không phụ thuộc data.
 
+// iconName: tên Lucide icon trong assets/components/icons.js (M2+).
+// icon (emoji): fallback nếu chỗ nào chưa refactor sang renderIcon.
 export const NAV_ITEMS = [
-  { id: 'dashboard', href: 'index.html', icon: '🏠', label: 'Tổng quan' },
-  { id: 'kpi', href: 'kpi.html', icon: '🎯', label: 'KPI' },
-  { id: 'congviec', href: 'cong-viec.html', icon: '✅', label: 'Công việc' },
-  { id: 'xe', href: 'xe.html', icon: '🚗', label: 'Catalog xe' },
-  { id: 'nhanvien', href: 'nhan-vien.html', icon: '👥', label: 'Nhân viên' },
-  { id: 'khachhang', href: 'khach-hang.html', icon: '🚘', label: 'Khách hàng' },
-  { id: 'cskh', href: 'cskh.html', icon: '💬', label: 'CSKH' },
+  { id: 'dashboard', href: 'index.html', icon: '🏠', iconName: 'home', label: 'Tổng quan' },
+  { id: 'kpi', href: 'kpi.html', icon: '🎯', iconName: 'target', label: 'KPI' },
+  { id: 'congviec', href: 'cong-viec.html', icon: '✅', iconName: 'calendar', label: 'Công việc' },
+  { id: 'xe', href: 'xe.html', icon: '🚗', iconName: 'car', label: 'Catalog xe' },
+  { id: 'nhanvien', href: 'nhan-vien.html', icon: '👥', iconName: 'users', label: 'Nhân viên' },
+  { id: 'khachhang', href: 'khach-hang.html', icon: '🚘', iconName: 'file-text', label: 'Khách hàng' },
+  { id: 'cskh', href: 'cskh.html', icon: '💬', iconName: 'message-square', label: 'CSKH' },
 ];
 
 export const PAGE_META = {

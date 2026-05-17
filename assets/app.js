@@ -19,7 +19,7 @@ import {
 import { showToast, escapeHtml, getCurrentRange, saveRange, getCurrentMonth } from './ui.js';
 import { normalizeData, serializeFilePayload, getPreviousMonthKey, buildMonthlySnapshot } from './models.js';
 import { checkReminders } from './notify.js';
-import { bindCommonEvents } from './events.js';
+import { bindCommonEvents, applySidebarStateFromStorage } from './events.js';
 
 import renderDashboard from './views/dashboard.js';
 import renderKpiPage from './views/kpi.js';
@@ -451,6 +451,8 @@ async function guardProtectedPage() {
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
+  // Restore sidebar collapsed state TRƯỚC khi render shell để tránh nháy width.
+  applySidebarStateFromStorage();
   if (document.body.dataset.page === 'login') {
     initLoginPage();
     return;
