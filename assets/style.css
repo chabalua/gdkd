@@ -3369,6 +3369,10 @@ img {
     width: 120px;
     height: 120px;
   }
+
+  .modal-card {
+    width: min(100%, 640px);
+  }
 }
 
 /* === Responsive — Desktop (1024px+) === */
@@ -3394,6 +3398,10 @@ img {
 
   .executive-card {
     padding: 12px 14px;
+  }
+
+  .modal-card {
+    width: min(100%, 720px);
   }
 }
 
