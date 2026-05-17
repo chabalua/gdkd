@@ -4896,18 +4896,38 @@ td.button-row,
   margin-left: 0;
 }
 
-/* === Data table refresh: rounded card, no double border === */
-.table-card {
+/* === Data table refresh: rounded card === */
+/* .table-card giữ padding 16px mặc định (từ base rule .card group).
+   Riêng dạng có .toolbar-row hoặc bảng full-width sát mép: dùng class
+   .table-card-flush (tự reset padding + bù vào con). */
+.table-card-flush {
   padding: 0;
-  overflow: hidden;
 }
-.table-card .toolbar-row,
-.table-card > .button-row {
+.table-card-flush .table-header,
+.table-card-flush .toolbar-row,
+.table-card-flush > .button-row {
   padding: 16px 16px 0;
   margin: 0 0 12px;
 }
-.table-card .table-responsive {
+.table-card-flush .table-responsive {
   border-top: 1px solid var(--border);
+  overflow-x: auto;
+}
+/* Backwards compat: nếu view chưa thêm class .table-card-flush nhưng có
+   .toolbar-row bên trong, tự nhận biết qua sibling selector workaround:
+   .table-card có .toolbar-row → padding 0. Dùng :has() — supported tốt
+   từ 2023, app này yêu cầu browser hiện đại nên OK. */
+.table-card:has(.toolbar-row) {
+  padding: 0;
+}
+.table-card:has(.toolbar-row) .toolbar-row,
+.table-card:has(.toolbar-row) > .button-row {
+  padding: 16px 16px 0;
+  margin: 0 0 12px;
+}
+.table-card:has(.toolbar-row) .table-responsive {
+  border-top: 1px solid var(--border);
+  overflow-x: auto;
 }
 .data-table th:first-child,
 .data-table td:first-child {
@@ -4921,6 +4941,64 @@ td.button-row,
   text-transform: uppercase;
   letter-spacing: 0.05em;
   font-size: 0.7rem;
+}
+
+/* === Table header: title + action button cùng row === */
+.table-header,
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.table-header > div:first-child,
+.section-header > div:first-child {
+  flex: 1 1 240px;
+  min-width: 0;
+}
+.table-header .button-row,
+.section-header .button-row,
+.section-header .section-actions {
+  flex: 0 0 auto;
+  margin: 0;
+}
+/* Override: button trong table-header KHÔNG full-width mobile (mặc dù .btn
+   { width: 100% } trên ≤480px). Khi user co màn nhỏ, button-row tự wrap
+   xuống dòng dưới và full-width OK; còn desktop ≥768px luôn inline phải. */
+@media (min-width: 768px) {
+  .table-header .button-row .btn,
+  .section-header .section-actions .btn {
+    width: auto;
+    flex: 0 0 auto;
+  }
+}
+
+/* === Heading descender fix — table-title + section-title + modal-title === */
+/* Các chữ 'g', 'p', 'q', 'y', 'j' bị cắt đuôi khi line-height quá chặt
+   và parent có overflow:hidden. Thêm padding-bottom đệm + line-height
+   thoáng hơn. */
+.section-title,
+.card-title,
+.table-title,
+.modal-title,
+.hero-heading,
+.page-title,
+.brand-title,
+.login-title,
+.watch-card-title,
+.executive-label,
+.empty-card .section-title {
+  line-height: 1.35;
+  padding-bottom: 2px;
+}
+
+/* table-subtitle / section-subtitle / card-subtitle giữ line-height 1.5 OK,
+   nhưng descender cũng cần đệm khi nằm trong overflow:hidden parent. */
+.section-subtitle,
+.card-subtitle,
+.table-subtitle {
+  padding-bottom: 1px;
 }
 
 /* === Ranking cell layout — flex row, vertical-align center === */
