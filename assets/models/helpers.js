@@ -48,9 +48,13 @@ export function normalizeLeadChannel(channel) {
 }
 
 function hasActivityData(allData, channelId) {
-  return (allData?.nhanVien?.nhan_vien || []).some((employee) =>
-    Object.values(employee?.lead_theo_thang || {}).some((monthBlock) => monthBlock && typeof monthBlock[channelId] === 'object')
-  );
+  return (allData?.nhanVien?.nhan_vien || []).some((employee) => {
+    const hasCanonicalData = Object.values(employee?.du_lieu || {}).some((monthBlock) =>
+      Object.values(monthBlock?.tuan || {}).some((weekBlock) => weekBlock && typeof weekBlock[channelId] === 'object')
+    );
+    if (hasCanonicalData) return true;
+    return Object.values(employee?.lead_theo_thang || {}).some((monthBlock) => monthBlock && typeof monthBlock[channelId] === 'object');
+  });
 }
 
 // Returns channels from config (user-customisable) or falls back to defaults.
@@ -102,28 +106,50 @@ export function isDeliveredCustomerInRange(customer, monthsOrSet) {
 }
 
 export function getEmployeeTaskMonthTarget(employee, month, taskId) {
-  const duLieuTarget = Object.values(employee?.du_lieu?.[month]?.tuan || {}).reduce((sum, weekBlock) => {
-    return sum + numberValue(weekBlock?.[taskId]?.muc_tieu);
-  }, 0);
-  if (duLieuTarget > 0) return duLieuTarget;
+  const weekEntries = Object.values(employee?.du_lieu?.[month]?.tuan || {})
+    .map((weekBlock) => weekBlock?.[taskId])
+    .filter(Boolean);
+  if (weekEntries.length) {
+    return weekEntries.reduce((sum, metrics) => sum + numberValue(metrics?.muc_tieu), 0);
+  }
   return numberValue(employee?.lead_theo_thang?.[month]?.[taskId]?.muc_tieu);
 }
 
 export function getEmployeeTaskMonthActual(employee, month, taskId) {
-  const duLieuActual = Object.values(employee?.du_lieu?.[month]?.tuan || {}).reduce((sum, weekBlock) => {
-    return sum + numberValue(weekBlock?.[taskId]?.thuc_te);
-  }, 0);
-  if (duLieuActual > 0) return duLieuActual;
+  const weekEntries = Object.values(employee?.du_lieu?.[month]?.tuan || {})
+    .map((weekBlock) => weekBlock?.[taskId])
+    .filter(Boolean);
+  if (weekEntries.length) {
+    return weekEntries.reduce((sum, metrics) => sum + numberValue(metrics?.thuc_te), 0);
+  }
   return getLeadTuanTotal(employee?.lead_theo_thang?.[month]?.[taskId]);
+}
+
+export function getEmployeeTaskMonthActualByIds(employee, month, taskIds) {
+  for (const taskId of taskIds || []) {
+    const weekEntries = Object.values(employee?.du_lieu?.[month]?.tuan || {})
+      .map((weekBlock) => weekBlock?.[taskId])
+      .filter(Boolean);
+    if (weekEntries.length) {
+      return weekEntries.reduce((sum, metrics) => sum + numberValue(metrics?.thuc_te), 0);
+    }
+    const compatActual = getLeadTuanTotal(employee?.lead_theo_thang?.[month]?.[taskId]);
+    if (compatActual) return compatActual;
+  }
+  return 0;
 }
 
 export function setEmployeeTaskMonthTarget(employee, month, taskId, target) {
   if (!employee.du_lieu) employee.du_lieu = {};
   if (!employee.du_lieu[month]) employee.du_lieu[month] = { tuan: { 1: {}, 2: {}, 3: {}, 4: {}, 5: {} } };
   if (!employee.du_lieu[month].tuan) employee.du_lieu[month].tuan = { 1: {}, 2: {}, 3: {}, 4: {}, 5: {} };
-  if (!employee.du_lieu[month].tuan[1]) employee.du_lieu[month].tuan[1] = {};
-  if (!employee.du_lieu[month].tuan[1][taskId]) employee.du_lieu[month].tuan[1][taskId] = { muc_tieu: 0, thuc_te: 0 };
-  employee.du_lieu[month].tuan[1][taskId].muc_tieu = numberValue(target);
+  for (let week = 1; week <= 5; week += 1) {
+    if (!employee.du_lieu[month].tuan[week]) employee.du_lieu[month].tuan[week] = {};
+    if (!employee.du_lieu[month].tuan[week][taskId]) {
+      employee.du_lieu[month].tuan[week][taskId] = { muc_tieu: 0, thuc_te: 0 };
+    }
+    employee.du_lieu[month].tuan[week][taskId].muc_tieu = week === 1 ? numberValue(target) : 0;
+  }
 
   if (!employee.lead_theo_thang) employee.lead_theo_thang = {};
   if (!employee.lead_theo_thang[month]) employee.lead_theo_thang[month] = {};

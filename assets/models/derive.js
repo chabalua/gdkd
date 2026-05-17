@@ -9,6 +9,7 @@ import {
   getLeadChannels,
   getLeadMetricChannels,
   getEmployeeTaskMonthActual,
+  getEmployeeTaskMonthActualByIds,
   getLeadTuanTotal,
   getEmployeeGroups,
   getEmployeesByGroup,
@@ -335,7 +336,9 @@ export function getGroupSummaries(allData, months) {
     const lead = members.reduce((sum, member) => sum + months.reduce((monthSum, month) => monthSum + getEmployeeLeadTotal(member, month, leadChannels), 0), 0);
     const gio_live = members.reduce((sum, member) => sum + months.reduce((monthSum, month) => monthSum + getEmployeeActivityTotal(member, month, 'gio_live'), 0), 0);
     const luot_lai_thu = members.reduce((sum, member) => sum + months.reduce((monthSum, month) => monthSum + getEmployeeActivityTotal(member, month, 'luot_lai_thu'), 0), 0);
-    const so_tien_qc = members.reduce((sum, member) => sum + months.reduce((monthSum, month) => monthSum + getEmployeeActivityTotal(member, month, 'so_tien_qc'), 0), 0);
+    const so_tien_qc = members.reduce((sum, member) => sum + months.reduce((monthSum, month) => {
+      return monthSum + getEmployeeTaskMonthActualByIds(member, month, ['so_tien_chay_quang_cao', 'so_tien_qc']);
+    }, 0), 0);
     const target_xe_ky = members.reduce((sum, member) => sum + getEmployeeTargetTotal(allData, member, months, 'xe_ky_moi'), 0);
     const target_lead = members.reduce((sum, member) => sum + getEmployeeWeeklyTargetTotal(allData, member, months, { loai: 'lead' }), 0);
     const pct_xe_ky = target_lead > 0 ? calcPercent(lead, target_lead) : (target_xe_ky > 0 ? calcPercent(xe_ky, target_xe_ky) : null);
