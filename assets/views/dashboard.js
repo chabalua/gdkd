@@ -13,7 +13,7 @@ import {
 } from '../models.js';
 
 // === Donut SVG (cho hero scoreboard) ===
-function renderDonut(percent, { size = 140, stroke = 14, color = 'var(--accent)' } = {}) {
+function renderDonut(percent, { size = 100, stroke = 12, color = 'var(--accent)' } = {}) {
   const safe = Math.max(0, Math.min(100, Number(percent) || 0));
   const r = (size - stroke) / 2;
   const c = 2 * Math.PI * r;

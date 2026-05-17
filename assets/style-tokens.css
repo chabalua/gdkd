@@ -157,8 +157,8 @@
   /* === Layout === */
   --sidebar-width: 260px;
   --sidebar-width-collapsed: 72px;
-  --bottom-nav-height: 72px;
-  --topbar-height: 64px;
+  --bottom-nav-height: 60px;
+  --topbar-height: 48px;
   --container-max: 1280px;
   --section-gap: 40px;
 
