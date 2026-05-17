@@ -395,6 +395,11 @@
           "ngay": "2026-05-14",
           "buoc": 1,
           "noi_dung": "KH đã đồng ý đổi qua VIN 2025, đợi tiến hành ký HĐTD và giao xe"
+        },
+        {
+          "ngay": "2026-05-17",
+          "buoc": 2,
+          "noi_dung": "Chốt ngày giao xe 25/05/2026. Tiến hành hồ sơ gấp để hoàn thiện giao xe"
         }
       ],
       "cskh": []
@@ -460,6 +465,11 @@
           "ngay": "2026-05-14",
           "buoc": 1,
           "noi_dung": "Đã XHĐ, đã làm đề nghị bấm số, đợi tiến độ MR Đan"
+        },
+        {
+          "ngay": "2026-05-17",
+          "buoc": 2,
+          "noi_dung": "Dự kiến giao xe 23/05/2026"
         }
       ],
       "cskh": []
