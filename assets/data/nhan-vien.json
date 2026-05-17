@@ -1372,20 +1372,44 @@
               "sr": {
                 "muc_tieu": 0,
                 "thuc_te": 4
+              },
+              "sr_tiep_khach": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "di_thi_truong": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "so_tien_chay_quang_cao": {
+                "muc_tieu": 0,
+                "thuc_te": 0
               }
             },
             "2": {
               "fb_ca_nhan": {
                 "muc_tieu": 0,
-                "thuc_te": 0
+                "thuc_te": 6
               },
               "mkt_cty": {
                 "muc_tieu": 0,
-                "thuc_te": 0
+                "thuc_te": 1
               },
               "sr": {
                 "muc_tieu": 0,
                 "thuc_te": 0
+              },
+              "sr_tiep_khach": {
+                "muc_tieu": 0,
+                "thuc_te": 1
+              },
+              "di_thi_truong": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "so_tien_chay_quang_cao": {
+                "muc_tieu": 0,
+                "thuc_te": 594000
               }
             },
             "3": {
@@ -1398,6 +1422,18 @@
                 "thuc_te": 0
               },
               "sr": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "sr_tiep_khach": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "di_thi_truong": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "so_tien_chay_quang_cao": {
                 "muc_tieu": 0,
                 "thuc_te": 0
               }
@@ -1414,6 +1450,18 @@
               "sr": {
                 "muc_tieu": 0,
                 "thuc_te": 0
+              },
+              "sr_tiep_khach": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "di_thi_truong": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "so_tien_chay_quang_cao": {
+                "muc_tieu": 0,
+                "thuc_te": 0
               }
             },
             "5": {
@@ -1426,6 +1474,18 @@
                 "thuc_te": 0
               },
               "sr": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "sr_tiep_khach": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "di_thi_truong": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "so_tien_chay_quang_cao": {
                 "muc_tieu": 0,
                 "thuc_te": 0
               }
