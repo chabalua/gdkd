@@ -40,21 +40,9 @@ export const KH_STATUS_META = {
 
 export const KH_STATUS_ORDER = Object.keys(KH_STATUS_META);
 
-// Pipeline 1 chiều: chỉ cho phép giữ nguyên hoặc đi tới (index cao hơn).
-// Ngoại lệ: từ "dong_cskh" có thể trở lại "da_giao" nếu cần mở lại CSKH.
-// Trả [allowed, reason]. allowed=true → cho qua. allowed=false → reason để hiện toast.
+// Cho phép chuyển đổi trạng thái tự do — GĐKD có thể chọn bất kỳ trạng thái nào.
+// Trả [allowed, reason]. allowed=true → cho qua.
 export function isValidStatusTransition(from, to) {
-  if (!from || from === to) return [true, ''];
-  const fromIdx = KH_STATUS_ORDER.indexOf(from);
-  const toIdx = KH_STATUS_ORDER.indexOf(to);
-  if (fromIdx === -1 || toIdx === -1) return [true, ''];
-  // Reopen CSKH (dong_cskh → da_giao) — thường xảy ra khi KH phản hồi lại sau khi đã đóng.
-  if (from === 'dong_cskh' && to === 'da_giao') return [true, ''];
-  if (toIdx < fromIdx) {
-    const [fromLabel] = KH_STATUS_META[from] || [from];
-    const [toLabel] = KH_STATUS_META[to] || [to];
-    return [false, `Không lùi trạng thái: ${fromLabel} → ${toLabel}. Pipeline KH chỉ đi 1 chiều để tránh lệch KPI. Nếu thật sự cần lùi, xoá KH và tạo mới.`];
-  }
   return [true, ''];
 }
 

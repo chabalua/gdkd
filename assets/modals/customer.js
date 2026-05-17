@@ -5,7 +5,7 @@ import {
   escapeHtml, trimmedValue, numberValue, makeId, showToast,
   createField, createSelectField, renderIcon,
 } from '../ui.js';
-import { KH_STATUS_META, CSKH_STATUS_META, getLeadChannels, getXeColorOptions, isValidStatusTransition } from '../models.js';
+import { KH_STATUS_META, CSKH_STATUS_META, getLeadChannels, getXeColorOptions } from '../models.js';
 import { appState, persistFile, rerenderApp } from '../app.js';
 
 // === Helpers ===
@@ -256,20 +256,8 @@ export function openCustomerModal(customerId, prefillOptions) {
   // Hiện/ẩn field khi đổi trạng thái
   const statusSelect = root.querySelector('[name="trang_thai"]');
   const xeSelect = root.querySelector('[name="xe_id"]');
-  // Lưu status gốc khi mở modal (chỉ áp dụng nếu đang sửa KH có sẵn). KH mới
-  // chưa có trạng thái cũ → không cần chặn lùi.
-  const originalStatus = existing ? existing.trang_thai : null;
   function toggleConditionalFields() {
     const val = statusSelect.value;
-    // Chặn lùi pipeline ngay khi user vừa chọn (UX rõ hơn là chỉ chặn lúc submit).
-    if (originalStatus) {
-      const [ok, reason] = isValidStatusTransition(originalStatus, val);
-      if (!ok) {
-        showToast(reason, 'warning');
-        statusSelect.value = originalStatus;
-        return;
-      }
-    }
     const isDuKy = val === 'du_ky';
     const isGiao = ['da_giao', 'dong_cskh'].includes(val);
     root.querySelector('#field-ngay-du-kien-ky').classList.toggle('is-hidden', !isDuKy);
@@ -283,20 +271,17 @@ export function openCustomerModal(customerId, prefillOptions) {
   }
   statusSelect.addEventListener('change', toggleConditionalFields);
 
-  // Auto-suy status từ các field ngày — tránh quên cập nhật pipeline.
-  // Chỉ TIẾN lên, không LÙI. Nếu status hiện tại đã cao hơn suy luận → giữ nguyên.
+  // Auto-suy status từ các field ngày — giúp GĐKD khỏi phải đổi trạng thái tay.
+  // Cho phép cả tiến và lùi: nếu xoá ngày giao → tự lùi về mới ký, v.v.
   function inferStatusFromDates() {
     const ngayKy = root.querySelector('[name="ngay_ky"]')?.value || '';
     const ngayGiao = root.querySelector('[name="ngay_giao_thuc_te"]')?.value || '';
     const current = statusSelect.value;
-    const currentIdx = ['du_ky', 'moi_ky', 'dang_xu_ly', 'cho_giao', 'da_giao', 'dong_cskh'].indexOf(current);
     let suggested = null;
     if (ngayGiao) suggested = 'da_giao';
     else if (ngayKy) suggested = 'moi_ky';
     if (!suggested) return;
-    const suggestedIdx = ['du_ky', 'moi_ky', 'dang_xu_ly', 'cho_giao', 'da_giao', 'dong_cskh'].indexOf(suggested);
-    // Chỉ tự nâng status nếu user đang ở mức thấp hơn — không che status user đã chủ động chọn cao hơn.
-    if (suggestedIdx > currentIdx) {
+    if (suggested !== current) {
       statusSelect.value = suggested;
       toggleConditionalFields();
       showToast(`Đã tự cập nhật trạng thái → ${KH_STATUS_META[suggested][0]} theo ngày bạn vừa nhập.`, 'info');
