@@ -779,11 +779,11 @@
           "tuan": {
             "1": {
               "fb_ca_nhan": {
-                "muc_tieu": 0,
+                "muc_tieu": 20,
                 "thuc_te": 6
               },
               "tiktok": {
-                "muc_tieu": 0,
+                "muc_tieu": 2,
                 "thuc_te": 0
               },
               "di_thi_truong": {
@@ -801,33 +801,33 @@
             },
             "2": {
               "fb_ca_nhan": {
-                "muc_tieu": 0,
-                "thuc_te": 0
+                "muc_tieu": 15,
+                "thuc_te": 6
               },
               "tiktok": {
-                "muc_tieu": 0,
-                "thuc_te": 0
+                "muc_tieu": 2,
+                "thuc_te": 2
               },
               "di_thi_truong": {
                 "muc_tieu": 0,
-                "thuc_te": 0
+                "thuc_te": 12
               },
               "luot_lai_thu": {
                 "muc_tieu": 0,
-                "thuc_te": 0
+                "thuc_te": 12
               },
               "so_tien_chay_quang_cao": {
                 "muc_tieu": 0,
-                "thuc_te": 0
+                "thuc_te": 500000
               }
             },
             "3": {
               "fb_ca_nhan": {
-                "muc_tieu": 0,
+                "muc_tieu": 15,
                 "thuc_te": 0
               },
               "tiktok": {
-                "muc_tieu": 0,
+                "muc_tieu": 3,
                 "thuc_te": 0
               },
               "di_thi_truong": {
@@ -845,11 +845,11 @@
             },
             "4": {
               "fb_ca_nhan": {
-                "muc_tieu": 0,
+                "muc_tieu": 10,
                 "thuc_te": 0
               },
               "tiktok": {
-                "muc_tieu": 0,
+                "muc_tieu": 3,
                 "thuc_te": 0
               },
               "di_thi_truong": {
