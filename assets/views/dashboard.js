@@ -9,7 +9,7 @@ import { KPI_CORE_FIELDS as KPI_FIELDS, renderTierLegend, renderKpiCard } from '
 import {
   isSetupComplete, getKpiSegments, getKhTon, getNvLabel, KH_STATUS_META,
   getEmployeeActivityTotal, getLeadChannels, getGroupSummaries, getRanking, getMucTieuTong,
-  getPerformanceTier, PERFORMANCE_TIER_META, getMonthPace,
+  getPerformanceTier, PERFORMANCE_TIER_META, getMonthPace, isKhValid,
 } from '../models.js';
 
 // === Donut SVG (cho hero scoreboard) ===
@@ -19,8 +19,10 @@ function renderDonut(percent, { size = 140, stroke = 14, color = 'var(--accent)'
   const c = 2 * Math.PI * r;
   const dash = (safe / 100) * c;
   const cx = size / 2;
+  // Không set width/height attribute để CSS responsive override được mà không cần !important.
+  // viewBox giữ tỉ lệ; CSS .donut quy định kích thước.
   return [
-    `<svg class="donut" viewBox="0 0 ${size} ${size}" width="${size}" height="${size}" aria-hidden="true">`,
+    `<svg class="donut" viewBox="0 0 ${size} ${size}" aria-hidden="true">`,
     `<circle cx="${cx}" cy="${cx}" r="${r}" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="${stroke}" />`,
     `<circle cx="${cx}" cy="${cx}" r="${r}" fill="none" stroke="${color}" stroke-width="${stroke}" stroke-linecap="round" stroke-dasharray="${dash} ${c - dash}" transform="rotate(-90 ${cx} ${cx})" />`,
     `<text x="${cx}" y="${cx - 2}" text-anchor="middle" dominant-baseline="middle" class="donut-pct">${safe}%</text>`,
@@ -43,11 +45,21 @@ function renderHeroScoreboard(data, months) {
   const conversion = leadTotal > 0 ? Math.round((xeTotal / leadTotal) * 100) : 0;
 
   const pace = getMonthPace(months, xeTotal, xeTarget);
-  const paceLine = pace && pace.containsCurrent && xeTarget > 0
-    ? (pace.dailyNeeded > 0
-      ? `Cần <strong>${pace.dailyNeeded.toFixed(2)} xe/ngày</strong> trong ${pace.daysLeft} ngày còn lại.`
-      : (xeTotal >= xeTarget ? '🎉 Đã vượt mục tiêu kỳ!' : 'Hết kỳ — chốt sổ.'))
-    : `Trung bình <strong>${pace ? pace.dailyDone.toFixed(2) : '0'} xe/ngày</strong>.`;
+  const dailyDoneStr = (pace?.dailyDone ?? 0).toFixed(2);
+  let paceLine;
+  if (!pace) {
+    paceLine = `Trung bình <strong>0 xe/ngày</strong>.`;
+  } else if (pace.containsCurrent && pace.hasTarget) {
+    if (pace.dailyNeeded > 0) {
+      paceLine = `Cần <strong>${pace.dailyNeeded.toFixed(2)} xe/ngày</strong> trong ${pace.daysLeft} ngày còn lại.`;
+    } else if (xeTotal >= xeTarget) {
+      paceLine = '🎉 Đã vượt mục tiêu kỳ!';
+    } else {
+      paceLine = 'Hết kỳ — chốt sổ.';
+    }
+  } else {
+    paceLine = `Trung bình <strong>${dailyDoneStr} xe/ngày</strong>.`;
+  }
 
   const hd = getKpiSegments(data, 'hd_xuat_thang', months).reduce((s, x) => s + x.value, 0);
   const hdTarget = getMucTieuTong(data, 'hd_xuat_thang', months);
@@ -182,12 +194,13 @@ function renderGroupSplit(data, months) {
     }).join('') || '<p class="list-empty-note">Nhóm chưa có thành viên đang hoạt động.</p>';
 
     return [
-      '<details class="group-mini-card" open>',
+      // Collapse mặc định để dashboard đỡ "đậm đặc"; user click summary để mở.
+      '<details class="group-mini-card">',
       '<summary class="group-mini-summary">',
       '<div class="group-mini-head">',
       `<h4 class="group-mini-title">${escapeHtml(g.nhom_ten)} <span class="group-mini-count">(${activeMembers.length})</span></h4>`,
       '<div class="group-mini-head-right">',
-      g.pct_xe_ky !== null ? `<span class="badge ${pctClass}">${g.pct_xe_ky}% MT</span>` : '',
+      g.pct_xe_ky !== null ? `<span class="badge ${pctClass}" title="Phần trăm so với mục tiêu nhóm">${g.pct_xe_ky}% mục tiêu</span>` : '',
       '<span class="group-mini-chevron" aria-hidden="true">▾</span>',
       '</div>',
       '</div>',
@@ -283,34 +296,57 @@ function renderWorkSection(data, months) {
 function renderUrgentTable(data) {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
-  const urgent = (data.khachHang?.khach_hang || []).filter((kh) => {
-    if (!kh.ngay_giao_du_kien || ['da_giao', 'dong_cskh'].includes(kh.trang_thai)) return false;
-    const d = new Date(kh.ngay_giao_du_kien);
-    if (Number.isNaN(d.getTime())) return false;
-    d.setHours(0, 0, 0, 0);
-    const delta = Math.round((d - today) / 86400000);
-    return delta >= 0 && delta <= 3;
-  }).sort((a, b) => a.ngay_giao_du_kien.localeCompare(b.ngay_giao_du_kien));
+  // Urgent gồm 2 nhóm (đều "cần đẩy giao xe"):
+  //   1) Sắp đến ngày giao DK (≤3 ngày tới)
+  //   2) Đã xuất hoá đơn nhưng chưa giao xe — vẫn tính tồn theo yêu cầu nghiệp vụ.
+  const allKh = (data.khachHang?.khach_hang || []).filter((kh) => {
+    if (['da_giao', 'dong_cskh'].includes(kh.trang_thai)) return false;
+    if (kh.ngay_giao_thuc_te) return false;
+    return true;
+  });
+  const urgent = allKh.map((kh) => {
+    const d = kh.ngay_giao_du_kien ? new Date(kh.ngay_giao_du_kien) : null;
+    let delta = null;
+    if (d && !Number.isNaN(d.getTime())) {
+      d.setHours(0, 0, 0, 0);
+      delta = Math.round((d - today) / 86400000);
+    }
+    const nearDeadline = delta !== null && delta >= 0 && delta <= 3;
+    const daXuatHd = Boolean(kh.ngay_xuat_hd);
+    if (!nearDeadline && !daXuatHd) return null;
+    return { kh, delta, daXuatHd, nearDeadline };
+  }).filter(Boolean).sort((a, b) => {
+    // Đã xuất HĐ chờ giao → ưu tiên đầu danh sách (cần đẩy nhất).
+    if (a.daXuatHd !== b.daXuatHd) return a.daXuatHd ? -1 : 1;
+    // Sau đó sort theo ngày giao DK gần nhất.
+    const ad = a.kh.ngay_giao_du_kien || '9999';
+    const bd = b.kh.ngay_giao_du_kien || '9999';
+    return ad.localeCompare(bd);
+  });
 
   if (!urgent.length) return '';
   return [
     '<section class="urgent-section page-card-spacer">',
-    '<div class="section-header"><h3 class="section-title">⏰ Cần giao xe trong 3 ngày</h3><a href="khach-hang.html" class="btn-link">Xem tất cả KH</a></div>',
+    '<div class="section-header"><h3 class="section-title">⏰ Cần đẩy giao xe</h3><a href="khach-hang.html" class="btn-link">Xem tất cả KH</a></div>',
     '<div class="table-card simple-table-wrap">',
     '<table class="simple-table">',
     '<thead><tr>',
-    ['Khách hàng', 'Nhân viên', 'Ngày giao DK', 'Trạng thái'].map((h) => `<th>${h}</th>`).join(''),
+    ['Khách hàng', 'Nhân viên', 'Xuất HĐ', 'Ngày giao DK', 'Trạng thái'].map((h) => `<th>${h}</th>`).join(''),
     '</tr></thead><tbody>',
-    urgent.map((kh) => {
-      const d = new Date(kh.ngay_giao_du_kien);
-      d.setHours(0, 0, 0, 0);
-      const delta = Math.round((d - today) / 86400000);
+    urgent.map(({ kh, delta, daXuatHd }) => {
       const [statusLabel] = KH_STATUS_META[kh.trang_thai] || ['?'];
+      const giaoCell = kh.ngay_giao_du_kien
+        ? `<span class="${delta === 0 ? 'text-danger' : ''}">${formatDate(kh.ngay_giao_du_kien)}</span>`
+        : '<span class="muted">—</span>';
+      const hdCell = daXuatHd
+        ? `<span class="badge is-warning" title="Đã xuất hoá đơn — cần đẩy giao xe sớm">🧾 ${formatDate(kh.ngay_xuat_hd)}</span>`
+        : '<span class="muted">—</span>';
       return [
         '<tr>',
         `<td>${escapeHtml(kh.ten)}</td>`,
         `<td>${escapeHtml(getNvLabel(data, kh.nhan_vien_id) || '—')}</td>`,
-        `<td class="${delta === 0 ? 'text-danger' : ''}">${formatDate(kh.ngay_giao_du_kien)}</td>`,
+        `<td>${hdCell}</td>`,
+        `<td>${giaoCell}</td>`,
         `<td>${escapeHtml(statusLabel)}</td>`,
         '</tr>',
       ].join('');
@@ -351,8 +387,9 @@ export default function renderDashboard(data) {
     '</div>',
   ].join('') : '';
 
-  // Cảnh báo KH orphan: thiếu nhan_vien_id hoặc xe_id
-  const orphanKh = (data.khachHang?.khach_hang || []).filter((kh) => !kh.nhan_vien_id || !kh.xe_id);
+  // Cảnh báo KH orphan: thiếu nhan_vien_id hoặc xe_id → KHÔNG được tính KPI.
+  // Logic này khớp với isKhValid trong derive.js để banner và filter cùng tiêu chí.
+  const orphanKh = (data.khachHang?.khach_hang || []).filter((kh) => !isKhValid(kh));
   const orphanBanner = orphanKh.length ? [
     '<div class="setup-warning-card">',
     '<span>🔗</span>',

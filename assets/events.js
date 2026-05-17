@@ -6,6 +6,7 @@
 import { clearToken, getLastSyncAt, getPendingWriteCount } from './api.js';
 import { showToast, confirmAction, showModal, getModalRoot, closeModal, saveRange, parseRangeValue, calcPercent, getPercentClass } from './ui.js';
 import { TODO_MESSAGE, countKhByXeId } from './models.js';
+import { updateSyncChipDOM } from './components/sync-status.js';
 
 import { openRepoSettingsModal } from './modals/repo-settings.js';
 import { openTaskLibraryManagerModal } from './modals/admin.js';
@@ -19,56 +20,14 @@ import { filterXeRows } from './views/xe.js';
 
 import { appState, persistFile, rerenderApp, triggerManualRefresh, flushSyncNow, subscribeSyncStatus } from './app.js';
 
-// === Sync chip binding (module-level — bind 1 lần) ===
+// === Sync chip binding (module-level — bind 1 lần, dùng sync-status component) ===
 let syncChipBound = false;
-
-function formatRelativeSync(isoString) {
-  if (!isoString) return '';
-  const d = new Date(isoString);
-  if (Number.isNaN(d.getTime())) return '';
-  const now = new Date();
-  const sameDay = d.getFullYear() === now.getFullYear()
-    && d.getMonth() === now.getMonth()
-    && d.getDate() === now.getDate();
-  const hh = String(d.getHours()).padStart(2, '0');
-  const mm = String(d.getMinutes()).padStart(2, '0');
-  if (sameDay) return `${hh}:${mm}`;
-  const dd = String(d.getDate()).padStart(2, '0');
-  const mo = String(d.getMonth() + 1).padStart(2, '0');
-  return `${dd}/${mo} ${hh}:${mm}`;
-}
 
 function ensureSyncChipBinding() {
   if (syncChipBound) return;
   syncChipBound = true;
   subscribeSyncStatus((status) => {
-    const chip = document.querySelector('[data-sync-chip]');
-    if (!chip) return;
-    const dot = chip.querySelector('[data-sync-dot]');
-    const label = chip.querySelector('[data-sync-label]');
-    chip.classList.remove('is-syncing', 'is-pending', 'is-clean');
-    if (status.state === 'syncing') {
-      chip.classList.add('is-syncing');
-      if (dot) dot.textContent = '◐';
-      if (label) label.textContent = 'Đang đẩy GitHub...';
-      chip.setAttribute('title', 'Đang đẩy các thay đổi lên GitHub, vui lòng đợi.');
-    } else if (status.state === 'pending') {
-      chip.classList.add('is-pending');
-      if (dot) dot.textContent = '●';
-      if (label) label.textContent = `Có ${status.pending} thay đổi chưa đẩy · Đồng bộ ngay`;
-      chip.setAttribute('title', `Còn ${status.pending} file thay đổi chưa lên GitHub. Bấm để đẩy tất cả.`);
-    } else {
-      chip.classList.add('is-clean');
-      if (dot) dot.textContent = '●';
-      const lastSyncLabel = formatRelativeSync(getLastSyncAt());
-      if (label) label.textContent = lastSyncLabel ? `Đã đồng bộ ${lastSyncLabel} · Tải mới` : 'Đã đồng bộ · Tải mới';
-      chip.setAttribute(
-        'title',
-        lastSyncLabel
-          ? `Lần đồng bộ gần nhất: ${lastSyncLabel}. Bấm để kéo dữ liệu mới từ GitHub.`
-          : 'Chưa có lần đồng bộ nào trên thiết bị này. Bấm để kéo dữ liệu mới từ GitHub.',
-      );
-    }
+    updateSyncChipDOM(status);
   });
 }
 
@@ -93,14 +52,35 @@ function filterCustomerRows() {
   const nvValue = nv?.value || 'all';
   const paymentValue = payment?.value || 'all';
 
+  // Trạng thái dropdown có 2 loại option:
+  //   - Pipeline KH: 'du_ky', 'moi_ky', 'dang_xu_ly', ... → match data-status
+  //   - Hoá đơn:     'hd:da_xuat', 'hd:chua_xuat', ...    → match data-hdo
+  // Khi user chọn 1 trong nhóm hoá đơn, KHÔNG filter theo pipeline status nữa.
+  const isHdFilter = statusValue.startsWith('hd:');
+  const hdoFilter = isHdFilter ? statusValue.slice(3) : '';
+
   document.querySelectorAll('[data-customer-row]').forEach((row) => {
     const haystack = row.getAttribute('data-search') || '';
     const rowStatus = row.getAttribute('data-status') || '';
     const rowNv = row.getAttribute('data-nv') || '';
     const rowPayment = row.getAttribute('data-payment') || '';
+    const rowHdo = row.getAttribute('data-hdo') || '';
+
+    let matchStatus = true;
+    if (statusValue !== 'all') {
+      if (isHdFilter) {
+        // 'da_xuat' gom cả 2 sub-state da_xuat_cho_giao + da_xuat_da_giao.
+        matchStatus = hdoFilter === 'da_xuat'
+          ? rowHdo.startsWith('da_xuat')
+          : rowHdo === hdoFilter;
+      } else {
+        matchStatus = rowStatus === statusValue;
+      }
+    }
+
     const visible =
       (!query || haystack.includes(query)) &&
-      (statusValue === 'all' || rowStatus === statusValue) &&
+      matchStatus &&
       (nvValue === 'all' || rowNv === nvValue) &&
       (paymentValue === 'all' || rowPayment === paymentValue);
     row.style.display = visible ? '' : 'none';
@@ -127,9 +107,9 @@ export function bindCommonEvents(data) {
 
   document.querySelectorAll('[data-action="logout"]').forEach((button) => {
     button.addEventListener('click', () => {
-      confirmAction('Xoá token GitHub đã lưu trên thiết bị này?', () => {
+      confirmAction('Đăng xuất khỏi GitHub trên thiết bị này? (Token sẽ bị xoá, dữ liệu local vẫn được giữ nguyên.)', () => {
         clearToken();
-        showToast('Đã xoá token khỏi thiết bị này. App vẫn dùng dữ liệu local hiện có.', 'success');
+        showToast('Đã đăng xuất. App vẫn dùng dữ liệu local hiện có.', 'success');
       });
     });
   });
@@ -417,7 +397,7 @@ export function bindCommonEvents(data) {
     button.addEventListener('click', async () => {
       await flushPendingWeekWrite();
       await persistFile('nhan-vien.json', appState.data.nhanVien, null);
-      showToast('Đã lưu tạm trên máy. Nút đẩy GitHub chỉ dùng khi muốn đồng bộ lên cloud.', 'success');
+      showToast('Đã lưu.', 'success');
     });
   });
 
@@ -449,7 +429,15 @@ export function bindCommonEvents(data) {
       const rowPctCells = getVisibleElements(`[data-task-pct="${taskId}"]`);
       rowTotalCells.forEach((cell) => { cell.textContent = rowSum; });
       rowTargetCells.forEach((cell) => {
-        cell.textContent = cell.textContent?.trim().startsWith('MT') ? `MT ${rowTarget || '—'}` : (rowTarget || '—');
+        const current = cell.textContent?.trim() || '';
+        if (current.startsWith('Mục tiêu')) {
+          cell.textContent = `Mục tiêu ${rowTarget || '—'}`;
+        } else if (current.startsWith('MT')) {
+          // Backward compat — DOM cũ vẫn có thể có "MT N"
+          cell.textContent = `Mục tiêu ${rowTarget || '—'}`;
+        } else {
+          cell.textContent = rowTarget || '—';
+        }
       });
       rowPctCells.forEach((cell) => {
         const pct = rowTarget > 0 ? calcPercent(rowSum, rowTarget) : null;
@@ -514,6 +502,73 @@ export function bindCommonEvents(data) {
     input.addEventListener('input', () => syncWeekTaskInput(input));
     input.addEventListener('change', () => syncWeekTaskInput(input, { immediate: true }));
     input.addEventListener('blur', () => syncWeekTaskInput(input, { immediate: true }));
+  });
+
+  // === Batch entry tuần (trang tuan-tong-hop.html) ===
+  // Khác week-grid 1 NV: ở đây mỗi cell thuộc 1 (NV, task, tuần). Không cần
+  // sum row/col real-time — chỉ ghi cell đó. Lưu chậm: debounce 600ms theo cell.
+  const batchDebounceByKey = new Map();
+  const commitBatchCell = (cellKey) => {
+    const job = batchDebounceByKey.get(cellKey);
+    if (!job) return null;
+    batchDebounceByKey.delete(cellKey);
+    clearTimeout(job.timer);
+    const { nvId, taskId, week, month } = job;
+    const nvIdx = appState.data.nhanVien.nhan_vien.findIndex((item) => item.id === nvId);
+    if (nvIdx < 0) return null;
+    const employee = appState.data.nhanVien.nhan_vien[nvIdx];
+    if (!employee.du_lieu) employee.du_lieu = {};
+    if (!employee.du_lieu[month]) employee.du_lieu[month] = { tuan: { 1: {}, 2: {}, 3: {}, 4: {}, 5: {} } };
+    if (!employee.du_lieu[month].tuan) employee.du_lieu[month].tuan = { 1: {}, 2: {}, 3: {}, 4: {}, 5: {} };
+    if (!employee.du_lieu[month].tuan[week]) employee.du_lieu[month].tuan[week] = {};
+    // Đọc lại từ DOM tại thời điểm flush (tránh stale value khi user gõ nhanh).
+    const targetEl = document.querySelector(`[data-batch-cell-target][data-nv-id="${nvId}"][data-task-id="${taskId}"][data-tuan="${week}"][data-month="${month}"]`);
+    const actualEl = document.querySelector(`[data-batch-cell-input][data-nv-id="${nvId}"][data-task-id="${taskId}"][data-tuan="${week}"][data-month="${month}"]`);
+    const muc_tieu = Math.max(0, Number(targetEl?.value || 0));
+    const thuc_te = Math.max(0, Number(actualEl?.value || 0));
+    employee.du_lieu[month].tuan[week][taskId] = { muc_tieu, thuc_te };
+    return persistFile('nhan-vien.json', appState.data.nhanVien, null);
+  };
+
+  const scheduleBatchCell = (input, options = {}) => {
+    const nvId = input.getAttribute('data-nv-id');
+    const taskId = input.getAttribute('data-task-id');
+    const week = input.getAttribute('data-tuan');
+    const month = input.getAttribute('data-month');
+    if (!nvId || !taskId || !week || !month) return;
+    const cellKey = `${nvId}|${taskId}|${week}|${month}`;
+    const existing = batchDebounceByKey.get(cellKey);
+    if (existing) clearTimeout(existing.timer);
+    if (options.immediate) {
+      batchDebounceByKey.set(cellKey, { nvId, taskId, week, month, timer: null });
+      commitBatchCell(cellKey);
+      return;
+    }
+    const timer = setTimeout(() => commitBatchCell(cellKey), 600);
+    batchDebounceByKey.set(cellKey, { nvId, taskId, week, month, timer });
+  };
+
+  document.querySelectorAll('[data-batch-cell-input],[data-batch-cell-target]').forEach((input) => {
+    input.addEventListener('input', () => scheduleBatchCell(input));
+    input.addEventListener('change', () => scheduleBatchCell(input, { immediate: true }));
+    input.addEventListener('blur', () => scheduleBatchCell(input, { immediate: true }));
+  });
+
+  // Flush mọi batch cell pending trước khi navigate/đóng tab.
+  const flushAllBatchCells = () => {
+    Array.from(batchDebounceByKey.keys()).forEach((cellKey) => commitBatchCell(cellKey));
+  };
+  window.addEventListener('beforeunload', flushAllBatchCells);
+  window.addEventListener('pagehide', flushAllBatchCells);
+
+  // === Đổi phòng ban / tuần trong trang batch entry — reload URL với query mới ===
+  document.querySelectorAll('[data-batch-dept-select]').forEach((select) => {
+    select.addEventListener('change', () => {
+      flushAllBatchCells();
+      const url = new URL(window.location.href);
+      url.searchParams.set('dept', select.value);
+      window.location.href = url.pathname + url.search;
+    });
   });
 
   // === Kenh lead filter pills in NV detail KH tab ===

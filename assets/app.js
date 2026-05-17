@@ -30,6 +30,7 @@ import renderNhanVienDetailPage from './views/nhan-vien-detail.js';
 import renderKhachHangPage from './views/khach-hang.js';
 import renderCskhPage from './views/cskh.js';
 import renderSettingsPage from './views/settings.js';
+import renderTuanTongHopPage from './views/tuan-tong-hop.js';
 
 // === iOS standalone PWA: giữ navigation trong fullscreen ===
 // Khi add-to-home-screen, click <a href> sang trang khác sẽ mở Safari và mất
@@ -180,14 +181,15 @@ async function refreshFromGithub(reason) {
   if (refreshInFlight) return;
   if (document.visibilityState !== 'visible') return;
   if (document.body.classList.contains('modal-open')) return;
-  if (getPendingWriteCount() > 0) return;
+  const pendingCount = getPendingWriteCount();
+  if (reason !== 'manual' && pendingCount > 0) return;
   if (reason !== 'manual' && isUserEditingInline()) return;
   const repoConfig = getRepoConfig();
   if (!repoConfig.owner || !repoConfig.repo || !getToken()) return;
 
   refreshInFlight = true;
   try {
-    const raw = await readAllData();
+    const raw = await readAllData({ includePending: reason !== 'manual' });
     const signature = computeDataSignature(raw);
     if (signature === lastDataSignature) return;
     if (document.body.classList.contains('modal-open')) return;
@@ -195,7 +197,9 @@ async function refreshFromGithub(reason) {
     lastDataSignature = signature;
     ensureValidStoredRange(appState.data);
     rerenderApp();
-    if (reason === 'manual') {
+    if (reason === 'manual' && pendingCount > 0) {
+      showToast(`Đã tải dữ liệu mới từ GitHub. Thiết bị này vẫn còn ${pendingCount} nháp local chưa đẩy.`, 'warning');
+    } else if (reason === 'manual') {
       showToast('Đã làm mới dữ liệu từ GitHub.', 'success');
     } else {
       showToast('Đã đồng bộ dữ liệu mới từ GitHub.', 'success');
@@ -248,6 +252,10 @@ function ensureAutoRefreshHooks() {
     if (getPendingWriteCount()) return;
     refreshFromGithub('visibility');
   });
+  window.addEventListener('pageshow', () => {
+    if (getPendingWriteCount()) return;
+    refreshFromGithub('pageshow');
+  });
   window.addEventListener('focus', () => {
     if (getPendingWriteCount()) return;
     refreshFromGithub('focus');
@@ -265,10 +273,31 @@ function ensureAutoRefreshHooks() {
   }
 }
 
-// Không cảnh báo chỉ vì còn pending writes: dữ liệu local đã được lưu tạm.
-// Việc đẩy GitHub là thao tác chủ động qua chip/nút Đồng bộ.
+// Cảnh báo khi đóng tab thật sự nếu còn pending writes chưa đẩy GitHub.
+// Dữ liệu local đã được lưu — nhưng thiết bị khác sẽ không thấy nếu quên đẩy.
+// Chỉ warn khi user đóng tab / refresh — KHÔNG warn khi navigate trong app
+// (sidebar/bottom-nav cùng origin) để tránh khó chịu.
 function ensureUnloadGuard() {
-  // Intentionally no-op.
+  let internalNavigation = false;
+  document.addEventListener('click', (event) => {
+    const anchor = event.target.closest('a[href]');
+    if (!anchor) return;
+    if (anchor.target && anchor.target !== '_self') return;
+    if (anchor.hasAttribute('download')) return;
+    try {
+      const url = new URL(anchor.getAttribute('href'), window.location.href);
+      if (url.origin === window.location.origin) internalNavigation = true;
+    } catch (_) { /* href không parse được — bỏ qua */ }
+  }, true);
+  window.addEventListener('beforeunload', (event) => {
+    if (internalNavigation) {
+      internalNavigation = false;
+      return;
+    }
+    if (!getPendingWriteCount()) return;
+    event.preventDefault();
+    event.returnValue = '';
+  });
 }
 
 function isMonthKey(value) {
@@ -379,6 +408,7 @@ function getProtectedRenderer(page) {
     case 'nhanvien-detail': return renderNhanVienDetailPage;
     case 'khachhang': return renderKhachHangPage;
     case 'cskh': return renderCskhPage;
+    case 'tuan-tong-hop': return renderTuanTongHopPage;
     case 'settings': return renderSettingsPage;
     default: return renderDashboard;
   }

@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Storybook — GĐKD App</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;600;700;800&family=Noto+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/style.css">
+  <style>
+    /* Storybook-only — không xuất ra bundle production */
+    .sb-shell { max-width: 1100px; margin: 0 auto; padding: 24px; }
+    .sb-toc { position: sticky; top: 0; background: var(--bg); padding: 12px 0; border-bottom: 1px solid var(--border); display: flex; flex-wrap: wrap; gap: 8px; z-index: 10; margin-bottom: 24px; }
+    .sb-toc a { padding: 4px 10px; border-radius: 999px; background: var(--card); border: 1px solid var(--border); font-size: 13px; }
+    .sb-toc a:hover { background: var(--primary); color: #fff; }
+    .sb-section { margin-bottom: 48px; }
+    .sb-section h2 { font-family: var(--font-display); font-size: 20px; margin: 0 0 4px; color: var(--primary); }
+    .sb-section .sb-sub { color: var(--text-muted); font-size: 13px; margin: 0 0 16px; }
+    .sb-variant-head { font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: .04em; margin: 20px 0 8px; }
+    .sb-frame { background: var(--card); border: 1px dashed var(--border); border-radius: 12px; padding: 16px; }
+    .sb-frame.is-dark { background: linear-gradient(135deg, #102031, #1a3a5c); color: #fff; }
+    .sb-row { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+    .sb-token { display: flex; align-items: center; gap: 10px; padding: 8px; border: 1px solid var(--border); border-radius: 8px; background: #fff; }
+    .sb-swatch { width: 28px; height: 28px; border-radius: 6px; border: 1px solid rgba(0,0,0,.08); flex-shrink: 0; }
+    .sb-token code { font-size: 11px; color: var(--text-muted); }
+    .sb-spacing { display: flex; align-items: center; gap: 12px; }
+    .sb-spacing-bar { height: 16px; background: var(--accent); border-radius: 4px; }
+  </style>
+</head>
+<body>
+  <div class="sb-shell">
+    <h1 style="font-family: var(--font-display); color: var(--primary); margin-bottom: 4px;">📚 Storybook — GĐKD App</h1>
+    <p style="color: var(--text-muted); margin-top: 0;">Trang test component standalone, không cần GitHub token. Dùng để xem nhanh component trước khi redesign hoặc kiểm tra responsive.</p>
+
+    <nav class="sb-toc">
+      <a href="#tokens">Design tokens</a>
+      <a href="#buttons">Buttons</a>
+      <a href="#badges">Badges</a>
+      <a href="#cards">Cards</a>
+      <a href="#kpi">KPI Card</a>
+      <a href="#stacked-bar">Stacked Bar</a>
+      <a href="#donut">Donut</a>
+      <a href="#week-grid">Week Grid</a>
+      <a href="#forms">Form fields</a>
+      <a href="#empty">Empty / Banner</a>
+    </nav>
+
+    <!-- === Design tokens === -->
+    <section class="sb-section" id="tokens">
+      <h2>Design tokens</h2>
+      <p class="sb-sub">Nguồn: <code>assets/style-tokens.css</code> · sửa ở đó, propagate toàn app.</p>
+
+      <div class="sb-variant-head">Color palette</div>
+      <div class="sb-row" id="sb-colors"></div>
+
+      <div class="sb-variant-head">Performance tier</div>
+      <div class="sb-row" id="sb-tiers"></div>
+
+      <div class="sb-variant-head">Spacing scale</div>
+      <div id="sb-spacing"></div>
+
+      <div class="sb-variant-head">Typography scale</div>
+      <div id="sb-typo"></div>
+    </section>
+
+    <!-- === Buttons === -->
+    <section class="sb-section" id="buttons">
+      <h2>Buttons</h2>
+      <p class="sb-sub">4 biến thể chính: primary / soft / ghost / link.</p>
+      <div class="sb-frame">
+        <div class="button-row">
+          <button class="btn btn-primary" type="button">Thêm khách hàng mới</button>
+          <button class="btn btn-soft" type="button">+ Gán thêm nhiệm vụ</button>
+          <button class="btn btn-ghost" type="button">Đăng xuất</button>
+          <a class="btn-link" href="#">Xem xếp hạng</a>
+        </div>
+      </div>
+      <div class="sb-variant-head">Disabled state</div>
+      <div class="sb-frame">
+        <div class="button-row">
+          <button class="btn btn-primary" type="button" disabled>Đang đẩy lên GitHub…</button>
+          <button class="btn btn-soft" type="button" disabled>Khoá nhập</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- === Badges === -->
+    <section class="sb-section" id="badges">
+      <h2>Badges</h2>
+      <p class="sb-sub">Dùng cho % mục tiêu, trạng thái KH, trạng thái CSKH…</p>
+      <div class="sb-frame">
+        <div class="button-row" style="flex-wrap: wrap;">
+          <span class="badge is-success">100% Đạt</span>
+          <span class="badge is-warning">65% Cần đẩy</span>
+          <span class="badge is-danger">22% Cần hỗ trợ</span>
+          <span class="badge is-info">🔵 Mới ký</span>
+          <span class="badge is-purple">🔵 Chờ giao</span>
+          <span class="badge">Chưa có MT</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- === Cards === -->
+    <section class="sb-section" id="cards">
+      <h2>Cards</h2>
+      <p class="sb-sub">Card variants — dashboard hiện tại có 10+ biến thể, redesign sẽ consolidate.</p>
+
+      <div class="sb-variant-head">Hero scoreboard mini</div>
+      <div class="sb-frame is-dark">
+        <article class="hero-mini">
+          <span class="hero-mini-label">HĐ xuất kỳ này</span>
+          <strong class="hero-mini-value">8<span class="hero-mini-sub"> / 18</span></strong>
+          <span class="hero-mini-meta">44% mục tiêu</span>
+        </article>
+      </div>
+
+      <div class="sb-variant-head">Work card</div>
+      <div class="sb-frame">
+        <article class="work-card work-card-v3" style="max-width: 280px;">
+          <div class="work-card-head">
+            <span class="work-card-icon">🎬</span>
+            <span class="work-card-label">Videos nội dung</span>
+            <span class="badge is-warning work-card-badge">62%</span>
+          </div>
+          <div class="work-card-body">
+            <span class="work-card-value">31</span>
+            <span class="work-card-target"> / 50 video</span>
+          </div>
+          <div class="work-card-bar">
+            <div class="progress-track"><div class="progress-bar is-warning" style="width: 62%"></div></div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- === KPI Card === -->
+    <section class="sb-section" id="kpi">
+      <h2>KPI Card</h2>
+      <p class="sb-sub">Component lớn nhất dashboard — collapsed + expanded state.</p>
+      <div class="sb-variant-head">Collapsed</div>
+      <div class="sb-frame">
+        <article class="kpi-card kpi-card-v3 kpi-core-item" style="max-width: 720px;">
+          <div class="kpi-card-header kpi-core-header" role="button" aria-expanded="false">
+            <div class="kpi-core-main">
+              <div class="kpi-row-head">
+                <span class="kpi-icon">📑</span>
+                <span class="kpi-label">Hợp đồng ký mới</span>
+              </div>
+              <div class="kpi-core-note">cần 0.78/ngày · còn 12d · Top Nam: 5</div>
+            </div>
+            <div class="kpi-core-metrics">
+              <span class="badge is-warning kpi-pct-badge">62%</span>
+              <div class="kpi-row-number">
+                <span class="kpi-number-v3">11</span>
+                <span class="kpi-divider">/</span>
+                <span class="kpi-target-v3">18</span>
+                <span class="kpi-unit-v3">HĐ</span>
+              </div>
+              <span class="kpi-chevron">▾</span>
+            </div>
+          </div>
+        </article>
+      </div>
+
+      <div class="sb-variant-head">Empty state hint</div>
+      <div class="sb-frame">
+        <article class="kpi-card kpi-card-v3 kpi-core-item" style="max-width: 720px;">
+          <div class="kpi-card-header kpi-core-header">
+            <div class="kpi-core-main">
+              <div class="kpi-row-head"><span class="kpi-icon">👥</span><span class="kpi-label">Lead phát sinh</span></div>
+              <div class="kpi-core-note is-empty-hint">Chưa có lead nào trong kỳ. Nhập ở tab "Nhập tuần" của từng nhân viên.</div>
+            </div>
+            <div class="kpi-core-metrics">
+              <span class="kpi-pct-badge-spacer"></span>
+              <div class="kpi-row-number"><span class="kpi-number-v3">0</span><span class="kpi-divider">/</span><span class="kpi-target-v3">120</span><span class="kpi-unit-v3">lead</span></div>
+              <span class="kpi-chevron">▾</span>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- === Stacked bar === -->
+    <section class="sb-section" id="stacked-bar">
+      <h2>Stacked Bar — NV chips</h2>
+      <p class="sb-sub">Segment theo % cá nhân của NV. Xanh ≥80%, vàng 50-79%, cam 20-49%, đỏ &lt;20%.</p>
+      <div class="sb-frame">
+        <div class="nv-chip-stack" style="max-width: 640px;">
+          <span class="nv-chip is-tier-excellent" style="flex: 35" title="Nam: 5 · 100%"><span class="nv-chip-initial">N</span><span class="nv-chip-value">5</span><span class="nv-chip-emoji">🔥</span></span>
+          <span class="nv-chip is-tier-good" style="flex: 28" title="Bình: 4 · 80%"><span class="nv-chip-initial">B</span><span class="nv-chip-value">4</span><span class="nv-chip-emoji">✅</span></span>
+          <span class="nv-chip is-tier-average" style="flex: 18" title="Hùng: 3 · 60%"><span class="nv-chip-initial">H</span><span class="nv-chip-value">3</span><span class="nv-chip-emoji">⚠️</span></span>
+          <span class="nv-chip is-tier-weak" style="flex: 12" title="Dũng: 2 · 40%"><span class="nv-chip-initial">D</span><span class="nv-chip-value">2</span><span class="nv-chip-emoji">🆘</span></span>
+          <span class="nv-chip is-tier-rest" style="flex: 7" title="2 NV khác: 1">+2</span>
+        </div>
+      </div>
+
+      <div class="sb-variant-head">Empty state</div>
+      <div class="sb-frame">
+        <div class="nv-chip-stack is-empty">Chưa có dữ liệu nhân viên trong kỳ này.</div>
+      </div>
+    </section>
+
+    <!-- === Donut === -->
+    <section class="sb-section" id="donut">
+      <h2>Donut</h2>
+      <p class="sb-sub">Hero scoreboard SVG — kích thước responsive qua CSS .donut, không cần !important.</p>
+      <div class="sb-frame is-dark">
+        <svg class="donut" viewBox="0 0 140 140" aria-hidden="true">
+          <circle cx="70" cy="70" r="63" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="14"/>
+          <circle cx="70" cy="70" r="63" fill="none" stroke="#66bb6a" stroke-width="14" stroke-linecap="round"
+            stroke-dasharray="277 119" transform="rotate(-90 70 70)"/>
+          <text x="70" y="68" text-anchor="middle" dominant-baseline="middle" class="donut-pct">70%</text>
+          <text x="70" y="86" text-anchor="middle" dominant-baseline="middle" class="donut-label">đã đạt</text>
+        </svg>
+      </div>
+    </section>
+
+    <!-- === Week Grid (preview-only) === -->
+    <section class="sb-section" id="week-grid">
+      <h2>Week Grid · cell stack</h2>
+      <p class="sb-sub">Cell mới: nhãn "Mục tiêu / Thực tế" rõ ràng thay vì MT / TT.</p>
+      <div class="sb-frame" style="max-width: 280px;">
+        <div class="week-cell-stack">
+          <label class="week-cell-label"><span class="week-cell-tag">Mục tiêu</span><input class="input is-compact table-input-sm week-cell-input is-target" type="number" value="5"></label>
+          <label class="week-cell-label"><span class="week-cell-tag">Thực tế</span><input class="input is-compact table-input-sm week-cell-input" type="number" value="4"></label>
+        </div>
+      </div>
+    </section>
+
+    <!-- === Form fields === -->
+    <section class="sb-section" id="forms">
+      <h2>Form fields</h2>
+      <div class="sb-frame">
+        <div class="field" style="max-width: 320px;">
+          <label class="field-label" for="sb-input">Tên khách hàng</label>
+          <input class="input" id="sb-input" placeholder="Nguyễn Văn A">
+        </div>
+        <div class="field" style="max-width: 320px;">
+          <label class="field-label" for="sb-select">Nhân viên phụ trách</label>
+          <select class="input" id="sb-select"><option>— Chọn nhân viên —</option><option>Lê Ngọc Nam</option><option>Trần Thị Bình</option></select>
+        </div>
+      </div>
+    </section>
+
+    <!-- === Empty / Banner === -->
+    <section class="sb-section" id="empty">
+      <h2>Empty state &amp; banner</h2>
+      <div class="sb-variant-head">Setup warning</div>
+      <div class="sb-frame">
+        <div class="setup-warning-card">
+          <span>⚠️</span>
+          <div>
+            <strong>Cần hoàn thiện setup trước khi nhập khách hàng</strong>
+            <ul>
+              <li>Chưa có xe — <a href="#">Thêm xe</a></li>
+              <li>Chưa có NV đang làm — <a href="#">Thêm NV</a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="sb-variant-head">Empty card</div>
+      <div class="sb-frame">
+        <section class="empty-card">
+          <h3 class="section-title">Chưa có dữ liệu</h3>
+          <p class="section-subtitle">Bắt đầu bằng cách thêm 1 dòng xe vào catalog.</p>
+          <div class="button-row button-row-top"><button class="btn btn-primary">+ Thêm xe</button></div>
+        </section>
+      </div>
+    </section>
+  </div>
+
+  <script type="module">
+    // Render token previews ngay trên trang — đọc CSS variables runtime.
+    const root = getComputedStyle(document.documentElement);
+
+    const colorTokens = [
+      '--primary', '--primary-light', '--accent', '--success', '--success-light',
+      '--warning', '--warning-light', '--danger', '--danger-light', '--info', '--purple', '--neutral',
+      '--bg', '--card', '--text', '--text-muted', '--border',
+    ];
+    document.getElementById('sb-colors').innerHTML = colorTokens.map((token) => {
+      const value = root.getPropertyValue(token).trim();
+      return `<div class="sb-token"><span class="sb-swatch" style="background: ${value}"></span><div><div>${token}</div><code>${value}</code></div></div>`;
+    }).join('');
+
+    const tierTokens = ['--tier-excellent', '--tier-good', '--tier-average', '--tier-weak', '--tier-none'];
+    document.getElementById('sb-tiers').innerHTML = tierTokens.map((token) => {
+      const value = root.getPropertyValue(token).trim() || '—';
+      return `<div class="sb-token"><span class="sb-swatch" style="background: ${value}"></span><div><div>${token}</div><code>${value}</code></div></div>`;
+    }).join('');
+
+    const spacingTokens = ['--space-1', '--space-2', '--space-3', '--space-4', '--space-5', '--space-6', '--space-7'];
+    document.getElementById('sb-spacing').innerHTML = spacingTokens.map((token) => {
+      const value = root.getPropertyValue(token).trim();
+      return `<div class="sb-spacing"><div class="sb-spacing-bar" style="width: ${value}"></div><code>${token} = ${value}</code></div>`;
+    }).join('');
+
+    const typeTokens = [
+      { name: '--fs-3xl', sample: 'Tổng quan kỳ này' },
+      { name: '--fs-2xl', sample: 'Tổng quan kỳ này' },
+      { name: '--fs-xl', sample: 'Tổng quan kỳ này' },
+      { name: '--fs-lg', sample: 'Tổng quan kỳ này' },
+      { name: '--fs-md', sample: 'Tổng quan kỳ này' },
+      { name: '--fs-base', sample: 'Tổng quan kỳ này' },
+      { name: '--fs-sm', sample: 'Tổng quan kỳ này' },
+      { name: '--fs-xs', sample: 'Tổng quan kỳ này' },
+    ];
+    document.getElementById('sb-typo').innerHTML = typeTokens.map(({ name, sample }) => {
+      const value = root.getPropertyValue(name).trim();
+      return `<div style="display:flex;align-items:baseline;gap:12px;margin-bottom:6px;"><code style="min-width:90px;color:var(--text-muted);">${name}</code><span style="font-size: var(${name});">${sample}</span><code style="color:var(--text-muted);font-size:11px;">${value}</code></div>`;
+    }).join('');
+  </script>
+</body>
+</html>

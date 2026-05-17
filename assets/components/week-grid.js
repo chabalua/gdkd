@@ -47,8 +47,8 @@ export function renderWeekGrid({ nvId, month, channels, data, canEdit }) {
       const disabled = !canEdit || (week === 5 && !showWeekFive);
       const cellValue = week === 5 && !showWeekFive ? '—' : [
         '<div class="week-cell-stack">',
-        `<label class="week-cell-label">MT<input class="input is-compact table-input-sm week-cell-input is-target" type="number" min="0" step="${getStep(task)}" data-week-task-target data-nv-id="${escapeHtml(nvId)}" data-task-id="${escapeHtml(task.id)}" data-task-loai="${escapeHtml(task.loai || 'lead')}" data-tuan="${week}" data-month="${escapeHtml(month)}" value="${target}"${disabled ? ' disabled' : ''} aria-label="Mục tiêu ${escapeHtml(task.label)} tuần ${week}"></label>`,
-        `<label class="week-cell-label">TT<input class="input is-compact table-input-sm week-cell-input" type="number" min="0" step="${getStep(task)}" data-week-task-input data-nv-id="${escapeHtml(nvId)}" data-task-id="${escapeHtml(task.id)}" data-task-loai="${escapeHtml(task.loai || 'lead')}" data-tuan="${week}" data-month="${escapeHtml(month)}" value="${actual}"${disabled ? ' disabled' : ''} aria-label="Thực tế ${escapeHtml(task.label)} tuần ${week}"></label>`,
+        `<label class="week-cell-label" title="Mục tiêu tuần"><span class="week-cell-tag">Mục tiêu</span><input class="input is-compact table-input-sm week-cell-input is-target" type="number" min="0" step="${getStep(task)}" data-week-task-target data-nv-id="${escapeHtml(nvId)}" data-task-id="${escapeHtml(task.id)}" data-task-loai="${escapeHtml(task.loai || 'lead')}" data-tuan="${week}" data-month="${escapeHtml(month)}" value="${target}"${disabled ? ' disabled' : ''} aria-label="Mục tiêu ${escapeHtml(task.label)} tuần ${week}"></label>`,
+        `<label class="week-cell-label" title="Thực tế đã làm"><span class="week-cell-tag">Thực tế</span><input class="input is-compact table-input-sm week-cell-input" type="number" min="0" step="${getStep(task)}" data-week-task-input data-nv-id="${escapeHtml(nvId)}" data-task-id="${escapeHtml(task.id)}" data-task-loai="${escapeHtml(task.loai || 'lead')}" data-tuan="${week}" data-month="${escapeHtml(month)}" value="${actual}"${disabled ? ' disabled' : ''} aria-label="Thực tế ${escapeHtml(task.label)} tuần ${week}"></label>`,
         '</div>',
       ].join('');
       return `<td class="is-number">${cellValue}</td>`;
@@ -85,8 +85,8 @@ export function renderWeekGrid({ nvId, month, channels, data, canEdit }) {
       return [
         '<div class="mobile-week-item">',
         `<span class="mobile-week-label">T${week}</span>`,
-        `<label class="week-cell-label">MT<input class="input is-compact mobile-week-input week-cell-input is-target" type="number" min="0" step="${getStep(task)}" data-week-task-target data-nv-id="${escapeHtml(nvId)}" data-task-id="${escapeHtml(task.id)}" data-task-loai="${escapeHtml(task.loai || 'lead')}" data-tuan="${week}" data-month="${escapeHtml(month)}" value="${target}"${disabled ? ' disabled' : ''} aria-label="Mục tiêu ${escapeHtml(task.label)} tuần ${week}"></label>`,
-        `<label class="week-cell-label">TT<input class="input is-compact mobile-week-input week-cell-input" type="number" min="0" step="${getStep(task)}" data-week-task-input data-nv-id="${escapeHtml(nvId)}" data-task-id="${escapeHtml(task.id)}" data-task-loai="${escapeHtml(task.loai || 'lead')}" data-tuan="${week}" data-month="${escapeHtml(month)}" value="${actual}"${disabled ? ' disabled' : ''} aria-label="Thực tế ${escapeHtml(task.label)} tuần ${week}"></label>`,
+        `<label class="week-cell-label" title="Mục tiêu tuần"><span class="week-cell-tag">Mục tiêu</span><input class="input is-compact mobile-week-input week-cell-input is-target" type="number" min="0" step="${getStep(task)}" data-week-task-target data-nv-id="${escapeHtml(nvId)}" data-task-id="${escapeHtml(task.id)}" data-task-loai="${escapeHtml(task.loai || 'lead')}" data-tuan="${week}" data-month="${escapeHtml(month)}" value="${target}"${disabled ? ' disabled' : ''} aria-label="Mục tiêu ${escapeHtml(task.label)} tuần ${week}"></label>`,
+        `<label class="week-cell-label" title="Thực tế đã làm"><span class="week-cell-tag">Thực tế</span><input class="input is-compact mobile-week-input week-cell-input" type="number" min="0" step="${getStep(task)}" data-week-task-input data-nv-id="${escapeHtml(nvId)}" data-task-id="${escapeHtml(task.id)}" data-task-loai="${escapeHtml(task.loai || 'lead')}" data-tuan="${week}" data-month="${escapeHtml(month)}" value="${actual}"${disabled ? ' disabled' : ''} aria-label="Thực tế ${escapeHtml(task.label)} tuần ${week}"></label>`,
         '</div>',
       ].join('');
     }).join('');
@@ -96,8 +96,8 @@ export function renderWeekGrid({ nvId, month, channels, data, canEdit }) {
       '<div class="content-flex-1">',
       `<h4 class="mobile-lead-title">${escapeHtml(getTaskLabel(task))}</h4>`,
       '<div class="mobile-lead-meta">',
-      `<span class="badge is-info">TT ${totalActual}</span>`,
-      `<span class="badge" data-task-target="${escapeHtml(task.id)}">MT ${totalTarget || '—'}</span>`,
+      `<span class="badge is-info">Thực tế ${totalActual}</span>`,
+      `<span class="badge" data-task-target="${escapeHtml(task.id)}">Mục tiêu ${totalTarget || '—'}</span>`,
       `<span class="badge ${pctClass}" data-task-pct="${escapeHtml(task.id)}">${pct !== null ? `${pct}%` : '—'}</span>`,
       '</div>',
       '</div>',
@@ -148,7 +148,7 @@ export function renderWeekGrid({ nvId, month, channels, data, canEdit }) {
     '</div>',
     '<div class="table-responsive lead-table-scroll desktop-lead-table">',
     '<table class="data-table data-table-lead">',
-    '<thead><tr><th>Nhiệm vụ</th><th class="is-number">T1</th><th class="is-number">T2</th><th class="is-number">T3</th><th class="is-number">T4</th><th class="is-number">T5</th><th class="is-number">Tổng</th><th class="is-number">MT</th><th class="is-number">%</th></tr></thead>',
+    '<thead><tr><th>Nhiệm vụ</th><th class="is-number">T1</th><th class="is-number">T2</th><th class="is-number">T3</th><th class="is-number">T4</th><th class="is-number">T5</th><th class="is-number">Tổng TT</th><th class="is-number" title="Mục tiêu tổng">Mục tiêu</th><th class="is-number">%</th></tr></thead>',
     '<tbody>',
     channelRows,
     '<tr class="lead-total-row">',

@@ -115,7 +115,11 @@ function renderGithubSection() {
   const hasGithubConfig = Boolean(repoConfig.owner && repoConfig.repo && getToken());
 
   const pendingList = pendingFiles.length
-    ? `<ul class="sync-pending-list">${pendingFiles.map((f) => `<li><strong>${escapeHtml(FILE_LABELS[f] || f)}</strong> <span class="muted">(${escapeHtml(f)})</span></li>`).join('')}</ul>`
+    ? `<ul class="sync-pending-list">${pendingFiles.map((f) => {
+      const pw = pendingWrites[f] || {};
+      const hasError = Boolean(pw.error);
+      return `<li class="${hasError ? 'sync-pending-item is-failed' : ''}"><strong>${escapeHtml(FILE_LABELS[f] || f)}</strong> <span class="muted">(${escapeHtml(f)})</span>${hasError ? `<span class="badge is-danger sync-fail-badge">Lỗi</span><span class="text-subtle-sm sync-fail-msg">${escapeHtml(pw.error)}</span>` : ''}</li>`;
+    }).join('')}</ul>`
     : '';
 
   const repoInfo = hasGithubConfig

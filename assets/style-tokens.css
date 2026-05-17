@@ -1,0 +1,132 @@
+/* assets/style-tokens.css
+ * Design tokens — nguồn duy nhất cho color, spacing, typography, radius, shadow, layout.
+ * Import vào style.css (cho UI hiện tại) và style-next.css (cho redesign) để
+ * thay đổi 1 chỗ, ảnh hưởng cả 2 phiên bản.
+ *
+ * Quy ước:
+ *   --color-*       — palette gốc (hex)
+ *   --bg-*          — màu nền theo vai trò
+ *   --text-*        — màu chữ theo vai trò
+ *   --semantic-*    — semantic (success/warning/danger/info/accent)
+ *   --space-*       — spacing scale (4-8-12-16-24-32-48)
+ *   --radius-*      — bo góc scale
+ *   --shadow-*      — shadow scale
+ *   --font-*        — font stack
+ *   --fs-*          — font-size scale
+ *   --fw-*          — font-weight scale
+ *   --z-*           — z-index scale
+ */
+
+:root {
+  /* === Palette gốc === */
+  --color-primary: #1a3a5c;
+  --color-primary-light: #2c5282;
+  --color-accent: #e8a020;
+  --color-success: #2e7d32;
+  --color-success-light: #66bb6a;
+  --color-warning: #f57c00;
+  --color-warning-light: #ffa726;
+  --color-danger: #c62828;
+  --color-danger-light: #ef5350;
+  --color-info: #1565c0;
+  --color-purple: #6a1b9a;
+  --color-neutral: #cfd8dc;
+
+  /* === Aliases (giữ tên cũ cho UI hiện tại, ánh xạ về palette gốc) === */
+  --primary: var(--color-primary);
+  --primary-light: var(--color-primary-light);
+  --accent: var(--color-accent);
+  --success: var(--color-success);
+  --success-light: var(--color-success-light);
+  --warning: var(--color-warning);
+  --warning-light: var(--color-warning-light);
+  --danger: var(--color-danger);
+  --danger-light: var(--color-danger-light);
+  --info: var(--color-info);
+  --purple: var(--color-purple);
+  --neutral: var(--color-neutral);
+
+  /* === Surface / background === */
+  --bg: #f4f6f9;
+  --bg-elevated: #ffffff;
+  --card: #ffffff;
+
+  /* === Text === */
+  --text: #1c2b3a;
+  --text-muted: #6b7c93;
+  --text-inverse: #ffffff;
+
+  /* === Border === */
+  --border: #dce3ea;
+  --border-strong: #b6c2cf;
+
+  /* === Spacing scale (4/8/12/16/24/32/48) === */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+
+  /* === Radius === */
+  --radius-sm: 8px;
+  --radius: 12px;
+  --radius-lg: 18px;
+  --radius-full: 999px;
+
+  /* === Shadow === */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-lg: 0 10px 24px rgba(26, 58, 92, 0.12);
+  --shadow-modal: 0 24px 48px rgba(0, 0, 0, 0.24);
+
+  /* === Typography === */
+  --font-display: 'Be Vietnam Pro', system-ui, sans-serif;
+  --font-body: 'Noto Sans', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace;
+
+  --fs-xs: 0.75rem;    /* 12px */
+  --fs-sm: 0.875rem;   /* 14px */
+  --fs-base: 1rem;     /* 16px */
+  --fs-md: 1.125rem;   /* 18px */
+  --fs-lg: 1.25rem;    /* 20px */
+  --fs-xl: 1.5rem;     /* 24px */
+  --fs-2xl: 2rem;      /* 32px */
+  --fs-3xl: 2.5rem;    /* 40px */
+
+  --fw-regular: 400;
+  --fw-medium: 500;
+  --fw-semibold: 600;
+  --fw-bold: 700;
+  --fw-extrabold: 800;
+
+  --lh-tight: 1.2;
+  --lh-normal: 1.4;
+  --lh-loose: 1.6;
+
+  /* === Layout === */
+  --sidebar-width: 260px;
+  --bottom-nav-height: 82px;
+  --topbar-height: 64px;
+  --container-max: 1280px;
+
+  /* === Performance tier — dùng cho color-coding NV === */
+  --tier-excellent: var(--success);
+  --tier-good: var(--success-light);
+  --tier-average: var(--warning-light);
+  --tier-weak: var(--danger-light);
+  --tier-none: var(--neutral);
+
+  /* === Z-index scale === */
+  --z-sticky: 40;
+  --z-dropdown: 60;
+  --z-modal-backdrop: 90;
+  --z-modal: 100;
+  --z-toast: 120;
+
+  /* === Transition === */
+  --transition-fast: 120ms ease;
+  --transition: 200ms ease;
+  --transition-slow: 320ms ease;
+}

@@ -36,7 +36,7 @@ export default function renderXePage(data) {
         `<td><span class="badge ${meta[1]}">${escapeHtml(meta[0])}</span></td>`,
         `<td class="is-number">${refCount}</td>`,
         '<td><div class="button-row">',
-        `<button type="button" class="btn btn-soft" data-action="open-xe-edit" data-id="${escapeHtml(xe.id)}">Sửa</button>`,
+        `<button type="button" class="btn btn-soft" data-action="open-xe-edit" data-id="${escapeHtml(xe.id)}">Chỉnh sửa</button>`,
         `<button type="button" class="btn btn-danger" data-action="delete-xe" data-id="${escapeHtml(xe.id)}" ${refCount > 0 ? 'disabled title="Có KH đang dùng xe này"' : ''}>Xoá</button>`,
         '</div></td>',
         '</tr>',

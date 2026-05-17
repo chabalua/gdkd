@@ -1,29 +1,7 @@
-:root {
-  --primary: #1a3a5c;
-  --primary-light: #2c5282;
-  --accent: #e8a020;
-  --success: #2e7d32;
-  --success-light: #66bb6a;
-  --warning: #f57c00;
-  --warning-light: #ffa726;
-  --danger: #c62828;
-  --danger-light: #ef5350;
-  --info: #1565c0;
-  --purple: #6a1b9a;
-  --neutral: #cfd8dc;
-  --bg: #f4f6f9;
-  --card: #ffffff;
-  --text: #1c2b3a;
-  --text-muted: #6b7c93;
-  --border: #dce3ea;
-  --radius: 12px;
-  --radius-lg: 18px;
-  --shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
-  --sidebar-width: 260px;
-  --bottom-nav-height: 82px;
-  --font-display: 'Be Vietnam Pro', system-ui, sans-serif;
-  --font-body: 'Noto Sans', system-ui, sans-serif;
-}
+/* Design tokens nay được tách sang ./style-tokens.css để 2 phiên bản UI
+ * (hiện tại + redesign) share chung nguồn. KHÔNG thêm CSS custom properties
+ * mới ở đây — sửa style-tokens.css. */
+@import url('./style-tokens.css');
 
 * {
   box-sizing: border-box;
@@ -477,6 +455,8 @@ img {
 .sync-chip.is-pending .sync-dot { color: #d97706; }
 .sync-chip.is-syncing { color: #2563eb; }
 .sync-chip.is-syncing .sync-dot { color: #2563eb; animation: sync-spin 1s linear infinite; display: inline-block; }
+.sync-chip.is-no-config { color: var(--text-muted); }
+.sync-chip.is-no-config .sync-dot { color: var(--text-muted); }
 @keyframes sync-spin { from { transform: rotate(0); } to { transform: rotate(360deg); } }
 
 .btn-danger {
@@ -1098,6 +1078,13 @@ img {
   font-size: 0.65rem;
   color: var(--text-muted);
   text-align: left;
+}
+
+.week-cell-tag {
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--text-muted);
 }
 
 .week-cell-input {
@@ -2096,6 +2083,8 @@ img {
 
 .donut {
   display: block;
+  width: 140px;
+  height: 140px;
 }
 
 .donut .donut-pct {
@@ -3359,8 +3348,8 @@ img {
   }
 
   .donut {
-    width: 104px !important;
-    height: 104px !important;
+    width: 104px;
+    height: 104px;
   }
 
   .donut .donut-pct {
@@ -3490,8 +3479,8 @@ img {
   }
 
   .donut {
-    width: 92px !important;
-    height: 92px !important;
+    width: 92px;
+    height: 92px;
   }
 
   .donut .donut-pct { font-size: 19px; }
@@ -4087,6 +4076,20 @@ img {
   margin: 6px 0 0;
   font-size: 0.8rem;
   line-height: 1.4;
+}
+.sync-pending-item.is-failed {
+  color: var(--danger);
+}
+.sync-fail-badge {
+  margin-left: 6px;
+  vertical-align: middle;
+}
+.sync-fail-msg {
+  display: block;
+  margin-top: 2px;
+  margin-left: 0;
+  color: var(--text-muted);
+  font-size: 0.78rem;
 }
 .sync-footer {
   display: flex;

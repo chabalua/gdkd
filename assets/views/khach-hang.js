@@ -9,8 +9,22 @@ function missingFkBadge(label) {
   return `<span class="badge is-danger">⚠ Cần gán ${label}</span>`;
 }
 
+// Trạng thái HĐ độc lập với pipeline KH:
+//   - daXuatHd && !daGiao → "Đã xuất HĐ, chờ giao xe" (vẫn nằm trong HĐ tồn)
+//   - daXuatHd && daGiao  → "Đã xuất HĐ, đã giao"
+//   - !daXuatHd           → "Chưa xuất HĐ"
+function getHdoStatus(item) {
+  const daXuatHd = Boolean(item.ngay_xuat_hd);
+  const daGiao = Boolean(item.ngay_giao_thuc_te);
+  if (!daXuatHd) return { code: 'chua_xuat', label: 'Chưa xuất', badgeClass: '', cell: '—' };
+  const cell = formatDate(item.ngay_xuat_hd);
+  if (daGiao) return { code: 'da_xuat_da_giao', label: 'Đã xuất · Đã giao', badgeClass: 'is-success', cell };
+  return { code: 'da_xuat_cho_giao', label: 'Đã xuất · Chờ giao xe', badgeClass: 'is-warning', cell };
+}
+
 function renderKhRow(item, allData) {
   const status = KH_STATUS_META[item.trang_thai] || ['Chưa rõ', 'is-warning'];
+  const hdo = getHdoStatus(item);
   const nvLabel = item.nhan_vien_id
     ? escapeHtml(getNvLabel(allData, item.nhan_vien_id))
     : missingFkBadge('NV');
@@ -24,18 +38,20 @@ function renderKhRow(item, allData) {
     ` data-search="${escapeHtml(haystack)}"`,
     ` data-status="${escapeHtml(item.trang_thai || '')}"`,
     ` data-nv="${escapeHtml(item.nhan_vien_id || '')}"`,
-    ` data-payment="${escapeHtml(item.hinh_thuc_tt || '')}">`,
+    ` data-payment="${escapeHtml(item.hinh_thuc_tt || '')}"`,
+    ` data-hdo="${escapeHtml(hdo.code)}">`,
     `<td><strong>${escapeHtml(item.ten)}</strong><br><span class="muted">${escapeHtml(item.sdt || '')}</span></td>`,
     `<td>${nvLabel}</td>`,
     `<td>${xeLabel}</td>`,
     `<td>${escapeHtml(item.so_hd || '—')}</td>`,
     `<td>${escapeHtml(formatPaymentType(item.hinh_thuc_tt))}</td>`,
     `<td><span class="badge ${status[1]}">${status[0]}</span></td>`,
+    `<td title="${escapeHtml(hdo.label)}">${hdo.cell !== '—' ? `<span class="badge ${hdo.badgeClass}">${hdo.cell}</span>` : '—'}</td>`,
     `<td>${item.ngay_ky ? formatDate(item.ngay_ky) : '—'}</td>`,
     `<td>${item.ngay_giao_du_kien ? formatDate(item.ngay_giao_du_kien) : '—'}</td>`,
     `<td>${item.ngay_giao_thuc_te ? formatDate(item.ngay_giao_thuc_te) : '—'}</td>`,
     '<td><div class="button-row">',
-    `<button type="button" class="btn btn-soft" data-action="open-customer-edit" data-id="${escapeHtml(item.id)}">Sửa</button>`,
+    `<button type="button" class="btn btn-soft" data-action="open-customer-edit" data-id="${escapeHtml(item.id)}">Chỉnh sửa</button>`,
     `<button type="button" class="btn btn-danger" data-action="delete-customer" data-id="${escapeHtml(item.id)}">Xoá</button>`,
     '</div></td>',
     '</tr>',
@@ -44,6 +60,7 @@ function renderKhRow(item, allData) {
 
 function renderKhCard(item, allData) {
   const status = KH_STATUS_META[item.trang_thai] || ['Chưa rõ', 'is-warning'];
+  const hdo = getHdoStatus(item);
   const nvLabel = item.nhan_vien_id
     ? escapeHtml(getNvLabel(allData, item.nhan_vien_id))
     : 'Cần gán NV';
@@ -55,13 +72,17 @@ function renderKhCard(item, allData) {
   return [
     `<article class="customer-mobile-card" data-customer-row data-id="${escapeHtml(item.id)}"`,
     ` data-search="${escapeHtml(haystack)}" data-status="${escapeHtml(item.trang_thai || '')}"`,
-    ` data-nv="${escapeHtml(item.nhan_vien_id || '')}" data-payment="${escapeHtml(item.hinh_thuc_tt || '')}">`,
+    ` data-nv="${escapeHtml(item.nhan_vien_id || '')}" data-payment="${escapeHtml(item.hinh_thuc_tt || '')}"`,
+    ` data-hdo="${escapeHtml(hdo.code)}">`,
     '<div class="customer-mobile-head">',
     '<div class="content-flex-1">',
     `<h3 class="card-title">${escapeHtml(item.ten)}</h3>`,
     `<p class="card-subtitle">${escapeHtml(item.sdt || 'Chưa cập nhật SĐT')}</p>`,
     '</div>',
+    '<div class="stack-end">',
     `<span class="badge ${status[1]}">${status[0]}</span>`,
+    hdo.code === 'da_xuat_cho_giao' ? '<span class="badge is-warning" title="Đã xuất hoá đơn nhưng chưa giao xe — vẫn tính tồn">🧾 Chờ giao</span>' : '',
+    '</div>',
     '</div>',
     '<div class="meta-pair-grid">',
     `<div class="meta-pair"><span class="meta-key">Nhân viên</span><span class="meta-value">${nvLabel}</span></div>`,
@@ -69,12 +90,13 @@ function renderKhCard(item, allData) {
     `<div class="meta-pair"><span class="meta-key">Số HĐ</span><span class="meta-value">${escapeHtml(item.so_hd || '—')}</span></div>`,
     `<div class="meta-pair"><span class="meta-key">HTTT</span><span class="meta-value">${escapeHtml(formatPaymentType(item.hinh_thuc_tt))}</span></div>`,
     `<div class="meta-pair"><span class="meta-key">Ngày ký</span><span class="meta-value">${item.ngay_ky ? formatDate(item.ngay_ky) : '—'}</span></div>`,
+    `<div class="meta-pair"><span class="meta-key">Xuất HĐ</span><span class="meta-value">${hdo.cell}</span></div>`,
     `<div class="meta-pair"><span class="meta-key">Dự kiến giao</span><span class="meta-value">${item.ngay_giao_du_kien ? formatDate(item.ngay_giao_du_kien) : '—'}</span></div>`,
     item.ngay_giao_thuc_te ? `<div class="meta-pair"><span class="meta-key">Giao thực tế</span><span class="meta-value">${formatDate(item.ngay_giao_thuc_te)}</span></div>` : '',
     item.muc_dong_mong_muon ? `<div class="meta-pair"><span class="meta-key">Mức đóng mong muốn</span><span class="meta-value">${formatCurrency(item.muc_dong_mong_muon)}</span></div>` : '',
     '</div>',
     '<div class="button-row button-row-top">',
-    `<button type="button" class="btn btn-soft" data-action="open-customer-edit" data-id="${escapeHtml(item.id)}">Sửa</button>`,
+    `<button type="button" class="btn btn-soft" data-action="open-customer-edit" data-id="${escapeHtml(item.id)}">Chỉnh sửa</button>`,
     `<button type="button" class="btn btn-danger" data-action="delete-customer" data-id="${escapeHtml(item.id)}">Xoá</button>`,
     '</div>',
     '</article>',
@@ -110,7 +132,7 @@ export default function renderKhachHangPage(data) {
 
   const rows = allKh.length
     ? allKh.map((item) => renderKhRow(item, data)).join('')
-    : renderTableEmptyRow(10, 'Chưa có khách hàng nào.');
+    : renderTableEmptyRow(11, 'Chưa có khách hàng nào.');
   const mobileCards = allKh.length
     ? allKh.map((item) => renderKhCard(item, data)).join('')
     : '<div class="table-empty-note">Chưa có khách hàng nào.</div>';
@@ -129,6 +151,13 @@ export default function renderKhachHangPage(data) {
     '<select class="select" id="kh-status" data-customer-status>',
     '<option value="all">Tất cả trạng thái</option>',
     statusOptions,
+    // Tách rõ nhóm Hoá đơn — option có prefix "hd:" để filter logic phân biệt.
+    '<optgroup label="── Hoá đơn ──">',
+    '<option value="hd:da_xuat">🧾 Đã xuất HĐ</option>',
+    '<option value="hd:da_xuat_cho_giao">🧾 Đã xuất · Chờ giao</option>',
+    '<option value="hd:da_xuat_da_giao">🧾 Đã xuất · Đã giao</option>',
+    '<option value="hd:chua_xuat">🧾 Chưa xuất HĐ</option>',
+    '</optgroup>',
     '</select>',
     '</div>',
     '<div class="field toolbar-field-narrow">',
@@ -155,7 +184,7 @@ export default function renderKhachHangPage(data) {
     '<div class="table-responsive desktop-customer-table"><table class="data-table">',
     '<thead><tr>',
     '<th>Tên KH</th><th>Nhân viên</th><th>Xe</th><th>Số HĐ</th>',
-    '<th>HTTT</th><th>Trạng thái</th><th>Ngày ký</th><th>Dự kiến giao</th><th>Giao thực tế</th><th>Hành động</th>',
+    '<th>HTTT</th><th>Trạng thái</th><th title="Ngày xuất hoá đơn — Đã xuất nhưng chưa giao xe vẫn tính tồn">Xuất HĐ</th><th>Ngày ký</th><th>Dự kiến giao</th><th>Giao thực tế</th><th>Hành động</th>',
     '</tr></thead>',
     '<tbody>',
     rows,

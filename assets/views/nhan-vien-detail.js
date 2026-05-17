@@ -113,9 +113,9 @@ export default function renderNhanVienDetailPage(data) {
     '</div></div>',
     '<div class="button-row detail-hero-actions">',
     renderRangePicker(range),
-    `<button type="button" class="btn btn-primary" data-action="save-week-draft" data-id="${escapeHtml(employee.id)}"${canEdit ? '' : ' disabled'}>Lưu local</button>`,
-    '<a class="btn btn-ghost" href="nhan-vien.html">Quay l\u1ea1i</a>',
-    `<button type="button" class="btn btn-soft" data-action="open-employee-edit" data-id="${escapeHtml(employee.id)}">S\u1eeda h\u1ed3 s\u01a1</button>`,
+    `<button type="button" class="btn btn-primary" data-action="save-week-draft" data-id="${escapeHtml(employee.id)}"${canEdit ? '' : ' disabled'}>Lưu</button>`,
+    '<a class="btn btn-ghost" href="nhan-vien.html">← Danh sách NV</a>',
+    `<button type="button" class="btn btn-soft" data-action="open-employee-edit" data-id="${escapeHtml(employee.id)}">Chỉnh sửa</button>`,
     '</div></div></section>',
   ].join('');
 

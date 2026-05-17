@@ -231,6 +231,12 @@ export async function writeData(filename, data) {
   });
   if (!putResponse.ok) {
     const errorBody = await putResponse.text().catch(() => '');
+    if (putResponse.status === 409) {
+      throw new Error(`Xung đột dữ liệu: ${filename} đã bị thiết bị khác sửa trước đó. Hãy tải lại dữ liệu rồi thử lại.`);
+    }
+    if (putResponse.status === 422) {
+      throw new Error(`Dữ liệu ${filename} không hợp lệ với GitHub. Kiểm tra lại nội dung file.`);
+    }
     throw new Error(`GitHub API trả về ${putResponse.status} khi ghi ${filename}. ${errorBody}`);
   }
   return putResponse.json();
@@ -246,7 +252,8 @@ async function readOptionalData(filename, fallback) {
 }
 
 // === Read all data files cùng lúc ===
-export async function readAllData() {
+export async function readAllData(options = {}) {
+  const { includePending = true } = options;
   let [config, congViec, xe, nhanVien, khachHang, lichSu] = await Promise.all([
     readData('config.json'),
     readData('cong-viec.json'),
@@ -255,6 +262,9 @@ export async function readAllData() {
     readData('khach-hang.json'),
     readOptionalData('lich-su.json', { lich_su: [] }),
   ]);
+  if (!includePending) {
+    return { config, congViec, xe, nhanVien, khachHang, lichSu };
+  }
   const pendingWrites = getPendingWrites();
   config = pendingWrites['config.json']?.data || config;
   congViec = pendingWrites['cong-viec.json']?.data || congViec;

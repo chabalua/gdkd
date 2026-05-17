@@ -48,7 +48,7 @@ function renderEmployeeCard(employee, opts = {}) {
     isResigned
       ? `<span class="badge ${statusMeta[1]}">${escapeHtml(statusMeta[0])}</span>`
       : (employee.kpiPct === null
-        ? '<span class="badge employee-card-badge">— MT</span>'
+        ? '<span class="badge employee-card-badge" title="Chưa có mục tiêu">Chưa có MT</span>'
         : `<span class="badge ${getPercentClass(employee.kpiPct)} employee-card-badge">${tierMeta.emoji} ${employee.kpiPct}%</span>`),
     '</div>',
 
@@ -62,8 +62,8 @@ function renderEmployeeCard(employee, opts = {}) {
     isResigned || employee.kpiPct === null ? '' : `<div class="employee-card-bar">${renderProgressBar(employee.kpiPct)}</div>`,
 
     '<div class="employee-card-actions">',
-    `<a class="btn btn-soft" href="nhan-vien-detail.html?id=${encodeURIComponent(employee.id)}">Chi tiết</a>`,
-    `<button type="button" class="btn btn-ghost" data-action="open-employee-edit" data-id="${escapeHtml(employee.id)}">Sửa</button>`,
+    `<a class="btn btn-soft" href="nhan-vien-detail.html?id=${encodeURIComponent(employee.id)}">Xem hồ sơ</a>`,
+    `<button type="button" class="btn btn-soft" data-action="open-employee-edit" data-id="${escapeHtml(employee.id)}">Chỉnh sửa</button>`,
     `<button type="button" class="btn btn-danger" data-action="delete-employee" data-id="${escapeHtml(employee.id)}">Xoá</button>`,
     '</div>',
     '</article>',
