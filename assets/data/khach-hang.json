@@ -425,6 +425,11 @@
           "ngay": "2026-05-14",
           "buoc": 1,
           "noi_dung": "KH mong muốn tự làm biển số, XHĐ và tiến hành khai thuế giúp cho KH"
+        },
+        {
+          "ngay": "2026-05-17",
+          "buoc": 2,
+          "noi_dung": "Đã XHĐ cho KH, đã đóng thuế, Danh đã gởi HSX cho Khách Hàng"
         }
       ],
       "cskh": []
