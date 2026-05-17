@@ -69,7 +69,7 @@
       "xe_id": "xmowaj0jx0gzw",
       "mau_xe": "Đen",
       "ghi_chu_ctkm": "hh 2,5 triệu",
-      "trang_thai": "cho_giao",
+      "trang_thai": "dang_xu_ly",
       "ngay_du_kien_ky": null,
       "ngay_ky": "2026-04-26",
       "ngay_giao_du_kien": "2026-05-20",
@@ -181,6 +181,11 @@
           "ngay": "2026-05-14",
           "buoc": 1,
           "noi_dung": "ngày 15.05.2026 đợi giấy độc thân từ nhà nước, mới có thể tiến hành ký HĐTD"
+        },
+        {
+          "ngay": "2026-05-17",
+          "buoc": 2,
+          "noi_dung": "Đã bổ túc đủ hồ sơ pháp lý cá nhân, đợi Bank soạn thảo HĐTD"
         }
       ],
       "cskh": []
@@ -379,7 +384,7 @@
       "ngay_ky": "2026-04-28",
       "ngay_giao_du_kien": "2026-05-20",
       "ngay_giao_thuc_te": null,
-      "ngay_xuat_hd": null,
+      "ngay_xuat_hd": "2026-05-15",
       "hinh_thuc_tt": "tien_mat",
       "ngan_hang": "",
       "so_tien_vay": 0,
