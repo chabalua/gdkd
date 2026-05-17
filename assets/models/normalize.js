@@ -290,15 +290,18 @@ function serializeNhanVienV3(payload) {
 
       months.forEach((month) => {
         du_lieu[month] = cloneEmployeeMonthData(employee?.du_lieu?.[month]);
+        // du_lieu là nguồn chuẩn mới. Chỉ backfill từ compat fields khi task/tuần
+        // đó chưa tồn tại, tránh ghi đè số vừa nhập trong week-grid.
         Object.entries(employee?.lead_theo_thang?.[month] || {}).forEach(([taskId, metrics]) => {
           for (let week = 1; week <= 5; week += 1) {
             const actual = numberValue(metrics?.tuan?.[week]);
             const target = week === 1 ? numberValue(metrics?.muc_tieu) : 0;
             const existingMetrics = du_lieu[month].tuan[week][taskId];
-            if (!actual && !target && !existingMetrics) continue;
+            if (existingMetrics) continue;
+            if (!actual && !target) continue;
             du_lieu[month].tuan[week][taskId] = {
-              muc_tieu: target || numberValue(existingMetrics?.muc_tieu),
-              thuc_te: actual || numberValue(existingMetrics?.thuc_te),
+              muc_tieu: target,
+              thuc_te: actual,
             };
           }
         });

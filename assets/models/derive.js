@@ -202,13 +202,16 @@ export function getKpiSegments(allData, kpiField, months) {
   const nvList = (allData.nhanVien?.nhan_vien || []).filter((nv) => nv.trang_thai !== 'nghi_viec');
   const monthSet = new Set(months);
   const leadChannels = getLeadMetricChannels(allData);
+  const isDeliveredInRange = (kh) => kh.ngay_giao_thuc_te
+    && monthSet.has(kh.ngay_giao_thuc_te.slice(0, 7))
+    && ['da_giao', 'dong_cskh'].includes(kh.trang_thai);
   return nvList.map((nv) => {
     let value = 0;
     if (kpiField === 'xe_ky_moi') {
       value = allKh.filter((kh) => kh.nhan_vien_id === nv.id && kh.ngay_ky && monthSet.has(kh.ngay_ky.slice(0, 7))).length;
     } else if (kpiField === 'hd_xuat_thang') {
-      // Xe đã giao trong kỳ (ngay_giao_thuc_te thuộc kỳ).
-      value = allKh.filter((kh) => kh.nhan_vien_id === nv.id && kh.ngay_giao_thuc_te && monthSet.has(kh.ngay_giao_thuc_te.slice(0, 7))).length;
+      // Xe đã giao trong kỳ: cần có ngày giao thực tế và đang ở status delivered.
+      value = allKh.filter((kh) => kh.nhan_vien_id === nv.id && isDeliveredInRange(kh)).length;
     } else if (kpiField === 'hoa_don_xuat') {
       // Hoá đơn xuất trong kỳ (ngay_xuat_hd thuộc kỳ).
       value = allKh.filter((kh) => kh.nhan_vien_id === nv.id && kh.ngay_xuat_hd && monthSet.has(kh.ngay_xuat_hd.slice(0, 7))).length;
@@ -267,9 +270,12 @@ export function getRanking(allData, months) {
   const nvList = (allData.nhanVien?.nhan_vien || []).filter((nv) => nv.trang_thai !== 'nghi_viec');
   const monthSet = new Set(months);
   const leadChannels = getLeadMetricChannels(allData);
+  const isDeliveredInRange = (kh) => kh.ngay_giao_thuc_te
+    && monthSet.has(kh.ngay_giao_thuc_te.slice(0, 7))
+    && ['da_giao', 'dong_cskh'].includes(kh.trang_thai);
   return nvList.map((nv) => {
     const xe_ky = allKh.filter((kh) => kh.nhan_vien_id === nv.id && kh.ngay_ky && monthSet.has(kh.ngay_ky.slice(0, 7))).length;
-    const xe_giao = allKh.filter((kh) => kh.nhan_vien_id === nv.id && kh.ngay_giao_thuc_te && monthSet.has(kh.ngay_giao_thuc_te.slice(0, 7))).length;
+    const xe_giao = allKh.filter((kh) => kh.nhan_vien_id === nv.id && isDeliveredInRange(kh)).length;
     const lead = months.reduce((sum, m) => {
       return sum + getEmployeeLeadTotal(nv, m, leadChannels);
     }, 0);
@@ -297,7 +303,12 @@ export function getNvStats(allData, nvId, months) {
   const monthSet = new Set(months);
   const leadChannels = getLeadMetricChannels(allData);
   const xe_ky = allKh.filter((kh) => kh.nhan_vien_id === nvId && kh.ngay_ky && monthSet.has(kh.ngay_ky.slice(0, 7))).length;
-  const xe_giao = allKh.filter((kh) => kh.nhan_vien_id === nvId && kh.ngay_giao_thuc_te && monthSet.has(kh.ngay_giao_thuc_te.slice(0, 7))).length;
+  const xe_giao = allKh.filter((kh) =>
+    kh.nhan_vien_id === nvId
+    && kh.ngay_giao_thuc_te
+    && monthSet.has(kh.ngay_giao_thuc_te.slice(0, 7))
+    && ['da_giao', 'dong_cskh'].includes(kh.trang_thai)
+  ).length;
   const lead = months.reduce((sum, m) => {
     return sum + getEmployeeLeadTotal(nv, m, leadChannels);
   }, 0);
@@ -321,7 +332,12 @@ export function getGroupSummaries(allData, months) {
     const members = getEmployeesByGroup(allData, group.id);
     const memberIds = new Set(members.map((member) => member.id));
     const xe_ky = allKh.filter((kh) => memberIds.has(kh.nhan_vien_id) && kh.ngay_ky && monthSet.has(kh.ngay_ky.slice(0, 7))).length;
-    const xe_giao = allKh.filter((kh) => memberIds.has(kh.nhan_vien_id) && kh.ngay_giao_thuc_te && monthSet.has(kh.ngay_giao_thuc_te.slice(0, 7))).length;
+    const xe_giao = allKh.filter((kh) =>
+      memberIds.has(kh.nhan_vien_id)
+      && kh.ngay_giao_thuc_te
+      && monthSet.has(kh.ngay_giao_thuc_te.slice(0, 7))
+      && ['da_giao', 'dong_cskh'].includes(kh.trang_thai)
+    ).length;
     const du_ky = allKh.filter((kh) => memberIds.has(kh.nhan_vien_id) && kh.trang_thai === 'du_ky' && kh.ngay_du_kien_ky && monthSet.has(kh.ngay_du_kien_ky.slice(0, 7))).length;
     const hd_ton = allKh.filter((kh) =>
       memberIds.has(kh.nhan_vien_id) &&
@@ -438,7 +454,12 @@ export function getXeSucBan(allData, months) {
     .filter((xe) => xe.trang_thai !== 'ngung_ban')
     .map((xe) => {
       const kyList = allKh.filter((kh) => kh.xe_id === xe.id && kh.ngay_ky && monthSet.has(kh.ngay_ky.slice(0, 7)));
-      const giaoList = allKh.filter((kh) => kh.xe_id === xe.id && kh.ngay_giao_thuc_te && monthSet.has(kh.ngay_giao_thuc_te.slice(0, 7)));
+      const giaoList = allKh.filter((kh) =>
+        kh.xe_id === xe.id
+        && kh.ngay_giao_thuc_te
+        && monthSet.has(kh.ngay_giao_thuc_te.slice(0, 7))
+        && ['da_giao', 'dong_cskh'].includes(kh.trang_thai)
+      );
       // NV bán nhiều nhất (tính theo ký)
       const nvCount = {};
       kyList.forEach((kh) => { if (kh.nhan_vien_id) nvCount[kh.nhan_vien_id] = (nvCount[kh.nhan_vien_id] || 0) + 1; });

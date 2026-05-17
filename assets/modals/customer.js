@@ -268,6 +268,7 @@ export function openCustomerModal(customerId, prefillOptions) {
     const today = new Date().toISOString().slice(0, 10);
     const giaoInput = root.querySelector('[name="ngay_giao_thuc_te"]');
     if (isGiao && giaoInput && !giaoInput.value) giaoInput.value = today;
+    if (!isGiao && giaoInput) giaoInput.value = '';
   }
   statusSelect.addEventListener('change', toggleConditionalFields);
 
