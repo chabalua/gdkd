@@ -927,7 +927,7 @@
           "tuan": {
             "1": {
               "fb_ca_nhan": {
-                "muc_tieu": 0,
+                "muc_tieu": 20,
                 "thuc_te": 13
               },
               "mkt_cty": {
@@ -949,16 +949,20 @@
               "so_tien_chay_quang_cao": {
                 "muc_tieu": 0,
                 "thuc_te": 1015000
+              },
+              "tiktok": {
+                "muc_tieu": 0,
+                "thuc_te": 0
               }
             },
             "2": {
               "fb_ca_nhan": {
-                "muc_tieu": 0,
-                "thuc_te": 0
+                "muc_tieu": 15,
+                "thuc_te": 25
               },
               "mkt_cty": {
                 "muc_tieu": 0,
-                "thuc_te": 0
+                "thuc_te": 2
               },
               "sr": {
                 "muc_tieu": 0,
@@ -973,13 +977,17 @@
                 "thuc_te": 0
               },
               "so_tien_chay_quang_cao": {
+                "muc_tieu": 0,
+                "thuc_te": 1616000
+              },
+              "tiktok": {
                 "muc_tieu": 0,
                 "thuc_te": 0
               }
             },
             "3": {
               "fb_ca_nhan": {
-                "muc_tieu": 0,
+                "muc_tieu": 15,
                 "thuc_te": 0
               },
               "mkt_cty": {
@@ -999,13 +1007,17 @@
                 "thuc_te": 0
               },
               "so_tien_chay_quang_cao": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "tiktok": {
                 "muc_tieu": 0,
                 "thuc_te": 0
               }
             },
             "4": {
               "fb_ca_nhan": {
-                "muc_tieu": 0,
+                "muc_tieu": 10,
                 "thuc_te": 0
               },
               "mkt_cty": {
@@ -1025,6 +1037,10 @@
                 "thuc_te": 0
               },
               "so_tien_chay_quang_cao": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "tiktok": {
                 "muc_tieu": 0,
                 "thuc_te": 0
               }
@@ -1051,6 +1067,10 @@
                 "thuc_te": 0
               },
               "so_tien_chay_quang_cao": {
+                "muc_tieu": 0,
+                "thuc_te": 0
+              },
+              "tiktok": {
                 "muc_tieu": 0,
                 "thuc_te": 0
               }
