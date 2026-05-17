@@ -518,7 +518,12 @@ export function openManageModal(nvId) {
       ensureEmployeeMonth(emp, month, channels);
       channels.forEach((ch) => {
         if (!emp.lead_theo_thang[month][ch.id]) emp.lead_theo_thang[month][ch.id] = { muc_tieu: 0, tuan: {} };
-        emp.lead_theo_thang[month][ch.id].muc_tieu = numberValue(fd.get(`ch_${ch.id}`));
+        const target = numberValue(fd.get(`ch_${ch.id}`));
+        emp.lead_theo_thang[month][ch.id].muc_tieu = target;
+        if (!emp.du_lieu?.[month]) emp.du_lieu[month] = { tuan: { 1: {}, 2: {}, 3: {}, 4: {}, 5: {} } };
+        if (!emp.du_lieu[month].tuan) emp.du_lieu[month].tuan = { 1: {}, 2: {}, 3: {}, 4: {}, 5: {} };
+        if (!emp.du_lieu[month].tuan[1][ch.id]) emp.du_lieu[month].tuan[1][ch.id] = { muc_tieu: 0, thuc_te: 0 };
+        emp.du_lieu[month].tuan[1][ch.id].muc_tieu = target;
       });
     }
 

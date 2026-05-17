@@ -76,6 +76,7 @@ export function getReminderItems(allData, now = new Date()) {
   const month = allData?.config?.thang_hien_tai || getCurrentMonth();
 
   allKh.forEach((kh) => {
+    const isDelivered = ['da_giao', 'dong_cskh'].includes(kh.trang_thai);
     if (!['da_giao', 'dong_cskh'].includes(kh.trang_thai)) {
       const giaoDelta = daysUntil(kh.ngay_giao_du_kien, now);
       if (giaoDelta !== null && giaoDelta >= 0 && giaoDelta <= 3) {
@@ -92,7 +93,7 @@ export function getReminderItems(allData, now = new Date()) {
     }
 
     const tonDays = daysSince(kh.ngay_ky, now);
-    if (kh.ngay_ky && !kh.ngay_giao_thuc_te && tonDays !== null && tonDays > 30) {
+    if (kh.ngay_ky && !kh.ngay_giao_thuc_te && !isDelivered && tonDays !== null && tonDays > 30) {
       items.push({
         id: `hd-ton:${kh.id}:${now.toISOString().slice(0, 10)}`,
         kind: 'inventory',
@@ -104,7 +105,7 @@ export function getReminderItems(allData, now = new Date()) {
     }
 
     const cskhDays = daysSince(kh.ngay_giao_thuc_te, now);
-    if (kh.ngay_giao_thuc_te && cskhDays !== null && cskhDays > 7 && (!Array.isArray(kh.cskh) || kh.cskh.length === 0)) {
+    if (isDelivered && kh.ngay_giao_thuc_te && cskhDays !== null && cskhDays > 7 && (!Array.isArray(kh.cskh) || kh.cskh.length === 0)) {
       items.push({
         id: `cskh-missing:${kh.id}:${now.toISOString().slice(0, 10)}`,
         kind: 'cskh',
