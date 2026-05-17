@@ -30,7 +30,6 @@ import renderNhanVienDetailPage from './views/nhan-vien-detail.js';
 import renderKhachHangPage from './views/khach-hang.js';
 import renderCskhPage from './views/cskh.js';
 import renderSettingsPage from './views/settings.js';
-import renderTuanTongHopPage from './views/tuan-tong-hop.js';
 
 // === iOS standalone PWA: giữ navigation trong fullscreen ===
 // Khi add-to-home-screen, click <a href> sang trang khác sẽ mở Safari và mất
@@ -408,7 +407,6 @@ function getProtectedRenderer(page) {
     case 'nhanvien-detail': return renderNhanVienDetailPage;
     case 'khachhang': return renderKhachHangPage;
     case 'cskh': return renderCskhPage;
-    case 'tuan-tong-hop': return renderTuanTongHopPage;
     case 'settings': return renderSettingsPage;
     default: return renderDashboard;
   }

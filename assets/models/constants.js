@@ -14,7 +14,6 @@ export const NAV_ITEMS = [
 export const PAGE_META = {
   dashboard: { title: 'Tổng Quan', kicker: 'Dashboard / Tổng quan' },
   kpi: { title: 'KPI Tháng', kicker: 'Dashboard / KPI' },
-  'tuan-tong-hop': { title: 'Nhập Tuần (Cả Công Ty)', kicker: 'Dashboard / Nhập tuần' },
   congviec: { title: 'Công Việc Trọng Tâm', kicker: 'Dashboard / Công việc' },
   xe: { title: 'Catalog Xe', kicker: 'Master / Catalog xe' },
   nhanvien: { title: 'Nhân Viên Kinh Doanh', kicker: 'Dashboard / Nhân viên' },
