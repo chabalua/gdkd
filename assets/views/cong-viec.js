@@ -3,9 +3,24 @@ import { renderShell, renderEmptyState } from './shell.js';
 import { escapeHtml, formatDate, calcPercent, getPercentClass, renderProgressBar, renderIcon } from '../ui.js';
 import { hasCongViecData } from '../models.js';
 
+function getActivityIcon(unit) {
+  if (unit === 'gio') return renderIcon('clock', { size: 20 });
+  if (unit === 'luot') return renderIcon('car', { size: 20 });
+  if (unit === 'tien') return renderIcon('dollar-sign', { size: 20 });
+  return renderIcon('activity', { size: 20 });
+}
+
+function renderActivityItems(task) {
+  if (!Array.isArray(task?.chi_tiet) || !task.chi_tiet.length) return [];
+  if (task.id === 'gio_live') {
+    return task.chi_tiet.map((item) => `${formatDate(item.ngay)} · ${item.kenh} · ${item.gio_bat_dau}-${item.gio_ket_thuc}`);
+  }
+  return task.chi_tiet.map((item) => String(item || '').trim()).filter(Boolean);
+}
+
 export default function renderCongViecPage(data) {
   if (!hasCongViecData(data.congViec)) {
-    return renderShell('congviec', renderEmptyState('Chưa có công việc trọng tâm', 'Bạn chưa nhập dữ liệu sự kiện lái thử, video, livestream hoặc Zalo OA cho tháng này.', 'Trang này sẽ nối tiếp sau', 'todo-work'), data);
+    return renderShell('congviec', renderEmptyState('Chưa có công việc trọng tâm', 'Bạn chưa nhập dữ liệu sự kiện lái thử, chỉ tiêu hoạt động hoặc Zalo OA cho tháng này.', 'Trang này sẽ nối tiếp sau', 'todo-work'), data);
   }
 
   const sections = [
@@ -16,20 +31,13 @@ export default function renderCongViecPage(data) {
       target: data.congViec.su_kien_lai_thu.muc_tieu,
       items: data.congViec.su_kien_lai_thu.danh_sach.map((item) => `${formatDate(item.ngay)} · ${item.dia_diem} · ${item.so_kh} KH`),
     },
-    {
-      icon: renderIcon('activity', { size: 20 }),
-      title: 'Videos nội dung',
-      value: data.congViec.videos.da_hoan_thanh,
-      target: data.congViec.videos.muc_tieu,
-      items: data.congViec.videos.tuyen_noi_dung,
-    },
-    {
-      icon: renderIcon('clock', { size: 20 }),
-      title: 'Giờ livestream',
-      value: data.congViec.livestream.da_live_gio,
-      target: data.congViec.livestream.muc_tieu_gio,
-      items: data.congViec.livestream.lich.map((item) => `${formatDate(item.ngay)} · ${item.kenh} · ${item.gio_bat_dau}-${item.gio_ket_thuc}`),
-    },
+    ...(Array.isArray(data.congViec.hoat_dong) ? data.congViec.hoat_dong : []).map((task) => ({
+      icon: getActivityIcon(task.don_vi),
+      title: task.ten,
+      value: task.thuc_te,
+      target: task.muc_tieu,
+      items: renderActivityItems(task),
+    })),
     {
       icon: renderIcon('phone', { size: 20 }),
       title: 'Zalo OA quét',

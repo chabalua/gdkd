@@ -35,9 +35,11 @@ export function hasKpiData(kpi) {
 }
 
 export function hasCongViecData(congViec) {
+  const activityTasks = Array.isArray(congViec?.hoat_dong) ? congViec.hoat_dong : [];
   return Boolean(
     congViec.su_kien_lai_thu.muc_tieu ||
     congViec.su_kien_lai_thu.danh_sach.length ||
+    activityTasks.some((task) => task?.muc_tieu || task?.thuc_te || task?.chi_tiet?.length) ||
     congViec.videos.muc_tieu ||
     congViec.videos.da_hoan_thanh ||
     congViec.videos.tuyen_noi_dung.length ||

@@ -233,14 +233,6 @@ function renderWorkSection(data, months) {
   const channels = getLeadChannels(data);
   const activityChannels = channels.filter((channel) => channel.loai === 'hoat_dong');
 
-  const videoSegs = nvList.map((nv) => {
-    const value = months.reduce((sum, m) => {
-      return sum + getEmployeeActivityTotal(nv, m, 'so_video');
-    }, 0);
-    return { nv_id: nv.id, nv_ten: nv.ho_ten, value };
-  }).filter((s) => s.value > 0).sort((a, b) => b.value - a.value);
-  const totalVideos = videoSegs.reduce((s, v) => s + v.value, 0);
-
   const activityCards = activityChannels.map((channel) => {
     const value = nvList.reduce((sum, nv) => sum + months.reduce((monthSum, month) => monthSum + getEmployeeActivityTotal(nv, month, channel.id), 0), 0);
     const target = nvList.reduce((sum, nv) => sum + months.reduce((monthSum, month) => {
@@ -263,7 +255,6 @@ function renderWorkSection(data, months) {
   const cards = [
     { icon: renderIcon('calendar', { size: 18 }), label: 'Sự kiện lái thử', value: data.congViec.su_kien_lai_thu.danh_sach.length, target: data.congViec.su_kien_lai_thu.muc_tieu, unit: 'sự kiện' },
     { icon: renderIcon('phone', { size: 18 }), label: 'Zalo OA', value: data.congViec.zalo_oa.thuc_te, target: data.congViec.zalo_oa.muc_tieu, unit: 'quét' },
-    { icon: renderIcon('activity', { size: 18 }), label: 'Videos nội dung', value: totalVideos, target: data.congViec.videos.muc_tieu, unit: 'video' },
     ...activityCards,
   ];
 

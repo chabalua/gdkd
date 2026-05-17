@@ -9,6 +9,7 @@ import {
   DEFAULT_DEPARTMENTS,
   DEFAULT_LEAD_CHANNELS,
   DEFAULT_TASK_LIBRARY,
+  STATIC_ACTIVITY_CHANNELS,
 } from './constants.js';
 import { normalizeLeadChannel, normalizeEmployeeGroups } from './helpers.js';
 
@@ -57,9 +58,11 @@ function normalizeDepartments(rawDepartments, rawGroups) {
 }
 
 function normalizeTaskLibrary(rawTasks, rawChannels) {
-  const source = Array.isArray(rawTasks) && rawTasks.length
+  const hasExplicitTasks = Array.isArray(rawTasks) && rawTasks.length;
+  const hasExplicitChannels = Array.isArray(rawChannels) && rawChannels.length;
+  const source = hasExplicitTasks
     ? rawTasks
-    : (Array.isArray(rawChannels) && rawChannels.length
+    : (hasExplicitChannels
       ? rawChannels.map((channel) => ({
         id: channel.id,
         ten: channel.label || channel.ten || channel.id,
@@ -86,9 +89,11 @@ function normalizeTaskLibrary(rawTasks, rawChannels) {
       don_vi: task?.don_vi || 'so',
     });
   });
-  DEFAULT_TASK_LIBRARY.forEach((task) => {
-    if (!seen.has(task.id)) deduped.push({ ...task });
-  });
+  if (!hasExplicitTasks && !hasExplicitChannels) {
+    DEFAULT_TASK_LIBRARY.forEach((task) => {
+      if (!seen.has(task.id)) deduped.push({ ...task });
+    });
+  }
   return deduped;
 }
 
@@ -209,7 +214,21 @@ function buildCompatMonthlyTargets(employees, taskLibrary) {
   }, {});
 }
 
-function buildCompatCongViec(rawCongViec, employees) {
+function buildCompatCongViec(rawCongViec, employees, taskLibrary) {
+  const taskMetaMap = new Map([
+    ...STATIC_ACTIVITY_CHANNELS.map((task) => [task.id, {
+      id: task.id,
+      ten: task.label,
+      loai: task.loai,
+      don_vi: task.don_vi,
+    }]),
+    ...(taskLibrary || []).map((task) => [task.id, task]),
+  ]);
+  const activityTaskIds = new Set(
+    (taskLibrary || [])
+      .filter((task) => task?.loai === 'hoat_dong')
+      .map((task) => task.id)
+  );
   const next = {
     su_kien_lai_thu: {
       muc_tieu: 0,
@@ -230,7 +249,31 @@ function buildCompatCongViec(rawCongViec, employees) {
       thuc_te: numberValue(rawCongViec?.zalo_oa?.thuc_te),
       theo_tuan: Array.isArray(rawCongViec?.zalo_oa?.theo_tuan) ? rawCongViec.zalo_oa.theo_tuan : [],
     },
+    hoat_dong: [],
   };
+
+  const activitySummaryMap = new Map();
+  function ensureActivitySummary(taskId) {
+    if (!taskId) return null;
+    if (!activitySummaryMap.has(taskId)) {
+      const task = taskMetaMap.get(taskId);
+      activitySummaryMap.set(taskId, {
+        id: taskId,
+        ten: task?.ten || task?.label || taskId,
+        don_vi: task?.don_vi || 'so',
+        muc_tieu: 0,
+        thuc_te: 0,
+        chi_tiet: taskId === 'so_video'
+          ? (Array.isArray(rawCongViec?.videos?.tuyen_noi_dung) ? rawCongViec.videos.tuyen_noi_dung : [])
+          : (taskId === 'gio_live'
+            ? (Array.isArray(rawCongViec?.livestream?.lich) ? rawCongViec.livestream.lich : [])
+            : []),
+      });
+    }
+    return activitySummaryMap.get(taskId);
+  }
+
+  activityTaskIds.forEach((taskId) => ensureActivitySummary(taskId));
 
   employees.forEach((employee) => {
     Object.entries(employee?.du_lieu || {}).forEach(([, monthBlock]) => {
@@ -243,9 +286,23 @@ function buildCompatCongViec(rawCongViec, employees) {
         next.livestream.muc_tieu_gio += gioLiveTarget;
         next.videos.da_hoan_thanh += soVideo;
         next.videos.muc_tieu += soVideoTarget;
+
+        Object.entries(weekBlock || {}).forEach(([taskId, metrics]) => {
+          const task = taskMetaMap.get(taskId);
+          if (task?.loai !== 'hoat_dong') return;
+          const summary = ensureActivitySummary(taskId);
+          if (!summary) return;
+          summary.muc_tieu += numberValue(metrics?.muc_tieu);
+          summary.thuc_te += numberValue(metrics?.thuc_te);
+          activityTaskIds.add(taskId);
+        });
       });
     });
   });
+
+  next.hoat_dong = Array.from(activityTaskIds)
+    .map((taskId) => ensureActivitySummary(taskId))
+    .filter((task) => task && (task.muc_tieu || task.thuc_te || task.chi_tiet.length));
 
   return next;
 }
@@ -437,7 +494,7 @@ export function normalizeData(rawData) {
     },
     congViec: {
       thang: currentMonth,
-      ...buildCompatCongViec(rawData?.congViec, rawEmployees),
+      ...buildCompatCongViec(rawData?.congViec, rawEmployees, taskLibrary),
     },
     xe: {
       xe: Array.isArray(rawData?.xe?.xe) ? rawData.xe.xe : [],
