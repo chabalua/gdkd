@@ -342,14 +342,6 @@ export function openCustomerModal(customerId, prefillOptions) {
     }
 
     const trangThai = trimmedValue(fd, 'trang_thai');
-    // Defense-in-depth: validate pipeline ngay cả khi UI bị bypass (devtools, paste, v.v.).
-    if (existing) {
-      const [ok, reason] = isValidStatusTransition(existing.trang_thai, trangThai);
-      if (!ok) {
-        showToast(reason, 'warning');
-        return;
-      }
-    }
     const ngayGiaoThucTe = trimmedValue(fd, 'ngay_giao_thuc_te');
     // ngay_xuat_hd chỉ lưu khi checkbox đã tick. Nếu untick thì coi như chưa xuất.
     const daXuatHdChecked = fd.get('da_xuat_hd') === 'on';
