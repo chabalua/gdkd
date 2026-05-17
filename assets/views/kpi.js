@@ -44,12 +44,15 @@ function renderRankingTable(ranking) {
     const pctClass = row.pct_muc_tieu !== null ? getPercentClass(row.pct_muc_tieu) : '';
     return [
       `<tr class="is-tier-${tier}">`,
-      `<td><span class="rank-medal-inline">${medal}</span> <span class="tier-dot" style="background:${meta.dot}"></span> `,
-      `<a href="nhan-vien-detail.html?id=${escapeHtml(row.nv_id)}" class="nv-link">${escapeHtml(row.nv_ten)}</a></td>`,
+      '<td><div class="rank-cell">',
+      `<span class="rank-medal-inline">${medal}</span>`,
+      `<span class="tier-dot" style="background:${meta.dot}" title="${escapeHtml(meta.label)}"></span>`,
+      `<a href="nhan-vien-detail.html?id=${escapeHtml(row.nv_id)}" class="nv-link">${escapeHtml(row.nv_ten)}</a>`,
+      '</div></td>',
       `<td class="is-number">${row.xe_ky}</td>`,
       `<td class="is-number">${row.xe_giao}</td>`,
       `<td class="is-number">${row.lead}</td>`,
-      `<td class="is-number"><span class="badge ${pctClass}">${meta.emoji} ${pctText}</span></td>`,
+      `<td class="is-number"><span class="badge ${pctClass}" title="${escapeHtml(meta.label)}">${pctText}</span></td>`,
       '</tr>',
     ].join('');
   }).join('');
@@ -64,8 +67,8 @@ function renderRankingTable(ranking) {
       return [
         `<article class="kpi-mobile-card is-tier-${tier}">`,
         '<div class="customer-mobile-head">',
-        `<div class="content-flex-1"><h4 class="card-title">${medal} <span class="tier-dot" style="background:${meta.dot}"></span> <a href="nhan-vien-detail.html?id=${escapeHtml(row.nv_id)}" class="nv-link">${escapeHtml(row.nv_ten)}</a></h4></div>`,
-        `<span class="badge ${pctClass}">${meta.emoji} ${pctText}</span>`,
+        `<div class="content-flex-1"><h4 class="card-title rank-cell"><span class="rank-medal-inline">${medal}</span><span class="tier-dot" style="background:${meta.dot}" title="${escapeHtml(meta.label)}"></span><a href="nhan-vien-detail.html?id=${escapeHtml(row.nv_id)}" class="nv-link">${escapeHtml(row.nv_ten)}</a></h4></div>`,
+        `<span class="badge ${pctClass}" title="${escapeHtml(meta.label)}">${pctText}</span>`,
         '</div>',
         '<div class="meta-pair-grid">',
         `<div class="meta-pair"><span class="meta-key">Xe ký</span><span class="meta-value">${row.xe_ky}</span></div>`,

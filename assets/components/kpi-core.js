@@ -50,7 +50,7 @@ function renderNvExpandRows(segments) {
     const pctText = segment.pct_personal !== null ? `${segment.pct_personal}%` : '—';
     return [
       `<div class="rank-row is-tier-${tier}">`,
-      `<span class="rank-medal" aria-hidden="true">${meta.emoji}</span>`,
+      `<span class="tier-dot" style="background:${meta.dot}" title="${escapeHtml(meta.label)}" aria-hidden="true"></span>`,
       `<a href="nhan-vien-detail.html?id=${escapeHtml(segment.nv_id)}" class="nv-link rank-link">${escapeHtml(segment.nv_ten)}</a>`,
       '<div class="rank-bar-track">',
       `<div class="rank-bar-fill" style="width:${width}%;background:${meta.dot}"></div>`,

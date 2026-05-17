@@ -3261,16 +3261,32 @@ img {
 }
 
 .rank-medal {
-  width: 22px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+  height: 24px;
+  padding: 0 6px;
   text-align: center;
-  font-size: 0.95rem;
+  font-size: 0.82rem;
+  font-weight: var(--fw-bold);
+  color: var(--text-muted);
   flex-shrink: 0;
 }
 
+/* Inline medal trong table cell: dùng cho cột "STT" trước tên NV.
+   min-width 28px đủ chứa 2-digit (10-99). margin-right tạo khoảng cách
+   trước tier-dot. */
 .rank-medal-inline {
-  display: inline-block;
-  width: 22px;
-  margin-right: 2px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+  margin-right: 6px;
+  font-size: 0.85rem;
+  font-weight: var(--fw-bold);
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
 }
 
 /* === Responsive — Tablet (768px+) === */
@@ -4905,6 +4921,74 @@ td.button-row,
   text-transform: uppercase;
   letter-spacing: 0.05em;
   font-size: 0.7rem;
+}
+
+/* === Ranking cell layout — flex row, vertical-align center === */
+.rank-cell {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  max-width: 100%;
+}
+.rank-cell .nv-link {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.rank-cell .tier-dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* h4.card-title đang là text-only, khi pha rank-cell cần reset margin
+   default cho heading + align baseline. */
+h4.card-title.rank-cell {
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.3;
+}
+
+/* === Fix text-overflow ellipsis gây cắt chữ — chỉ truncate cho NAME, KHÔNG cho note dài === */
+/* KPI core note: cho phép wrap 2 dòng thay vì truncate ngang */
+.kpi-core-note {
+  white-space: normal !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  line-clamp: 2;
+  /* Fallback cho non-webkit: max 2 lines via max-height */
+  max-height: calc(0.74rem * 1.35 * 2);
+  overflow: hidden !important;
+}
+
+/* watch-name / employee-name / group-member-name vẫn cần truncate
+   ellipsis (1 dòng) — nhưng tăng line-height để không bị cắt phần dưới
+   chữ (descender như 'g', 'y'). */
+.watch-name,
+.employee-card-name,
+.employee-card-sub,
+.group-member-progress-name,
+.work-card-v3 .work-card-label,
+.kpi-row-head .kpi-label {
+  line-height: 1.4;
+  padding-block: 2px;
+}
+
+/* Badge in table cells — keep height consistent regardless of content */
+.data-table .badge,
+.data-table .status-pill {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  padding-block: 2px;
+  line-height: 1;
 }
 
 /* Reduce-motion */
