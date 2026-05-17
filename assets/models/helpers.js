@@ -2,7 +2,7 @@
 // Lookup, format, date, lead channel & employee group helpers.
 // Pure functions — không DOM, không IO.
 
-import { getCurrentMonth, getCurrentRange } from '../ui.js';
+import { getCurrentMonth, getCurrentRange, numberValue } from '../ui.js';
 import {
   DEFAULT_LEAD_CHANNELS,
   STATIC_ACTIVITY_CHANNELS,
@@ -80,6 +80,47 @@ export function getLeadTuanTotal(channelObj) {
     return Object.values(channelObj.tuan).reduce((s, v) => s + (Number(v) || 0), 0);
   }
   return Number(channelObj.thuc_te) || 0; // legacy thuc_te
+}
+
+export function isDeliveredStatus(status) {
+  return status === 'da_giao' || status === 'dong_cskh';
+}
+
+export function hasDeliveredDate(customer) {
+  return Boolean(customer?.ngay_giao_thuc_te);
+}
+
+export function isDeliveredCustomer(customer) {
+  return isDeliveredStatus(customer?.trang_thai);
+}
+
+export function isDeliveredCustomerInRange(customer, monthsOrSet) {
+  const monthSet = monthsOrSet instanceof Set ? monthsOrSet : new Set(monthsOrSet || []);
+  return isDeliveredCustomer(customer)
+    && hasDeliveredDate(customer)
+    && monthSet.has(customer.ngay_giao_thuc_te.slice(0, 7));
+}
+
+export function getEmployeeTaskMonthTarget(employee, month, taskId) {
+  const duLieuTarget = Object.values(employee?.du_lieu?.[month]?.tuan || {}).reduce((sum, weekBlock) => {
+    return sum + numberValue(weekBlock?.[taskId]?.muc_tieu);
+  }, 0);
+  if (duLieuTarget > 0) return duLieuTarget;
+  return numberValue(employee?.lead_theo_thang?.[month]?.[taskId]?.muc_tieu);
+}
+
+export function setEmployeeTaskMonthTarget(employee, month, taskId, target) {
+  if (!employee.du_lieu) employee.du_lieu = {};
+  if (!employee.du_lieu[month]) employee.du_lieu[month] = { tuan: { 1: {}, 2: {}, 3: {}, 4: {}, 5: {} } };
+  if (!employee.du_lieu[month].tuan) employee.du_lieu[month].tuan = { 1: {}, 2: {}, 3: {}, 4: {}, 5: {} };
+  if (!employee.du_lieu[month].tuan[1]) employee.du_lieu[month].tuan[1] = {};
+  if (!employee.du_lieu[month].tuan[1][taskId]) employee.du_lieu[month].tuan[1][taskId] = { muc_tieu: 0, thuc_te: 0 };
+  employee.du_lieu[month].tuan[1][taskId].muc_tieu = numberValue(target);
+
+  if (!employee.lead_theo_thang) employee.lead_theo_thang = {};
+  if (!employee.lead_theo_thang[month]) employee.lead_theo_thang[month] = {};
+  if (!employee.lead_theo_thang[month][taskId]) employee.lead_theo_thang[month][taskId] = { muc_tieu: 0, tuan: {} };
+  employee.lead_theo_thang[month][taskId].muc_tieu = numberValue(target);
 }
 
 // === Employee group helpers ===

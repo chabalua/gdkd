@@ -9,7 +9,7 @@ import { KPI_CORE_FIELDS as KPI_FIELDS, renderTierLegend, renderKpiCard } from '
 import {
   isSetupComplete, getKpiSegments, getKhTon, getNvLabel, KH_STATUS_META,
   getEmployeeActivityTotal, getLeadChannels, getGroupSummaries, getRanking, getMucTieuTong,
-  getPerformanceTier, PERFORMANCE_TIER_META, getMonthPace, isKhValid,
+  getPerformanceTier, PERFORMANCE_TIER_META, getMonthPace, isKhValid, isDeliveredCustomer,
 } from '../models.js';
 
 // === Donut SVG (cho hero scoreboard) ===
@@ -300,7 +300,7 @@ function renderUrgentTable(data) {
   //   1) Sắp đến ngày giao DK (≤3 ngày tới)
   //   2) Đã xuất hoá đơn nhưng chưa giao xe — vẫn tính tồn theo yêu cầu nghiệp vụ.
   const allKh = (data.khachHang?.khach_hang || []).filter((kh) => {
-    if (['da_giao', 'dong_cskh'].includes(kh.trang_thai)) return false;
+    if (isDeliveredCustomer(kh)) return false;
     if (kh.ngay_giao_thuc_te) return false;
     return true;
   });

@@ -11,6 +11,9 @@ import {
   getLeadTuanTotal,
   getEmployeeGroups,
   getEmployeesByGroup,
+  isDeliveredStatus,
+  isDeliveredCustomer,
+  isDeliveredCustomerInRange,
   formatXeFullName,
 } from './helpers.js';
 
@@ -176,7 +179,7 @@ export function countNotifications(data) {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   const upcoming = allKh.filter((kh) => {
-    if (!kh.ngay_giao_du_kien || ['da_giao', 'dong_cskh'].includes(kh.trang_thai)) return false;
+    if (!kh.ngay_giao_du_kien || isDeliveredCustomer(kh)) return false;
     const target = new Date(kh.ngay_giao_du_kien);
     if (Number.isNaN(target.getTime())) return false;
     target.setHours(0, 0, 0, 0);
@@ -184,7 +187,7 @@ export function countNotifications(data) {
     return delta >= 0 && delta <= 3;
   }).length;
   const unresolved = allKh.filter((kh) =>
-    kh.trang_thai === 'da_giao' &&
+    isDeliveredStatus(kh.trang_thai) &&
     Array.isArray(kh.cskh) &&
     kh.cskh.some((c) => c.trang_thai_xu_ly !== 'da_xu_ly')
   ).length;
@@ -202,16 +205,13 @@ export function getKpiSegments(allData, kpiField, months) {
   const nvList = (allData.nhanVien?.nhan_vien || []).filter((nv) => nv.trang_thai !== 'nghi_viec');
   const monthSet = new Set(months);
   const leadChannels = getLeadMetricChannels(allData);
-  const isDeliveredInRange = (kh) => kh.ngay_giao_thuc_te
-    && monthSet.has(kh.ngay_giao_thuc_te.slice(0, 7))
-    && ['da_giao', 'dong_cskh'].includes(kh.trang_thai);
   return nvList.map((nv) => {
     let value = 0;
     if (kpiField === 'xe_ky_moi') {
       value = allKh.filter((kh) => kh.nhan_vien_id === nv.id && kh.ngay_ky && monthSet.has(kh.ngay_ky.slice(0, 7))).length;
     } else if (kpiField === 'hd_xuat_thang') {
       // Xe đã giao trong kỳ: cần có ngày giao thực tế và đang ở status delivered.
-      value = allKh.filter((kh) => kh.nhan_vien_id === nv.id && isDeliveredInRange(kh)).length;
+      value = allKh.filter((kh) => kh.nhan_vien_id === nv.id && isDeliveredCustomerInRange(kh, monthSet)).length;
     } else if (kpiField === 'hoa_don_xuat') {
       // Hoá đơn xuất trong kỳ (ngay_xuat_hd thuộc kỳ).
       value = allKh.filter((kh) => kh.nhan_vien_id === nv.id && kh.ngay_xuat_hd && monthSet.has(kh.ngay_xuat_hd.slice(0, 7))).length;
@@ -224,7 +224,7 @@ export function getKpiSegments(allData, kpiField, months) {
         kh.nhan_vien_id === nv.id &&
         kh.ngay_ky && kh.ngay_ky.slice(0, 7) < minMonth &&
         !kh.ngay_giao_thuc_te &&
-        kh.trang_thai !== 'da_giao' && kh.trang_thai !== 'dong_cskh'
+        !isDeliveredStatus(kh.trang_thai)
       ).length;
     } else if (kpiField === 'lead_phat_sinh') {
       value = months.reduce((sum, m) => {
@@ -251,11 +251,8 @@ export function getKhTon(allData, months) {
   const minMonth = months[0];
   const today = new Date();
   today.setHours(0, 0, 0, 0);
-  const isDelivered = (kh) => kh.ngay_giao_thuc_te
-    || kh.trang_thai === 'da_giao'
-    || kh.trang_thai === 'dong_cskh';
   return filterValidKh(allData.khachHang?.khach_hang)
-    .filter((kh) => kh.ngay_ky && kh.ngay_ky.slice(0, 7) < minMonth && !isDelivered(kh))
+    .filter((kh) => kh.ngay_ky && kh.ngay_ky.slice(0, 7) < minMonth && !(kh.ngay_giao_thuc_te || isDeliveredCustomer(kh)))
     .map((kh) => {
       const d = new Date(kh.ngay_ky);
       return { ...kh, days_ton: Number.isNaN(d.getTime()) ? 0 : Math.round((today - d) / 86400000) };
@@ -270,12 +267,9 @@ export function getRanking(allData, months) {
   const nvList = (allData.nhanVien?.nhan_vien || []).filter((nv) => nv.trang_thai !== 'nghi_viec');
   const monthSet = new Set(months);
   const leadChannels = getLeadMetricChannels(allData);
-  const isDeliveredInRange = (kh) => kh.ngay_giao_thuc_te
-    && monthSet.has(kh.ngay_giao_thuc_te.slice(0, 7))
-    && ['da_giao', 'dong_cskh'].includes(kh.trang_thai);
   return nvList.map((nv) => {
     const xe_ky = allKh.filter((kh) => kh.nhan_vien_id === nv.id && kh.ngay_ky && monthSet.has(kh.ngay_ky.slice(0, 7))).length;
-    const xe_giao = allKh.filter((kh) => kh.nhan_vien_id === nv.id && isDeliveredInRange(kh)).length;
+    const xe_giao = allKh.filter((kh) => kh.nhan_vien_id === nv.id && isDeliveredCustomerInRange(kh, monthSet)).length;
     const lead = months.reduce((sum, m) => {
       return sum + getEmployeeLeadTotal(nv, m, leadChannels);
     }, 0);
@@ -305,9 +299,7 @@ export function getNvStats(allData, nvId, months) {
   const xe_ky = allKh.filter((kh) => kh.nhan_vien_id === nvId && kh.ngay_ky && monthSet.has(kh.ngay_ky.slice(0, 7))).length;
   const xe_giao = allKh.filter((kh) =>
     kh.nhan_vien_id === nvId
-    && kh.ngay_giao_thuc_te
-    && monthSet.has(kh.ngay_giao_thuc_te.slice(0, 7))
-    && ['da_giao', 'dong_cskh'].includes(kh.trang_thai)
+    && isDeliveredCustomerInRange(kh, monthSet)
   ).length;
   const lead = months.reduce((sum, m) => {
     return sum + getEmployeeLeadTotal(nv, m, leadChannels);
@@ -334,16 +326,14 @@ export function getGroupSummaries(allData, months) {
     const xe_ky = allKh.filter((kh) => memberIds.has(kh.nhan_vien_id) && kh.ngay_ky && monthSet.has(kh.ngay_ky.slice(0, 7))).length;
     const xe_giao = allKh.filter((kh) =>
       memberIds.has(kh.nhan_vien_id)
-      && kh.ngay_giao_thuc_te
-      && monthSet.has(kh.ngay_giao_thuc_te.slice(0, 7))
-      && ['da_giao', 'dong_cskh'].includes(kh.trang_thai)
+      && isDeliveredCustomerInRange(kh, monthSet)
     ).length;
     const du_ky = allKh.filter((kh) => memberIds.has(kh.nhan_vien_id) && kh.trang_thai === 'du_ky' && kh.ngay_du_kien_ky && monthSet.has(kh.ngay_du_kien_ky.slice(0, 7))).length;
     const hd_ton = allKh.filter((kh) =>
       memberIds.has(kh.nhan_vien_id) &&
       kh.ngay_ky && kh.ngay_ky.slice(0, 7) < minMonth &&
       !kh.ngay_giao_thuc_te &&
-      kh.trang_thai !== 'da_giao' && kh.trang_thai !== 'dong_cskh'
+      !isDeliveredStatus(kh.trang_thai)
     ).length;
     const lead = members.reduce((sum, member) => sum + months.reduce((monthSum, month) => monthSum + getEmployeeLeadTotal(member, month, leadChannels), 0), 0);
     const gio_live = members.reduce((sum, member) => sum + months.reduce((monthSum, month) => monthSum + getEmployeeActivityTotal(member, month, 'gio_live'), 0), 0);
@@ -456,9 +446,7 @@ export function getXeSucBan(allData, months) {
       const kyList = allKh.filter((kh) => kh.xe_id === xe.id && kh.ngay_ky && monthSet.has(kh.ngay_ky.slice(0, 7)));
       const giaoList = allKh.filter((kh) =>
         kh.xe_id === xe.id
-        && kh.ngay_giao_thuc_te
-        && monthSet.has(kh.ngay_giao_thuc_te.slice(0, 7))
-        && ['da_giao', 'dong_cskh'].includes(kh.trang_thai)
+        && isDeliveredCustomerInRange(kh, monthSet)
       );
       // NV bán nhiều nhất (tính theo ký)
       const nvCount = {};

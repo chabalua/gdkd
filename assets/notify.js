@@ -3,7 +3,7 @@
 
 import { formatDate } from './ui.js';
 import { getCurrentMonth } from './ui.js';
-import { getNvLabel, getWeekOfMonth } from './models.js';
+import { getNvLabel, getWeekOfMonth, isDeliveredCustomer } from './models.js';
 
 const REMINDER_PREFIX = 'gdkd_reminder_sent:';
 
@@ -76,8 +76,8 @@ export function getReminderItems(allData, now = new Date()) {
   const month = allData?.config?.thang_hien_tai || getCurrentMonth();
 
   allKh.forEach((kh) => {
-    const isDelivered = ['da_giao', 'dong_cskh'].includes(kh.trang_thai);
-    if (!['da_giao', 'dong_cskh'].includes(kh.trang_thai)) {
+    const isDelivered = isDeliveredCustomer(kh);
+    if (!isDelivered) {
       const giaoDelta = daysUntil(kh.ngay_giao_du_kien, now);
       if (giaoDelta !== null && giaoDelta >= 0 && giaoDelta <= 3) {
         const nv = getNvLabel(allData, kh.nhan_vien_id) || 'Chưa gán NV';

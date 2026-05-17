@@ -4,7 +4,7 @@ import {
   escapeHtml, trimmedValue, numberValue, makeId, getCurrentMonth, showToast,
   createField, createSelectField, renderIcon,
 } from '../ui.js';
-import { ensureEmployeeMonth, NV_STATUS_META, LOAI_NHAN_SU_META, DEFAULT_LEAD_CHANNELS, getLeadChannels, ACTIVITY_UNIT_META, getEmployeeGroups, getActiveMonth } from '../models.js';
+import { ensureEmployeeMonth, NV_STATUS_META, LOAI_NHAN_SU_META, DEFAULT_LEAD_CHANNELS, getLeadChannels, ACTIVITY_UNIT_META, getEmployeeGroups, getActiveMonth, getEmployeeTaskMonthTarget, setEmployeeTaskMonthTarget } from '../models.js';
 import { appState, persistFile, rerenderApp } from '../app.js';
 
 function getDepartmentDrafts() {
@@ -370,7 +370,6 @@ export function openManageModal(nvId) {
   const month = getActiveMonth(appState.data);
   let channels = getLeadChannels(appState.data).map((channel) => ({ ...channel }));
   ensureEmployeeMonth(nv, month, channels);
-  const lead = nv.lead_theo_thang[month];
   const [yr, mn] = month.split('-');
   let nextNewId = 1;
 
@@ -391,7 +390,7 @@ export function openManageModal(nvId) {
       `<select class="select" data-channel-unit data-idx="${i}" ${(ch.loai || 'lead') === 'hoat_dong' ? '' : 'disabled'}>`,
       DON_VI_OPTIONS.map((opt) => `<option value="${opt.value}"${(ch.don_vi || 'so') === opt.value ? ' selected' : ''}>${escapeHtml(opt.label)}</option>`).join(''),
       '</select>',
-      `<input class="input" type="number" min="0" ${ch.don_vi === 'gio' ? 'step="0.5"' : ch.don_vi === 'tien' ? 'step="1000"' : ''} name="ch_${escapeHtml(ch.id)}" value="${escapeHtml(lead[ch.id]?.muc_tieu || 0)}" placeholder="Mục tiêu">`,
+      `<input class="input" type="number" min="0" ${ch.don_vi === 'gio' ? 'step="0.5"' : ch.don_vi === 'tien' ? 'step="1000"' : ''} name="ch_${escapeHtml(ch.id)}" value="${escapeHtml(getEmployeeTaskMonthTarget(nv, month, ch.id) || 0)}" placeholder="Mục tiêu">`,
       `<button type="button" class="btn-icon is-danger" data-delete-channel="${i}" aria-label="Xoá nội dung này" title="Xoá nội dung này">${renderIcon('x', { size: 14 })}</button>`,
       '</div>',
     ].join('')).join('');
@@ -517,13 +516,8 @@ export function openManageModal(nvId) {
       const emp = appState.data.nhanVien.nhan_vien[nvIdx];
       ensureEmployeeMonth(emp, month, channels);
       channels.forEach((ch) => {
-        if (!emp.lead_theo_thang[month][ch.id]) emp.lead_theo_thang[month][ch.id] = { muc_tieu: 0, tuan: {} };
         const target = numberValue(fd.get(`ch_${ch.id}`));
-        emp.lead_theo_thang[month][ch.id].muc_tieu = target;
-        if (!emp.du_lieu?.[month]) emp.du_lieu[month] = { tuan: { 1: {}, 2: {}, 3: {}, 4: {}, 5: {} } };
-        if (!emp.du_lieu[month].tuan) emp.du_lieu[month].tuan = { 1: {}, 2: {}, 3: {}, 4: {}, 5: {} };
-        if (!emp.du_lieu[month].tuan[1][ch.id]) emp.du_lieu[month].tuan[1][ch.id] = { muc_tieu: 0, thuc_te: 0 };
-        emp.du_lieu[month].tuan[1][ch.id].muc_tieu = target;
+        setEmployeeTaskMonthTarget(emp, month, ch.id, target);
       });
     }
 

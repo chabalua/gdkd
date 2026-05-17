@@ -5,7 +5,7 @@ import {
   escapeHtml, trimmedValue, numberValue, makeId, showToast,
   createField, createSelectField, renderIcon,
 } from '../ui.js';
-import { KH_STATUS_META, CSKH_STATUS_META, getLeadChannels, getXeColorOptions } from '../models.js';
+import { KH_STATUS_META, CSKH_STATUS_META, getLeadChannels, getXeColorOptions, isDeliveredStatus } from '../models.js';
 import { appState, persistFile, rerenderApp } from '../app.js';
 
 // === Helpers ===
@@ -120,7 +120,7 @@ export function openCustomerModal(customerId, prefillOptions) {
 
   // Xuất hoá đơn là cờ độc lập với pipeline — KH có thể xuất HĐ ở bất kỳ status nào.
   // Field ngày xuất HĐ luôn hiện (cùng cụm với checkbox), không gắn với trạng thái.
-  const showGiao = ['da_giao', 'dong_cskh'].includes(draft.trang_thai);
+  const showGiao = isDeliveredStatus(draft.trang_thai);
   const showCskh = showGiao;
   const daXuatHd = Boolean(draft.ngay_xuat_hd);
 
@@ -259,7 +259,7 @@ export function openCustomerModal(customerId, prefillOptions) {
   function toggleConditionalFields() {
     const val = statusSelect.value;
     const isDuKy = val === 'du_ky';
-    const isGiao = ['da_giao', 'dong_cskh'].includes(val);
+    const isGiao = isDeliveredStatus(val);
     root.querySelector('#field-ngay-du-kien-ky').classList.toggle('is-hidden', !isDuKy);
     root.querySelector('#field-ngay-giao-thuc-te').classList.toggle('is-hidden', !isGiao);
     root.querySelector('#cskh-section').classList.toggle('is-hidden', !isGiao);
@@ -347,7 +347,7 @@ export function openCustomerModal(customerId, prefillOptions) {
     // ngay_xuat_hd chỉ lưu khi checkbox đã tick. Nếu untick thì coi như chưa xuất.
     const daXuatHdChecked = fd.get('da_xuat_hd') === 'on';
     const ngayXuatHd = daXuatHdChecked ? trimmedValue(fd, 'ngay_xuat_hd') : '';
-    if (['da_giao', 'dong_cskh'].includes(trangThai) && !ngayGiaoThucTe) {
+    if (isDeliveredStatus(trangThai) && !ngayGiaoThucTe) {
       showToast('Khi trạng thái là đã giao hoặc đóng CSKH, cần nhập ngày giao thực tế.', 'warning');
       return;
     }

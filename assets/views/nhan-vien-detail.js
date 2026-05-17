@@ -1,7 +1,7 @@
 // assets/views/nhan-vien-detail.js
 import { renderShell, renderEmptyState } from './shell.js';
 import { escapeHtml, avatarHtml, renderRangePicker, getCurrentRange, getRangeLabel, renderIcon } from '../ui.js';
-import { getLeadChannels, getNvStats, getWeekOfMonth, KH_STATUS_META, LOAI_NHAN_SU_META, getEmployeeGroupLabel, getActiveMonth, isSingleMonthRange, getXeLabel } from '../models.js';
+import { getLeadChannels, getNvStats, getWeekOfMonth, KH_STATUS_META, LOAI_NHAN_SU_META, getEmployeeGroupLabel, getActiveMonth, isSingleMonthRange, getXeLabel, isDeliveredStatus } from '../models.js';
 import { renderWeekGrid } from '../components/week-grid.js';
 
 // === Tab 4: KH c\u1ee7a t\u00f4i ===
@@ -11,7 +11,7 @@ function renderKhPanel(employee, allKh, allXe, channels) {
   const xeMap = Object.fromEntries((allXe || []).map((x) => [x.id, x]));
   const leadOnlyChannels = channels.filter((channel) => channel.loai !== 'hoat_dong');
   const channelMap = Object.fromEntries(leadOnlyChannels.map((channel) => [channel.id, channel.label]));
-  const needCskh = (kh) => kh.trang_thai === 'da_giao'
+  const needCskh = (kh) => isDeliveredStatus(kh.trang_thai)
     && (!kh.cskh?.length || kh.cskh.some((c) => c.trang_thai_xu_ly !== 'da_xu_ly'));
 
   const statusFilters = [

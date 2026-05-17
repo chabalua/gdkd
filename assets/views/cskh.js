@@ -2,11 +2,11 @@
 // CSKH page: filter trực tiếp từ khach_hang.
 import { renderShell, renderEmptyState } from './shell.js';
 import { escapeHtml, formatDate, numberValue, renderIcon } from '../ui.js';
-import { CSKH_STATUS_META, getNvLabel, getXeLabel } from '../models.js';
+import { CSKH_STATUS_META, getNvLabel, getXeLabel, isDeliveredCustomer } from '../models.js';
 
 // KH cần CSKH: đã giao && (chưa có cskh nào sau 7 ngày || có cskh chưa xử lý xong)
 function needsCskh(kh) {
-  if (!['da_giao', 'dong_cskh'].includes(kh.trang_thai)) return false;
+  if (!isDeliveredCustomer(kh)) return false;
   const cskhList = Array.isArray(kh.cskh) ? kh.cskh : [];
   const hasUnresolved = cskhList.some((c) => c.trang_thai_xu_ly !== 'da_xu_ly');
   if (hasUnresolved) return true;
@@ -20,7 +20,7 @@ function needsCskh(kh) {
 
 export default function renderCskhPage(data) {
   const allKh = data.khachHang.khach_hang;
-  const daGiao = allKh.filter((kh) => ['da_giao', 'dong_cskh'].includes(kh.trang_thai));
+  const daGiao = allKh.filter((kh) => isDeliveredCustomer(kh));
   const canXuLy = daGiao.filter(needsCskh);
 
   // Tính đánh giá trung bình từ tất cả CSKH entries
