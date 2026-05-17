@@ -1,7 +1,7 @@
 // assets/views/cskh.js
 // CSKH page: filter trực tiếp từ khach_hang.
 import { renderShell, renderEmptyState } from './shell.js';
-import { escapeHtml, formatDate, numberValue } from '../ui.js';
+import { escapeHtml, formatDate, numberValue, renderIcon } from '../ui.js';
 import { CSKH_STATUS_META, getNvLabel, getXeLabel } from '../models.js';
 
 // KH cần CSKH: đã giao && (chưa có cskh nào sau 7 ngày || có cskh chưa xử lý xong)
@@ -50,8 +50,8 @@ export default function renderCskhPage(data) {
       `<span class="badge ${metaStatus[1]}">${metaStatus[0]}</span>`,
       '</div>',
       lastEntry ? `<div class="star-row" aria-label="${lastEntry.danh_gia} sao">${'★'.repeat(numberValue(lastEntry.danh_gia))}${'☆'.repeat(5 - numberValue(lastEntry.danh_gia))}</div>` : '',
-      lastEntry?.phan_hoi ? `<div class="timeline-note button-row-top">💬 ${escapeHtml(lastEntry.phan_hoi)}</div>` : '',
-      unresolved.length ? `<div class="timeline-note text-danger">⚠ ${unresolved.length} vấn đề chưa xử lý xong</div>` : '',
+      lastEntry?.phan_hoi ? `<div class="timeline-note button-row-top">${renderIcon('message-square', { size: 14 })} ${escapeHtml(lastEntry.phan_hoi)}</div>` : '',
+      unresolved.length ? `<div class="timeline-note text-danger">${renderIcon('alert-triangle', { size: 14 })} ${unresolved.length} vấn đề chưa xử lý xong</div>` : '',
       '<div class="button-row button-row-top">',
       `<button type="button" class="btn btn-soft" data-action="open-customer-edit" data-id="${escapeHtml(kh.id)}">Thêm phản hồi / Sửa KH</button>`,
       '</div>',

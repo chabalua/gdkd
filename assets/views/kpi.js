@@ -5,7 +5,7 @@
 import { renderShell } from './shell.js';
 import {
   escapeHtml, getPercentClass, calcPercent,
-  renderRangePicker, getCurrentRange, getRangeLabel,
+  renderRangePicker, getCurrentRange, getRangeLabel, renderIcon,
 } from '../ui.js';
 import { KPI_CORE_FIELDS as KPI_FIELDS, renderTierLegend, renderKpiCard } from '../components/kpi-core.js';
 import {
@@ -37,7 +37,7 @@ function renderKpiExecutiveSummary(data, months) {
 function renderRankingTable(ranking) {
   if (!ranking.length) return '<p class="list-empty-note">Chưa có dữ liệu xếp hạng.</p>';
   const rows = ranking.map((row, idx) => {
-    const medal = idx === 0 ? '🥇' : idx === 1 ? '🥈' : idx === 2 ? '🥉' : `${idx + 1}.`;
+    const medal = `${idx + 1}`;
     const tier = getPerformanceTier(row.pct_muc_tieu);
     const meta = PERFORMANCE_TIER_META[tier];
     const pctText = row.pct_muc_tieu !== null ? `${row.pct_muc_tieu}%` : '—';
@@ -56,7 +56,7 @@ function renderRankingTable(ranking) {
   return [
     '<div class="mobile-kpi-list">',
     ranking.map((row, idx) => {
-      const medal = idx === 0 ? '🥇' : idx === 1 ? '🥈' : idx === 2 ? '🥉' : `${idx + 1}.`;
+      const medal = `${idx + 1}`;
       const tier = getPerformanceTier(row.pct_muc_tieu);
       const meta = PERFORMANCE_TIER_META[tier];
       const pctText = row.pct_muc_tieu !== null ? `${row.pct_muc_tieu}%` : '—';
@@ -131,7 +131,7 @@ export default function renderKpiPage(data) {
 
   const setupWarning = !setup.all ? [
     '<div class="setup-warning-card">',
-    '<span>⚠️</span>',
+    renderIcon('alert-triangle', { size: 20 }),
     '<div><strong>Cần hoàn thiện setup trước khi nhập KH</strong>',
     '<ul class="muted-link-list">',
     !setup.co_xe ? '<li>Chưa có xe trong catalog — <a href="xe.html">Thêm xe</a></li>' : '',
@@ -141,7 +141,7 @@ export default function renderKpiPage(data) {
 
   const weeklyHint = !setup.co_muc_tieu ? [
     '<div class="setup-warning-card" style="background:var(--warning-light)">',
-    '<span>🗓️</span>',
+    renderIcon('calendar', { size: 20 }),
     '<div><strong>Chưa có mục tiêu nhiệm vụ theo tuần</strong>',
     '<p class="muted" style="margin:4px 0 0">Theo v3, mục tiêu được nhập ở chi tiết nhân viên theo tuần và theo nhiệm vụ. Khi chưa có dữ liệu tuần, KPI vẫn hiển thị số thực tế nhưng không tính được % mục tiêu.</p></div></div>',
   ].join('') : '';
@@ -163,7 +163,7 @@ export default function renderKpiPage(data) {
 
   const kpiCards = [
     '<div class="kpi-section page-card-spacer">',
-    `<div class="kpi-section-head"><h3 class="section-title">📊 KPI cốt lõi</h3>${tierLegend}</div>`,
+    `<div class="kpi-section-head"><h3 class="section-title">${renderIcon('bar-chart', { size: 18 })} KPI cốt lõi</h3>${tierLegend}</div>`,
     '<div class="kpi-grid kpi-core-list">',
     KPI_FIELDS.map((f) => renderKpiCard(f, data, months)).join(''),
     '</div>',

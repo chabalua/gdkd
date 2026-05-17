@@ -3,7 +3,7 @@
 import {
   showModal, closeModal, getModalRoot,
   escapeHtml, trimmedValue, numberValue, makeId, showToast,
-  createField, createSelectField,
+  createField, createSelectField, renderIcon,
 } from '../ui.js';
 import { KH_STATUS_META, CSKH_STATUS_META, getLeadChannels, getXeColorOptions, isValidStatusTransition } from '../models.js';
 import { appState, persistFile, rerenderApp } from '../app.js';
@@ -75,9 +75,9 @@ function renderCskhList(cskhList) {
       `<span class="badge ${statusMeta[1]}">${statusMeta[0]}</span>`,
       `<button type="button" class="btn btn-ghost btn-sm" data-delete-cskh="${i}" title="Xoá phản hồi này">✕</button>`,
       `</div>`,
-      c.phan_hoi ? `<p class="customer-feedback-line">💬 ${escapeHtml(c.phan_hoi)}</p>` : '',
-      c.van_de ? `<p class="customer-feedback-line is-danger">⚠ ${escapeHtml(c.van_de)}</p>` : '',
-      c.ghi_chu_noi_bo ? `<p class="customer-feedback-line is-muted">📝 ${escapeHtml(c.ghi_chu_noi_bo)}</p>` : '',
+      c.phan_hoi ? `<p class="customer-feedback-line">${renderIcon('message-square', { size: 14 })} ${escapeHtml(c.phan_hoi)}</p>` : '',
+      c.van_de ? `<p class="customer-feedback-line is-danger">${renderIcon('alert-triangle', { size: 14 })} ${escapeHtml(c.van_de)}</p>` : '',
+      c.ghi_chu_noi_bo ? `<p class="customer-feedback-line is-muted">${renderIcon('edit', { size: 14 })} ${escapeHtml(c.ghi_chu_noi_bo)}</p>` : '',
       '</div>',
     ].join('');
   }).join('');
@@ -155,7 +155,7 @@ export function openCustomerModal(customerId, prefillOptions) {
     `</div>`,
     '</fieldset>',
 
-    '<fieldset class="customer-form-section"><legend>🧾 Hoá đơn</legend>',
+    '<fieldset class="customer-form-section"><legend>Hoá đơn</legend>',
     '<label class="field xhd-toggle-row">',
     `<input type="checkbox" name="da_xuat_hd"${daXuatHd ? ' checked' : ''} data-toggle-xhd>`,
     '<span class="field-label is-inline">Đã xuất hoá đơn</span>',

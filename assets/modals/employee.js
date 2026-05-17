@@ -403,7 +403,7 @@ export function openManageModal(nvId) {
   }
 
   showModal([
-    `<h3 class="modal-title">⚙ Quản lý — Tháng ${parseInt(mn, 10)}/${yr}</h3>`,
+    `<h3 class="modal-title">Quản lý — Tháng ${parseInt(mn, 10)}/${yr}</h3>`,
     `<p class="modal-copy">Nhân viên: <strong>${escapeHtml(nv.ho_ten)}</strong></p>`,
     '<form data-manage-form class="stack-list form-grid-two">',
     `<input type="hidden" name="nv_id" value="${escapeHtml(nvId)}">`,

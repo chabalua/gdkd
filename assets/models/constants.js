@@ -28,13 +28,14 @@ export const PAGE_META = {
 // Pipeline 6 trạng thái 1 chiều. "Xuất hoá đơn" KHÔNG nằm ở đây — nó là
 // cờ độc lập (kh.ngay_xuat_hd) vì có thể xảy ra song song bất kỳ status nào,
 // và để không bị mất khi user chuyển status (gây tụt KPI Hoá đơn xuất).
+// Label bỏ emoji circle — UI dùng tier-dot SVG render màu theo class.
 export const KH_STATUS_META = {
-  du_ky:      ['🟡 Dự ký',       'is-warning'],
-  moi_ky:     ['🔵 Mới ký',      'is-info'],
-  dang_xu_ly: ['🟠 Đang xử lý',  'is-warning'],
-  cho_giao:   ['🔵 Chờ giao',    'is-purple'],
-  da_giao:    ['🟢 Đã giao',     'is-success'],
-  dong_cskh:  ['✅ Đóng CSKH',   'is-success'],
+  du_ky:      ['Dự ký',       'is-warning'],
+  moi_ky:     ['Mới ký',      'is-info'],
+  dang_xu_ly: ['Đang xử lý',  'is-warning'],
+  cho_giao:   ['Chờ giao',    'is-purple'],
+  da_giao:    ['Đã giao',     'is-success'],
+  dong_cskh:  ['Đóng CSKH',   'is-success'],
 };
 
 export const KH_STATUS_ORDER = Object.keys(KH_STATUS_META);
@@ -141,10 +142,12 @@ export const DEFAULT_EMPLOYEE_GROUPS = [
 
 export const TODO_MESSAGE = 'Chức năng này đã có khung dữ liệu thật, phần còn lại sẽ tiếp tục được mở rộng nếu cần.';
 
+// emoji giữ làm fallback ngắn (1 ký tự dot). Các view nên dùng tier-dot SVG
+// với màu `dot` thay vì emoji để giữ visual nhất quán Calendly.
 export const PERFORMANCE_TIER_META = {
-  excellent: { label: 'Vượt mục tiêu', emoji: '🔥', color: 'var(--success)',       dot: '#2e7d32' },
-  good:      { label: 'Đạt tốt',       emoji: '✅', color: 'var(--success-light)', dot: '#66bb6a' },
-  average:   { label: 'Trung bình',    emoji: '⚠️', color: 'var(--warning-light)', dot: '#ffa726' },
-  weak:      { label: 'Cần hỗ trợ',    emoji: '🆘', color: 'var(--danger-light)',  dot: '#ef5350' },
-  none:      { label: 'Chưa có mục tiêu', emoji: '·', color: 'var(--neutral)',     dot: '#90a4ae' },
+  excellent: { label: 'Vượt mục tiêu',    emoji: '●', color: 'var(--success)',       dot: 'var(--color-success)' },
+  good:      { label: 'Đạt tốt',          emoji: '●', color: 'var(--success-light)', dot: 'var(--color-success-light)' },
+  average:   { label: 'Trung bình',       emoji: '●', color: 'var(--warning-light)', dot: 'var(--color-warning)' },
+  weak:      { label: 'Cần hỗ trợ',       emoji: '●', color: 'var(--danger-light)',  dot: 'var(--color-danger)' },
+  none:      { label: 'Chưa có mục tiêu', emoji: '○', color: 'var(--neutral)',       dot: 'var(--color-steel-gray)' },
 };

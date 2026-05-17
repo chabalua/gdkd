@@ -3,7 +3,7 @@ import { renderShell } from './shell.js';
 import {
   escapeHtml, formatDate, formatCurrency,
   renderRangePicker, getCurrentRange, getRangeLabel,
-  getPercentClass, calcPercent,
+  getPercentClass, calcPercent, renderIcon,
 } from '../ui.js';
 import { KPI_CORE_FIELDS as KPI_FIELDS, renderTierLegend, renderKpiCard } from '../components/kpi-core.js';
 import {
@@ -53,7 +53,7 @@ function renderHeroScoreboard(data, months) {
     if (pace.dailyNeeded > 0) {
       paceLine = `Cần <strong>${pace.dailyNeeded.toFixed(2)} xe/ngày</strong> trong ${pace.daysLeft} ngày còn lại.`;
     } else if (xeTotal >= xeTarget) {
-      paceLine = '🎉 Đã vượt mục tiêu kỳ!';
+      paceLine = 'Đã vượt mục tiêu kỳ!';
     } else {
       paceLine = 'Hết kỳ — chốt sổ.';
     }
@@ -74,7 +74,7 @@ function renderHeroScoreboard(data, months) {
     renderDonut(pct, { color: donutColor }),
     '</div>',
     '<div class="hero-scoreboard-copy">',
-    '<span class="hero-kicker">🎯 Xe ký mới · mục tiêu kỳ</span>',
+    '<span class="hero-kicker">Xe ký mới · mục tiêu kỳ</span>',
     `<div class="hero-big-number"><strong>${xeTotal}</strong><span class="hero-big-unit"> / ${xeTarget || '—'} xe</span></div>`,
     `<div class="hero-pace">${paceLine}</div>`,
     '</div>',
@@ -140,24 +140,24 @@ function renderTopWatchSection(data, months) {
 
     '<article class="watch-card">',
     '<div class="watch-card-head">',
-    '<h3 class="watch-card-title">🏆 Top dẫn đầu</h3>',
+    `<h3 class="watch-card-title">${renderIcon('award', { size: 18 })} Top dẫn đầu</h3>`,
     '<a href="kpi.html" class="btn-link">Xem xếp hạng</a>',
     '</div>',
     top3.length
-      ? `<div class="watch-list">${top3.map((r, i) => renderRow(r, ['🥇', '🥈', '🥉'][i])).join('')}</div>`
+      ? `<div class="watch-list">${top3.map((r, i) => renderRow(r, `${i + 1}`)).join('')}</div>`
       : '<p class="list-empty-note">Chưa có dữ liệu kỳ này.</p>',
     '</article>',
 
     '<article class="watch-card">',
     '<div class="watch-card-head">',
-    '<h3 class="watch-card-title">🆘 Cần hỗ trợ</h3>',
+    `<h3 class="watch-card-title">${renderIcon('alert-triangle', { size: 18 })} Cần hỗ trợ</h3>`,
     `<span class="badge ${watch.length ? 'is-danger' : 'is-success'}">${watch.length} NV</span>`,
     '</div>',
     watch.length
       ? `<div class="watch-list">${watch.map((r) => renderRow(r)).join('')}</div>`
       : noTarget.length
         ? `<p class="list-empty-note">Chưa có dữ liệu tuần để đánh giá ${noTarget.length} NV trong kỳ này.</p>`
-        : '<p class="list-empty-note">🎉 Tất cả NV đang đạt ≥80% mục tiêu!</p>',
+        : '<p class="list-empty-note">Tất cả NV đang đạt ≥80% mục tiêu.</p>',
     '</article>',
 
     '</section>',
@@ -221,7 +221,7 @@ function renderGroupSplit(data, months) {
 
   return [
     '<section class="page-card-spacer">',
-    '<div class="section-header"><div><h3 class="section-title">⚔️ Đối đầu giữa 2 nhóm</h3><p class="section-subtitle">Bấm vào tên NV để xem chi tiết.</p></div></div>',
+    '<div class="section-header"><div><h3 class="section-title">Đối đầu giữa 2 nhóm</h3><p class="section-subtitle">Bấm vào tên NV để xem chi tiết.</p></div></div>',
     `<div class="group-split-grid">${cards}</div>`,
     '</section>',
   ].join('');
@@ -252,7 +252,7 @@ function renderWorkSection(data, months) {
     const formattedValue = unit === 'tien' ? formatCurrency(value) : value;
     const formattedTarget = target ? (unit === 'tien' ? formatCurrency(target) : target) : '—';
     return {
-      icon: unit === 'gio' ? '⏱️' : unit === 'luot' ? '🚘' : unit === 'tien' ? '💸' : '📌',
+      icon: renderIcon(unit === 'gio' ? 'clock' : unit === 'luot' ? 'car' : unit === 'tien' ? 'dollar-sign' : 'activity', { size: 18 }),
       label: channel.label,
       value: formattedValue,
       target: formattedTarget,
@@ -263,9 +263,9 @@ function renderWorkSection(data, months) {
   }).filter((card) => card.rawValue > 0 || card.rawTarget > 0);
 
   const cards = [
-    { icon: '🎪', label: 'Sự kiện lái thử', value: data.congViec.su_kien_lai_thu.danh_sach.length, target: data.congViec.su_kien_lai_thu.muc_tieu, unit: 'sự kiện' },
-    { icon: '📲', label: 'Zalo OA', value: data.congViec.zalo_oa.thuc_te, target: data.congViec.zalo_oa.muc_tieu, unit: 'quét' },
-    { icon: '🎬', label: 'Videos nội dung', value: totalVideos, target: data.congViec.videos.muc_tieu, unit: 'video' },
+    { icon: renderIcon('calendar', { size: 18 }), label: 'Sự kiện lái thử', value: data.congViec.su_kien_lai_thu.danh_sach.length, target: data.congViec.su_kien_lai_thu.muc_tieu, unit: 'sự kiện' },
+    { icon: renderIcon('phone', { size: 18 }), label: 'Zalo OA', value: data.congViec.zalo_oa.thuc_te, target: data.congViec.zalo_oa.muc_tieu, unit: 'quét' },
+    { icon: renderIcon('activity', { size: 18 }), label: 'Videos nội dung', value: totalVideos, target: data.congViec.videos.muc_tieu, unit: 'video' },
     ...activityCards,
   ];
 
@@ -327,7 +327,7 @@ function renderUrgentTable(data) {
   if (!urgent.length) return '';
   return [
     '<section class="urgent-section page-card-spacer">',
-    '<div class="section-header"><h3 class="section-title">⏰ Cần đẩy giao xe</h3><a href="khach-hang.html" class="btn-link">Xem tất cả KH</a></div>',
+    `<div class="section-header"><h3 class="section-title">${renderIcon('clock', { size: 18 })} Cần đẩy giao xe</h3><a href="khach-hang.html" class="btn-link">Xem tất cả KH</a></div>`,
     '<div class="table-card simple-table-wrap">',
     '<table class="simple-table">',
     '<thead><tr>',
@@ -339,7 +339,7 @@ function renderUrgentTable(data) {
         ? `<span class="${delta === 0 ? 'text-danger' : ''}">${formatDate(kh.ngay_giao_du_kien)}</span>`
         : '<span class="muted">—</span>';
       const hdCell = daXuatHd
-        ? `<span class="badge is-warning" title="Đã xuất hoá đơn — cần đẩy giao xe sớm">🧾 ${formatDate(kh.ngay_xuat_hd)}</span>`
+        ? `<span class="badge is-warning" title="Đã xuất hoá đơn — cần đẩy giao xe sớm">${renderIcon('file-text', { size: 12 })} ${formatDate(kh.ngay_xuat_hd)}</span>`
         : '<span class="muted">—</span>';
       return [
         '<tr>',
@@ -366,7 +366,7 @@ export default function renderDashboard(data) {
 
   const setupBanner = setup.all ? '' : [
     '<div class="setup-warning-card">',
-    '<span>⚠️</span>',
+    renderIcon('alert-triangle', { size: 20 }),
     '<div>',
     '<strong>Cần hoàn thiện setup trước khi nhập khách hàng</strong>',
     '<ul>',
@@ -379,7 +379,7 @@ export default function renderDashboard(data) {
 
   const weeklyTargetBanner = !setup.co_muc_tieu ? [
     '<div class="setup-warning-card" style="background:var(--warning-light)">',
-    '<span>🗓️</span>',
+    renderIcon('calendar', { size: 20 }),
     '<div>',
     '<strong>Chưa có mục tiêu nhiệm vụ theo tuần trong kỳ đang xem</strong>',
     '<p class="muted" style="margin:4px 0 0">Theo v3, mục tiêu được nhập ở chi tiết nhân viên theo tuần. KPI tổng vẫn chạy, nhưng các badge % mục tiêu sẽ để trống cho tới khi có dữ liệu tuần.</p>',
@@ -416,7 +416,7 @@ export default function renderDashboard(data) {
 
     '<div class="kpi-section page-card-spacer">',
     '<div class="kpi-section-head">',
-    '<h3 class="section-title">📊 KPI cốt lõi</h3>',
+    `<h3 class="section-title">${renderIcon('bar-chart', { size: 18 })} KPI cốt lõi</h3>`,
     renderTierLegend(),
     '</div>',
     '<div class="kpi-grid kpi-core-list">',
@@ -429,7 +429,7 @@ export default function renderDashboard(data) {
     renderGroupSplit(data, months),
 
     '<div class="page-card-spacer">',
-    '<div class="section-header"><div><h3 class="section-title">⚙️ Hoạt động hỗ trợ</h3></div><a href="cong-viec.html" class="btn-link">Chi tiết</a></div>',
+    '<div class="section-header"><div><h3 class="section-title">Hoạt động hỗ trợ</h3></div><a href="cong-viec.html" class="btn-link">Chi tiết</a></div>',
     `<div class="work-grid">${renderWorkSection(data, months)}</div>`,
     '</div>',
 

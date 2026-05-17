@@ -1,5 +1,5 @@
 import { renderShell } from './shell.js';
-import { escapeHtml } from '../ui.js';
+import { escapeHtml, renderIcon } from '../ui.js';
 import { ACTIVITY_UNIT_META, getEmployeeGroups, getEmployeesByGroup } from '../models.js';
 import { getPendingWriteCount, getLastSyncAt, getPendingWrites, getRepoConfig, getToken } from '../api.js';
 
@@ -123,19 +123,19 @@ function renderGithubSection() {
     : '';
 
   const repoInfo = hasGithubConfig
-    ? `<p class="muted sync-repo-info">📦 Kho: <strong>${escapeHtml(repoConfig.owner)}/${escapeHtml(repoConfig.repo)}</strong> · nhánh <code>${escapeHtml(repoConfig.branch)}</code></p>`
-    : '<p class="text-danger sync-repo-info">⚠️ Chưa cấu hình GitHub. Bấm "Cấu hình GitHub" bên dưới để nhập token và repo.</p>';
+    ? `<p class="muted sync-repo-info">Kho: <strong>${escapeHtml(repoConfig.owner)}/${escapeHtml(repoConfig.repo)}</strong> · nhánh <code>${escapeHtml(repoConfig.branch)}</code></p>`
+    : `<p class="text-danger sync-repo-info">${renderIcon('alert-triangle', { size: 14 })} Chưa cấu hình GitHub. Bấm "Cấu hình GitHub" bên dưới để nhập token và repo.</p>`;
 
   const pushButton = pendingCount
     ? `<button type="button" class="btn btn-primary btn-large sync-action-btn" data-action="sync-pending-writes">
-         <span class="sync-action-icon" aria-hidden="true">⬆️</span>
+         <span class="sync-action-icon" aria-hidden="true">${renderIcon('upload', { size: 22 })}</span>
          <span class="sync-action-text">
            <strong>Đẩy lên GitHub</strong>
            <span class="sync-action-sub">${pendingCount} file đang chờ đẩy</span>
          </span>
        </button>`
     : `<button type="button" class="btn btn-soft btn-large sync-action-btn" data-action="sync-pending-writes" disabled>
-         <span class="sync-action-icon" aria-hidden="true">⬆️</span>
+         <span class="sync-action-icon" aria-hidden="true">${renderIcon('upload', { size: 22 })}</span>
          <span class="sync-action-text">
            <strong>Đẩy lên GitHub</strong>
            <span class="sync-action-sub">Không có thay đổi mới để đẩy</span>
@@ -143,7 +143,7 @@ function renderGithubSection() {
        </button>`;
 
   const pullButton = `<button type="button" class="btn btn-soft btn-large sync-action-btn" data-action="pull-from-github"${hasGithubConfig ? '' : ' disabled'}>
-       <span class="sync-action-icon" aria-hidden="true">⬇️</span>
+       <span class="sync-action-icon" aria-hidden="true">${renderIcon('download', { size: 22 })}</span>
        <span class="sync-action-text">
          <strong>Tải từ GitHub</strong>
          <span class="sync-action-sub">${lastSyncLabel ? `Lần tải gần nhất ${lastSyncLabel}` : 'Lấy dữ liệu mới nhất về máy'}</span>
@@ -153,7 +153,7 @@ function renderGithubSection() {
   return [
     '<article class="card page-card-spacer sync-card">',
     '<div class="table-header">',
-    '<div><h3 class="table-title">🔄 Đồng bộ dữ liệu với GitHub</h3>',
+    `<div><h3 class="table-title">${renderIcon('refresh-cw', { size: 18 })} Đồng bộ dữ liệu với GitHub</h3>`,
     '<p class="table-subtitle">App lưu thay đổi vào máy trước. Bấm <strong>Đẩy lên GitHub</strong> khi muốn đồng bộ. Mở app trên thiết bị khác bấm <strong>Tải từ GitHub</strong> để lấy bản mới nhất.</p>',
     '</div>',
     '</div>',
@@ -164,13 +164,13 @@ function renderGithubSection() {
     '</div>',
     pendingCount ? [
       '<div class="sync-pending-box">',
-      `<p class="sync-pending-title">📝 Có ${pendingCount} thay đổi chưa đẩy lên GitHub:</p>`,
+      `<p class="sync-pending-title">${renderIcon('edit', { size: 14 })} Có ${pendingCount} thay đổi chưa đẩy lên GitHub:</p>`,
       pendingList,
-      '<p class="muted sync-pending-warn">⚠️ Các thay đổi này chỉ tồn tại trên thiết bị này. Bấm <strong>Đẩy lên GitHub</strong> để các thiết bị khác cũng thấy được.</p>',
+      `<p class="muted sync-pending-warn">${renderIcon('alert-triangle', { size: 14 })} Các thay đổi này chỉ tồn tại trên thiết bị này. Bấm <strong>Đẩy lên GitHub</strong> để các thiết bị khác cũng thấy được.</p>`,
       '</div>',
     ].join('') : '',
     '<div class="sync-footer">',
-    '<button type="button" class="btn btn-ghost btn-small" data-action="open-settings">⚙️ Cấu hình GitHub (token, owner, repo)</button>',
+    `<button type="button" class="btn btn-ghost btn-small" data-action="open-settings">${renderIcon('settings', { size: 14 })} Cấu hình GitHub (token, owner, repo)</button>`,
     '</div>',
     '</article>',
   ].join('');

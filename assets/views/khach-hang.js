@@ -1,12 +1,12 @@
 // assets/views/khach-hang.js
 // Render trang Quản lý Khách hàng với schema v2 (flat + FK).
 import { renderShell, renderTableEmptyRow } from './shell.js';
-import { escapeHtml, formatDate, formatCurrency } from '../ui.js';
+import { escapeHtml, formatDate, formatCurrency, renderIcon } from '../ui.js';
 import { KH_STATUS_META, isSetupComplete, formatPaymentType, getXeLabel, getNvLabel } from '../models.js';
 
 // Tạo HTML badge cảnh báo "Cần gán" khi FK null
 function missingFkBadge(label) {
-  return `<span class="badge is-danger">⚠ Cần gán ${label}</span>`;
+  return `<span class="badge is-danger">${renderIcon('alert-triangle', { size: 12 })} Cần gán ${label}</span>`;
 }
 
 // Trạng thái HĐ độc lập với pipeline KH:
@@ -81,7 +81,7 @@ function renderKhCard(item, allData) {
     '</div>',
     '<div class="stack-end">',
     `<span class="badge ${status[1]}">${status[0]}</span>`,
-    hdo.code === 'da_xuat_cho_giao' ? '<span class="badge is-warning" title="Đã xuất hoá đơn nhưng chưa giao xe — vẫn tính tồn">🧾 Chờ giao</span>' : '',
+    hdo.code === 'da_xuat_cho_giao' ? `<span class="badge is-warning" title="Đã xuất hoá đơn nhưng chưa giao xe — vẫn tính tồn">${renderIcon('file-text', { size: 12 })} Chờ giao</span>` : '',
     '</div>',
     '</div>',
     '<div class="meta-pair-grid">',
@@ -109,7 +109,7 @@ export default function renderKhachHangPage(data) {
 
   const setupBanner = !setup.all ? [
     '<div class="setup-warning-card">',
-    '<span>⚠️</span>',
+    renderIcon('alert-triangle', { size: 20 }),
     '<div>',
     '<strong>Cần hoàn thiện setup trước khi nhập KH</strong>',
     '<ul class="muted-link-list">',
@@ -153,10 +153,10 @@ export default function renderKhachHangPage(data) {
     statusOptions,
     // Tách rõ nhóm Hoá đơn — option có prefix "hd:" để filter logic phân biệt.
     '<optgroup label="── Hoá đơn ──">',
-    '<option value="hd:da_xuat">🧾 Đã xuất HĐ</option>',
-    '<option value="hd:da_xuat_cho_giao">🧾 Đã xuất · Chờ giao</option>',
-    '<option value="hd:da_xuat_da_giao">🧾 Đã xuất · Đã giao</option>',
-    '<option value="hd:chua_xuat">🧾 Chưa xuất HĐ</option>',
+    '<option value="hd:da_xuat">Đã xuất HĐ</option>',
+    '<option value="hd:da_xuat_cho_giao">Đã xuất · Chờ giao</option>',
+    '<option value="hd:da_xuat_da_giao">Đã xuất · Đã giao</option>',
+    '<option value="hd:chua_xuat">Chưa xuất HĐ</option>',
     '</optgroup>',
     '</select>',
     '</div>',

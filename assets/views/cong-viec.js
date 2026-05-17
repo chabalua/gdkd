@@ -1,6 +1,6 @@
 // assets/views/cong-viec.js
 import { renderShell, renderEmptyState } from './shell.js';
-import { escapeHtml, formatDate, calcPercent, getPercentClass, renderProgressBar } from '../ui.js';
+import { escapeHtml, formatDate, calcPercent, getPercentClass, renderProgressBar, renderIcon } from '../ui.js';
 import { hasCongViecData } from '../models.js';
 
 export default function renderCongViecPage(data) {
@@ -10,28 +10,28 @@ export default function renderCongViecPage(data) {
 
   const sections = [
     {
-      icon: '🎪',
+      icon: renderIcon('calendar', { size: 20 }),
       title: 'Sự kiện lái thử',
       value: data.congViec.su_kien_lai_thu.danh_sach.length,
       target: data.congViec.su_kien_lai_thu.muc_tieu,
       items: data.congViec.su_kien_lai_thu.danh_sach.map((item) => `${formatDate(item.ngay)} · ${item.dia_diem} · ${item.so_kh} KH`),
     },
     {
-      icon: '🎬',
+      icon: renderIcon('activity', { size: 20 }),
       title: 'Videos nội dung',
       value: data.congViec.videos.da_hoan_thanh,
       target: data.congViec.videos.muc_tieu,
       items: data.congViec.videos.tuyen_noi_dung,
     },
     {
-      icon: '📡',
+      icon: renderIcon('clock', { size: 20 }),
       title: 'Giờ livestream',
       value: data.congViec.livestream.da_live_gio,
       target: data.congViec.livestream.muc_tieu_gio,
       items: data.congViec.livestream.lich.map((item) => `${formatDate(item.ngay)} · ${item.kenh} · ${item.gio_bat_dau}-${item.gio_ket_thuc}`),
     },
     {
-      icon: '📲',
+      icon: renderIcon('phone', { size: 20 }),
       title: 'Zalo OA quét',
       value: data.congViec.zalo_oa.thuc_te,
       target: data.congViec.zalo_oa.muc_tieu,

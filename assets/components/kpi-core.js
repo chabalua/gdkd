@@ -1,16 +1,17 @@
-import { escapeHtml, getPercentClass, calcPercent } from '../ui.js';
+import { escapeHtml, getPercentClass, calcPercent, renderIcon } from '../ui.js';
 import {
   getKpiSegments, getKhTon, getNvLabel, getMucTieuTong,
   getPerformanceTier, PERFORMANCE_TIER_META, getMonthPace,
 } from '../models.js';
 
+// iconName: Lucide name (M2+). icon (emoji): fallback nếu caller render text.
 export const KPI_CORE_FIELDS = [
-  { field: 'xe_ky_moi',     icon: '📑', label: 'Hợp đồng ký mới',   unit: 'HĐ',       short: 'HĐ' },
-  { field: 'hoa_don_xuat',  icon: '🧾', label: 'Hoá đơn xuất tháng', unit: 'hoá đơn', short: 'HĐ' },
-  { field: 'xe_cho_giao',   icon: '🚛', label: 'Xe chờ giao',        unit: 'xe',      short: 'xe' },
-  { field: 'hd_xuat_thang', icon: '🚗', label: 'Xe giao trong tháng',unit: 'xe',      short: 'xe' },
-  { field: 'hd_ton',        icon: '📦', label: 'Hồ sơ tồn',          unit: 'hồ sơ',   short: 'HS' },
-  { field: 'lead_phat_sinh',icon: '👥', label: 'Lead phát sinh',     unit: 'lead',    short: 'lead' },
+  { field: 'xe_ky_moi',     iconName: 'file-text',    icon: '📑', label: 'Hợp đồng ký mới',    unit: 'HĐ',      short: 'HĐ' },
+  { field: 'hoa_don_xuat',  iconName: 'file-text',    icon: '🧾', label: 'Hoá đơn xuất tháng', unit: 'hoá đơn', short: 'HĐ' },
+  { field: 'xe_cho_giao',   iconName: 'clock',        icon: '🚛', label: 'Xe chờ giao',        unit: 'xe',      short: 'xe' },
+  { field: 'hd_xuat_thang', iconName: 'car',          icon: '🚗', label: 'Xe giao trong tháng',unit: 'xe',      short: 'xe' },
+  { field: 'hd_ton',        iconName: 'alert-circle', icon: '📦', label: 'Hồ sơ tồn',          unit: 'hồ sơ',   short: 'HS' },
+  { field: 'lead_phat_sinh',iconName: 'users',        icon: '👥', label: 'Lead phát sinh',     unit: 'lead',    short: 'lead' },
 ];
 
 function renderNvChipStack(segments, total) {
@@ -132,7 +133,7 @@ function getEmptyStateHint(field, allData, months) {
 }
 
 export function renderKpiCard(fieldMeta, data, months) {
-  const { field, icon, label, unit } = fieldMeta;
+  const { field, icon, iconName, label, unit } = fieldMeta;
   const segments = getKpiSegments(data, field, months);
   const total = segments.reduce((sum, segment) => sum + segment.value, 0);
   const mucTieu = getMucTieuTong(data, field, months);
@@ -146,7 +147,7 @@ export function renderKpiCard(fieldMeta, data, months) {
   const pace = getMonthPace(months, total, mucTieu);
   let paceText = '';
   if (pace && pace.containsCurrent && mucTieu > 0 && field !== 'hd_ton') {
-    if (total >= mucTieu) paceText = '🎉 đã vượt';
+    if (total >= mucTieu) paceText = 'đã vượt';
     else if (pace.dailyNeeded > 0) paceText = `cần ${pace.dailyNeeded.toFixed(2)}/ngày · còn ${pace.daysLeft}d`;
   } else if (pace && field !== 'hd_ton') {
     paceText = `tb ${pace.dailyDone.toFixed(2)}/ngày`;
@@ -173,7 +174,7 @@ export function renderKpiCard(fieldMeta, data, months) {
     `<div class="kpi-card-header kpi-core-header" data-kpi-toggle="${escapeHtml(field)}" role="button" tabindex="0" aria-expanded="false">`,
     '<div class="kpi-core-main">',
     '<div class="kpi-row-head">',
-    `<span class="kpi-icon" aria-hidden="true">${icon}</span>`,
+    `<span class="kpi-icon" aria-hidden="true">${iconName ? renderIcon(iconName, { size: 18 }) : icon}</span>`,
     `<span class="kpi-label">${escapeHtml(label)}</span>`,
     '</div>',
     `<div class="kpi-core-note${isEmpty && emptyHint ? ' is-empty-hint' : ''}">${escapeHtml(compactNote)}</div>`,
@@ -198,8 +199,8 @@ export function renderKpiCard(fieldMeta, data, months) {
     total > 0 ? `<div class="kpi-row-stack">${renderNvChipStack(segments, total)}</div>` : '',
     topNv || (!isHdTon && worstNv && worstNv !== topNv) ? [
       '<div class="kpi-row-hints">',
-      topNv ? `<span class="kpi-hint kpi-hint-top">${isHdTon ? '⚠️' : '🥇'} ${escapeHtml(topNv.nv_ten)} · ${topNv.value}</span>` : '',
-      !isHdTon && worstNv && worstNv !== topNv ? `<span class="kpi-hint kpi-hint-warn">🆘 ${escapeHtml(worstNv.nv_ten)} · ${worstNv.pct_personal}%</span>` : '',
+      topNv ? `<span class="kpi-hint kpi-hint-top">${renderIcon(isHdTon ? 'alert-triangle' : 'award', { size: 14 })} ${escapeHtml(topNv.nv_ten)} · ${topNv.value}</span>` : '',
+      !isHdTon && worstNv && worstNv !== topNv ? `<span class="kpi-hint kpi-hint-warn">${renderIcon('alert-triangle', { size: 14 })} ${escapeHtml(worstNv.nv_ten)} · ${worstNv.pct_personal}%</span>` : '',
       '</div>',
     ].join('') : '',
     '</div>',

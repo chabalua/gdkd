@@ -107,7 +107,7 @@ export default function renderNhanVienPage(data) {
       return [
         '<section class="employee-group-section">',
         '<div class="employee-group-head">',
-        `<h3 class="employee-group-title">👥 ${escapeHtml(bucket.ten)}</h3>`,
+        `<h3 class="employee-group-title">${escapeHtml(bucket.ten)}</h3>`,
         '<div class="employee-group-meta">',
         `<span class="badge">${activeCount} đang làm</span>`,
         `<span class="badge is-info">${totalXeKy} xe · ${totalLead} lead</span>`,
@@ -128,7 +128,7 @@ export default function renderNhanVienPage(data) {
     '</div>',
     '</section>',
     '<div class="employee-search-wrap">',
-    '<input class="input" data-employee-search placeholder="🔍 Tìm theo họ tên, SĐT, chức vụ, phòng ban..." aria-label="Tìm nhân viên" />',
+    '<input class="input" data-employee-search placeholder="Tìm theo họ tên, SĐT, chức vụ, phòng ban..." aria-label="Tìm nhân viên" />',
     '</div>',
     enriched.length
       ? groupSections
