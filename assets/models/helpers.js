@@ -109,6 +109,14 @@ export function getEmployeeTaskMonthTarget(employee, month, taskId) {
   return numberValue(employee?.lead_theo_thang?.[month]?.[taskId]?.muc_tieu);
 }
 
+export function getEmployeeTaskMonthActual(employee, month, taskId) {
+  const duLieuActual = Object.values(employee?.du_lieu?.[month]?.tuan || {}).reduce((sum, weekBlock) => {
+    return sum + numberValue(weekBlock?.[taskId]?.thuc_te);
+  }, 0);
+  if (duLieuActual > 0) return duLieuActual;
+  return getLeadTuanTotal(employee?.lead_theo_thang?.[month]?.[taskId]);
+}
+
 export function setEmployeeTaskMonthTarget(employee, month, taskId, target) {
   if (!employee.du_lieu) employee.du_lieu = {};
   if (!employee.du_lieu[month]) employee.du_lieu[month] = { tuan: { 1: {}, 2: {}, 3: {}, 4: {}, 5: {} } };
@@ -121,6 +129,17 @@ export function setEmployeeTaskMonthTarget(employee, month, taskId, target) {
   if (!employee.lead_theo_thang[month]) employee.lead_theo_thang[month] = {};
   if (!employee.lead_theo_thang[month][taskId]) employee.lead_theo_thang[month][taskId] = { muc_tieu: 0, tuan: {} };
   employee.lead_theo_thang[month][taskId].muc_tieu = numberValue(target);
+}
+
+export function setEmployeeTaskWeekMetrics(employee, month, week, taskId, { muc_tieu = 0, thuc_te = 0 } = {}) {
+  if (!employee.du_lieu) employee.du_lieu = {};
+  if (!employee.du_lieu[month]) employee.du_lieu[month] = { tuan: { 1: {}, 2: {}, 3: {}, 4: {}, 5: {} } };
+  if (!employee.du_lieu[month].tuan) employee.du_lieu[month].tuan = { 1: {}, 2: {}, 3: {}, 4: {}, 5: {} };
+  if (!employee.du_lieu[month].tuan[week]) employee.du_lieu[month].tuan[week] = {};
+  employee.du_lieu[month].tuan[week][taskId] = {
+    muc_tieu: numberValue(muc_tieu),
+    thuc_te: numberValue(thuc_te),
+  };
 }
 
 // === Employee group helpers ===

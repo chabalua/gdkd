@@ -2,7 +2,7 @@
 // Render trang Quản lý Khách hàng với schema v2 (flat + FK).
 import { renderShell, renderTableEmptyRow } from './shell.js';
 import { escapeHtml, formatDate, formatCurrency, renderIcon } from '../ui.js';
-import { KH_STATUS_META, isSetupComplete, formatPaymentType, getXeLabel, getNvLabel } from '../models.js';
+import { KH_STATUS_META, isSetupComplete, formatPaymentType, getXeLabel, getNvLabel, isDeliveredCustomer } from '../models.js';
 
 // Tạo HTML badge cảnh báo "Cần gán" khi FK null
 function missingFkBadge(label) {
@@ -15,7 +15,7 @@ function missingFkBadge(label) {
 //   - !daXuatHd           → "Chưa xuất HĐ"
 function getHdoStatus(item) {
   const daXuatHd = Boolean(item.ngay_xuat_hd);
-  const daGiao = Boolean(item.ngay_giao_thuc_te);
+  const daGiao = isDeliveredCustomer(item);
   if (!daXuatHd) return { code: 'chua_xuat', label: 'Chưa xuất', badgeClass: '', cell: '—' };
   const cell = formatDate(item.ngay_xuat_hd);
   if (daGiao) return { code: 'da_xuat_da_giao', label: 'Đã xuất · Đã giao', badgeClass: 'is-success', cell };

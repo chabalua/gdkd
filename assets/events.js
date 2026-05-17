@@ -5,7 +5,7 @@
 
 import { clearToken, getLastSyncAt, getPendingWriteCount } from './api.js';
 import { showToast, confirmAction, showModal, getModalRoot, closeModal, saveRange, parseRangeValue, calcPercent, getPercentClass } from './ui.js';
-import { TODO_MESSAGE, countKhByXeId } from './models.js';
+import { TODO_MESSAGE, countKhByXeId, setEmployeeTaskWeekMetrics } from './models.js';
 import { updateSyncChipDOM } from './components/sync-status.js';
 
 import { openRepoSettingsModal } from './modals/repo-settings.js';
@@ -388,9 +388,6 @@ export function bindCommonEvents(data) {
     const nvIdx = appState.data.nhanVien.nhan_vien.findIndex((item) => item.id === nvId);
     if (nvIdx < 0) return null;
     const employee = appState.data.nhanVien.nhan_vien[nvIdx];
-    if (!employee.du_lieu) employee.du_lieu = {};
-    if (!employee.du_lieu[month]) employee.du_lieu[month] = { tuan: { 1: {}, 2: {}, 3: {}, 4: {}, 5: {} } };
-    if (!employee.du_lieu[month].tuan) employee.du_lieu[month].tuan = { 1: {}, 2: {}, 3: {}, 4: {}, 5: {} };
     const allTaskWeeks = new Set([
       ...rowActualInputs.map((element) => element.getAttribute('data-tuan')),
       ...rowTargetInputs.map((element) => element.getAttribute('data-tuan')),
@@ -400,8 +397,7 @@ export function bindCommonEvents(data) {
       const targetInput = rowTargetInputs.find((element) => element.getAttribute('data-tuan') === inputWeek);
       const actual = Math.max(0, Number(actualInput?.value || 0));
       const target = Math.max(0, Number(targetInput?.value || 0));
-      if (!employee.du_lieu[month].tuan[inputWeek]) employee.du_lieu[month].tuan[inputWeek] = {};
-      employee.du_lieu[month].tuan[inputWeek][taskId] = { muc_tieu: target, thuc_te: actual };
+      setEmployeeTaskWeekMetrics(employee, month, inputWeek, taskId, { muc_tieu: target, thuc_te: actual });
     });
     // persistFile giờ là local-first: lưu localStorage sync ngay, background
     // sync GitHub sau debounce 30s.
@@ -540,16 +536,12 @@ export function bindCommonEvents(data) {
     const nvIdx = appState.data.nhanVien.nhan_vien.findIndex((item) => item.id === nvId);
     if (nvIdx < 0) return null;
     const employee = appState.data.nhanVien.nhan_vien[nvIdx];
-    if (!employee.du_lieu) employee.du_lieu = {};
-    if (!employee.du_lieu[month]) employee.du_lieu[month] = { tuan: { 1: {}, 2: {}, 3: {}, 4: {}, 5: {} } };
-    if (!employee.du_lieu[month].tuan) employee.du_lieu[month].tuan = { 1: {}, 2: {}, 3: {}, 4: {}, 5: {} };
-    if (!employee.du_lieu[month].tuan[week]) employee.du_lieu[month].tuan[week] = {};
     // Đọc lại từ DOM tại thời điểm flush (tránh stale value khi user gõ nhanh).
     const targetEl = document.querySelector(`[data-batch-cell-target][data-nv-id="${nvId}"][data-task-id="${taskId}"][data-tuan="${week}"][data-month="${month}"]`);
     const actualEl = document.querySelector(`[data-batch-cell-input][data-nv-id="${nvId}"][data-task-id="${taskId}"][data-tuan="${week}"][data-month="${month}"]`);
     const muc_tieu = Math.max(0, Number(targetEl?.value || 0));
     const thuc_te = Math.max(0, Number(actualEl?.value || 0));
-    employee.du_lieu[month].tuan[week][taskId] = { muc_tieu, thuc_te };
+    setEmployeeTaskWeekMetrics(employee, month, week, taskId, { muc_tieu, thuc_te });
     return persistFile('nhan-vien.json', appState.data.nhanVien, null);
   };
 

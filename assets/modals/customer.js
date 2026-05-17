@@ -271,6 +271,7 @@ export function openCustomerModal(customerId, prefillOptions) {
     if (!isGiao && giaoInput) giaoInput.value = '';
   }
   statusSelect.addEventListener('change', toggleConditionalFields);
+  toggleConditionalFields();
 
   // Auto-suy status từ các field ngày — giúp GĐKD khỏi phải đổi trạng thái tay.
   // Cho phép cả tiến và lùi: nếu xoá ngày giao → tự lùi về mới ký, v.v.
@@ -343,7 +344,7 @@ export function openCustomerModal(customerId, prefillOptions) {
     }
 
     const trangThai = trimmedValue(fd, 'trang_thai');
-    const ngayGiaoThucTe = trimmedValue(fd, 'ngay_giao_thuc_te');
+    const ngayGiaoThucTe = isDeliveredStatus(trangThai) ? trimmedValue(fd, 'ngay_giao_thuc_te') : '';
     // ngay_xuat_hd chỉ lưu khi checkbox đã tick. Nếu untick thì coi như chưa xuất.
     const daXuatHdChecked = fd.get('da_xuat_hd') === 'on';
     const ngayXuatHd = daXuatHdChecked ? trimmedValue(fd, 'ngay_xuat_hd') : '';

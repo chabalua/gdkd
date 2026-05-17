@@ -8,7 +8,7 @@ import {
 import { KPI_CORE_FIELDS as KPI_FIELDS, renderTierLegend, renderKpiCard } from '../components/kpi-core.js';
 import {
   isSetupComplete, getKpiSegments, getKhTon, getNvLabel, KH_STATUS_META,
-  getEmployeeActivityTotal, getLeadChannels, getGroupSummaries, getRanking, getMucTieuTong,
+  getEmployeeActivityTotal, getEmployeeTaskMonthTarget, getLeadChannels, getGroupSummaries, getRanking, getMucTieuTong,
   getPerformanceTier, PERFORMANCE_TIER_META, getMonthPace, isKhValid, isDeliveredCustomer,
 } from '../models.js';
 
@@ -235,8 +235,7 @@ function renderWorkSection(data, months) {
 
   const videoSegs = nvList.map((nv) => {
     const value = months.reduce((sum, m) => {
-      const nd = nv.noi_dung?.[m]?.videos || {};
-      return sum + Object.values(nd).reduce((s, v) => s + Number(v || 0), 0);
+      return sum + getEmployeeActivityTotal(nv, m, 'so_video');
     }, 0);
     return { nv_id: nv.id, nv_ten: nv.ho_ten, value };
   }).filter((s) => s.value > 0).sort((a, b) => b.value - a.value);
@@ -245,8 +244,7 @@ function renderWorkSection(data, months) {
   const activityCards = activityChannels.map((channel) => {
     const value = nvList.reduce((sum, nv) => sum + months.reduce((monthSum, month) => monthSum + getEmployeeActivityTotal(nv, month, channel.id), 0), 0);
     const target = nvList.reduce((sum, nv) => sum + months.reduce((monthSum, month) => {
-      const block = nv.lead_theo_thang?.[month] || {};
-      return monthSum + Number(block[channel.id]?.muc_tieu || 0);
+      return monthSum + getEmployeeTaskMonthTarget(nv, month, channel.id);
     }, 0), 0);
     const unit = channel.don_vi || 'so';
     const formattedValue = unit === 'tien' ? formatCurrency(value) : value;
@@ -301,7 +299,6 @@ function renderUrgentTable(data) {
   //   2) Đã xuất hoá đơn nhưng chưa giao xe — vẫn tính tồn theo yêu cầu nghiệp vụ.
   const allKh = (data.khachHang?.khach_hang || []).filter((kh) => {
     if (isDeliveredCustomer(kh)) return false;
-    if (kh.ngay_giao_thuc_te) return false;
     return true;
   });
   const urgent = allKh.map((kh) => {

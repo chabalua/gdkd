@@ -93,7 +93,7 @@ export function getReminderItems(allData, now = new Date()) {
     }
 
     const tonDays = daysSince(kh.ngay_ky, now);
-    if (kh.ngay_ky && !kh.ngay_giao_thuc_te && !isDelivered && tonDays !== null && tonDays > 30) {
+    if (kh.ngay_ky && !isDelivered && tonDays !== null && tonDays > 30) {
       items.push({
         id: `hd-ton:${kh.id}:${now.toISOString().slice(0, 10)}`,
         kind: 'inventory',

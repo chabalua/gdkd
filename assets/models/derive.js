@@ -8,6 +8,7 @@ import {
   getActiveMonth,
   getLeadChannels,
   getLeadMetricChannels,
+  getEmployeeTaskMonthActual,
   getLeadTuanTotal,
   getEmployeeGroups,
   getEmployeesByGroup,
@@ -84,13 +85,11 @@ function filterValidKh(list) {
 
 // === Derive helpers ===
 export function getEmployeeLeadTotal(employee, month, channels = DEFAULT_LEAD_CHANNELS) {
-  const block = employee?.lead_theo_thang?.[month] || {};
-  return channels.reduce((sum, channel) => sum + getLeadTuanTotal(block[channel.id]), 0);
+  return channels.reduce((sum, channel) => sum + getEmployeeTaskMonthActual(employee, month, channel.id), 0);
 }
 
 export function getEmployeeActivityTotal(employee, month, field) {
-  const block = employee?.lead_theo_thang?.[month] || {};
-  return getLeadTuanTotal(block[field]);
+  return getEmployeeTaskMonthActual(employee, month, field);
 }
 
 function getTaskMetaMap(allData) {
@@ -223,7 +222,6 @@ export function getKpiSegments(allData, kpiField, months) {
       value = allKh.filter((kh) =>
         kh.nhan_vien_id === nv.id &&
         kh.ngay_ky && kh.ngay_ky.slice(0, 7) < minMonth &&
-        !kh.ngay_giao_thuc_te &&
         !isDeliveredStatus(kh.trang_thai)
       ).length;
     } else if (kpiField === 'lead_phat_sinh') {
@@ -243,8 +241,8 @@ export function getKpiSegments(allData, kpiField, months) {
   }).sort((a, b) => b.value - a.value);
 }
 
-// KH tồn: ký trước tháng đầu trong range và chưa giao xe.
-// "Chưa giao" = thiếu ngay_giao_thuc_te VÀ status không phải da_giao/dong_cskh.
+// KH tồn: ký trước tháng đầu trong range và chưa ở status delivered.
+// Rule chuẩn dùng status để tránh mâu thuẫn khi date cũ còn sót trên record.
 // Sort desc theo số ngày tồn.
 export function getKhTon(allData, months) {
   if (!months?.length) return [];
@@ -252,7 +250,7 @@ export function getKhTon(allData, months) {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   return filterValidKh(allData.khachHang?.khach_hang)
-    .filter((kh) => kh.ngay_ky && kh.ngay_ky.slice(0, 7) < minMonth && !(kh.ngay_giao_thuc_te || isDeliveredCustomer(kh)))
+    .filter((kh) => kh.ngay_ky && kh.ngay_ky.slice(0, 7) < minMonth && !isDeliveredCustomer(kh))
     .map((kh) => {
       const d = new Date(kh.ngay_ky);
       return { ...kh, days_ton: Number.isNaN(d.getTime()) ? 0 : Math.round((today - d) / 86400000) };
@@ -332,7 +330,6 @@ export function getGroupSummaries(allData, months) {
     const hd_ton = allKh.filter((kh) =>
       memberIds.has(kh.nhan_vien_id) &&
       kh.ngay_ky && kh.ngay_ky.slice(0, 7) < minMonth &&
-      !kh.ngay_giao_thuc_te &&
       !isDeliveredStatus(kh.trang_thai)
     ).length;
     const lead = members.reduce((sum, member) => sum + months.reduce((monthSum, month) => monthSum + getEmployeeLeadTotal(member, month, leadChannels), 0), 0);
